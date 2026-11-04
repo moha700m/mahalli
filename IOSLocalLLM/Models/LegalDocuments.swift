@@ -18,9 +18,9 @@ enum LegalDocuments {
     static let currentVersion = 4
 
     // MARK: - Public URLs
-    static let privacyPolicyURL = "https://github.com/justmgz/mahalli/blob/main/PRIVACY_POLICY.md"
-    static let eulaURL          = "https://github.com/justmgz/mahalli/blob/main/LICENSE"
-    static let supportURL       = "https://github.com/justmgz/mahalli/issues"
+    static let privacyPolicyURL = "https://github.com/moha700m/mahalli/blob/main/PRIVACY_POLICY.md"
+    static let eulaURL          = "https://github.com/moha700m/mahalli/blob/main/LICENSE"
+    static let supportURL       = "https://github.com/moha700m/mahalli/issues"
 
     // MARK: - Privacy Policy
 
