@@ -38,7 +38,7 @@ final class LASAppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         CrashReporter.shared.install()
-        Diagnostics.shared.breadcrumb("On Device: LAS launch", category: "lifecycle")
+        Diagnostics.shared.breadcrumb("Mahalli launch", category: "lifecycle")
         return true
     }
 

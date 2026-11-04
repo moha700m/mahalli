@@ -1039,7 +1039,7 @@ struct CodingAssistantView: View {
         if route != .chat { route = .chat }
         inputText = prefill
 
-        // "Ask iOS Local LLM" App Intent path: fire the prompt automatically so a
+        // "Ask Mahalli" App Intent path: fire the prompt automatically so a
         // Siri/Shortcuts request actually produces an answer. Defer one run
         // loop so the @State write above is committed before sendMessage()
         // reads `inputText`, and give ensureModelReady() a beat to kick in.
@@ -2746,7 +2746,7 @@ struct CodingAssistantView: View {
     private func diagnoseAppErrors() {
         if route != .chat { route = .chat }
         inputFocused = false
-        let instructions = "You are analyzing diagnostics from iOS Local LLM, an on-device iOS AI app that runs local models (MLX / Core ML). Identify the most likely root cause(s), ranked, and give concrete prioritized fixes or user actions. Be concise and specific. If nothing looks wrong, say the device looks healthy. Do not invent log lines that are not present."
+        let instructions = "You are analyzing diagnostics from Mahalli, an on-device iOS AI app that runs local models (MLX / Core ML). Identify the most likely root cause(s), ranked, and give concrete prioritized fixes or user actions. Be concise and specific. If nothing looks wrong, say the device looks healthy. Do not invent log lines that are not present."
         let displayText = loc.t("Diagnose my app's recent errors and suggest fixes.")
         messages.append(ChatMessage(role: .user, content: displayText))
         let reply = ChatMessage(role: .assistant, content: "", isStreaming: true)
@@ -4359,7 +4359,7 @@ private struct UnsafeModelLoadConfirmationSheet: View {
                     VStack(alignment: .leading, spacing: 14) {
                         riskRow(
                             symbol: "xmark.app.fill",
-                            text: "iOS may terminate iOS Local LLM while the model loads or generates."
+                            text: "iOS may terminate Mahalli while the model loads or generates."
                         )
                         riskRow(
                             symbol: "doc.badge.clock",

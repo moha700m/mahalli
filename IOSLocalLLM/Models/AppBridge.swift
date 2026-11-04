@@ -11,7 +11,7 @@ final class AppBridge: ObservableObject {
     static let shared = AppBridge()
 
     /// App Group identifier — must match the share extension.
-    static let appGroupID = "group.com.mesutcydev.ioslocalllm.shared"
+    static let appGroupID = "group.com.justmgz.mahalli.shared"
 
     // Set by AnalysisPanelView; consumed once by CodingAssistantView
     @Published var pendingCode: PendingCode? = nil
@@ -57,7 +57,7 @@ final class AppBridge: ObservableObject {
         let body: String
         /// When true the assistant view sends the prefilled prompt
         /// automatically instead of waiting for the user to tap send. Set by
-        /// the "Ask iOS Local LLM" App Intent so a Siri/Shortcuts request actually
+        /// the "Ask Mahalli" App Intent so a Siri/Shortcuts request actually
         /// produces an answer rather than just opening the composer.
         var autoSend: Bool = false
     }

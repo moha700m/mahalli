@@ -22,7 +22,7 @@ import SwiftUI
 final class ShareViewController: UIViewController {
 
     // App Group identifier — must match the main app's entitlements.
-    private static let appGroupID = "group.com.mesutcydev.ioslocalllm.shared"
+    private static let appGroupID = "group.com.justmgz.mahalli.shared"
     private static let urlScheme  = "ios-local-llm"
 
     /// Threshold above which we stash text in a file and hand the
@@ -318,7 +318,7 @@ final class ShareViewController: UIViewController {
         // the responder chain. Two failure modes used to be swallowed by an
         // unconditional `success: true`, closing the share sheet while nothing
         // actually happened: (1) no UIApplication in the chain, and (2) the
-        // open being refused (iOS Local LLM not installed / scheme unhandled).
+        // open being refused (Mahalli not installed / scheme unhandled).
         // Surface both so the user isn't left staring at a no-op.
         var responder: UIResponder? = self
         var app: UIApplication?
@@ -327,14 +327,14 @@ final class ShareViewController: UIViewController {
             responder = r.next
         }
         guard let app else {
-            await dismiss(success: false, error: "Couldn't reach the app to open iOS Local LLM.")
+            await dismiss(success: false, error: "Couldn't reach the app to open Mahalli.")
             return
         }
         let opened: Bool = await withCheckedContinuation { cont in
             app.open(url, options: [:]) { success in cont.resume(returning: success) }
         }
         await dismiss(success: opened,
-                      error: opened ? nil : "iOS Local LLM couldn't be opened. Is it installed?")
+                      error: opened ? nil : "Mahalli couldn't be opened. Is it installed?")
     }
 
     @MainActor

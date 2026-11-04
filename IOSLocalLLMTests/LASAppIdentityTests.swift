@@ -19,14 +19,14 @@ final class LASAppIdentityTests: XCTestCase {
         XCTAssertFalse(LASAppIdentity.isConcreteApplicationIdentifier("*"))
         XCTAssertFalse(LASAppIdentity.isConcreteApplicationIdentifier("TEAMID1234.*"))
         XCTAssertFalse(
-            LASAppIdentity.isConcreteApplicationIdentifier("TEAMID1234.com.mesutcydev.*")
+            LASAppIdentity.isConcreteApplicationIdentifier("TEAMID1234.com.justmgz.*")
         )
     }
 
     func testConcreteIdentifiersAreConcrete() {
         XCTAssertTrue(
-            LASAppIdentity.isConcreteApplicationIdentifier("TEAMID1234.com.mesutcydev.ondevicelas")
+            LASAppIdentity.isConcreteApplicationIdentifier("TEAMID1234.com.justmgz.mahalli")
         )
-        XCTAssertTrue(LASAppIdentity.isConcreteApplicationIdentifier("com.mesutcydev.ondevicelas"))
+        XCTAssertTrue(LASAppIdentity.isConcreteApplicationIdentifier("com.justmgz.mahalli"))
     }
 }

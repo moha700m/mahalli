@@ -8,8 +8,8 @@ import CryptoKit
 final class BridgeIdentity {
     static let shared = BridgeIdentity()
 
-    private static let certLabel = "com.mesutcydev.ioslocalllm.bridge.cert"
-    private static let keyTag    = "com.mesutcydev.ioslocalllm.bridge.privkey"
+    private static let certLabel = "com.justmgz.mahalli.bridge.cert"
+    private static let keyTag    = "com.justmgz.mahalli.bridge.privkey"
 
     private(set) var identity: SecIdentity?
     private(set) var fingerprint: String = ""

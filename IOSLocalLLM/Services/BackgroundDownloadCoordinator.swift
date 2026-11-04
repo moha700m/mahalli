@@ -25,10 +25,10 @@ final class BackgroundDownloadCoordinator: NSObject {
     // another app's identifier lets iOS hand the same session to two apps,
     // which can deliver a completion into the wrong in-memory task map during
     // the final multi-GB file handoff. OnDeviceLAS stays
-    // `com.mesutcydev.ondevicelas.background-downloads`; Core AI gets its
+    // `com.justmgz.mahalli.background-downloads`; Core AI gets its
     // own bundle-scoped id.
     static let sessionIdentifier: String = {
-        let bundle = Bundle.main.bundleIdentifier ?? "com.mesutcydev.ondevicelas"
+        let bundle = Bundle.main.bundleIdentifier ?? "com.justmgz.mahalli"
         return "\(bundle).background-downloads"
     }()
     private static let inactivityTimeout: TimeInterval = 90
@@ -64,7 +64,7 @@ final class BackgroundDownloadCoordinator: NSObject {
     /// whether we're on an expensive (cellular / hotspot) link.
     private let pathMonitor: NWPathMonitor = {
         let monitor = NWPathMonitor()
-        monitor.start(queue: DispatchQueue(label: "com.mesutcydev.ioslocalllm.download-path-monitor"))
+        monitor.start(queue: DispatchQueue(label: "com.justmgz.mahalli.download-path-monitor"))
         return monitor
     }()
 

@@ -472,7 +472,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Argent Remote", "Argent Uzaktan"),
         ("Pair with Mac", "Mac ile eşleş"),
         ("Open iOS Local LLM Bridge on your Mac and scan the QR code shown there.",
-         "Mac'inizde iOS Local LLM Köprü uygulamasını açın ve gösterilen QR kodunu tarayın."),
+         "Mac'inizde Mahalli Köprü uygulamasını açın ve gösterilen QR kodunu tarayın."),
         ("Scan Mac QR", "Mac QR'ı tara"),
         ("PAIRED MACS", "EŞLEŞMİŞ MAC'LER"),
         ("Forget All", "Tümünü unut"),

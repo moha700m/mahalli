@@ -83,7 +83,7 @@ final class VoiceDiagnosticsCenter: ObservableObject {
         counters.captureMemory()
         syncLiveState()
         let report = """
-        iOS Local LLM Voice Validation Report
+        Mahalli Voice Validation Report
         -------------------------------
         Conversation model: \(conversationModel)
         TTS engine: \(ttsEngine)

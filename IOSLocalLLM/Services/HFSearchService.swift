@@ -91,7 +91,7 @@ final class HFSearchService: ObservableObject {
             var request = URLRequest(url: url)
             request.timeoutInterval = 20
             request.setValue("application/json", forHTTPHeaderField: "Accept")
-            request.setValue("OnDeviceLAS/3.2.6 (iOS; Hugging Face model search)", forHTTPHeaderField: "User-Agent")
+            request.setValue("Mahalli/1.0 (iOS; Hugging Face model search)", forHTTPHeaderField: "User-Agent")
             // Attach HF token when present + enabled — lets the user
             // discover gated repos they have access to.
             HFTokenStore.authorize(&request)
@@ -219,7 +219,7 @@ final class HFSearchService: ObservableObject {
         var request = URLRequest(url: url)
         request.timeoutInterval = 20
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("OnDeviceLAS/3.2.6 (iOS; Hugging Face model search)", forHTTPHeaderField: "User-Agent")
+        request.setValue("Mahalli/1.0 (iOS; Hugging Face model search)", forHTTPHeaderField: "User-Agent")
         HFTokenStore.authorize(&request)
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse else { return nil }

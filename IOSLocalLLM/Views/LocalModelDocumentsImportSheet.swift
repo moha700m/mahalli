@@ -5,7 +5,7 @@ import UIKit
 /// app sandbox (copied via Files / Finder with UIFileSharingEnabled).
 struct LocalModelDocumentsImportSheet: View {
     /// Display name shown in the empty-state copy (Files → On My iPhone → …).
-    var appDocumentsName: String = "On Device: LAS"
+    var appDocumentsName: String = "Mahalli"
     let onPick: (URL) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var folders: [URL] = []

@@ -78,7 +78,7 @@ actor BridgeServer {
     /// handshake (the server does not require a client cert) could send
     /// an endless stream with no header terminator or a huge
     /// Content-Length and drive the app to an OOM kill, since
-    /// HTTPRequest(data:) returns nil until the whole body has arrived.
+    /// BridgeHTTPRequest(data:) returns nil until the whole body has arrived.
     private static let maxRequestBytes = 4 * 1024 * 1024  // 4 MiB
 
     /// Hard ceiling on how long a single request may take to ARRIVE in full.
@@ -90,7 +90,7 @@ actor BridgeServer {
     /// bounds memory; this bounds time.
     private static let requestReadTimeout: TimeInterval = 15
 
-    private func readRequest(_ conn: NWConnection) async throws -> HTTPRequest {
+    private func readRequest(_ conn: NWConnection) async throws -> BridgeHTTPRequest {
         var buffer = Data()
         let deadline = Date().addingTimeInterval(Self.requestReadTimeout)
         while true {
@@ -102,7 +102,7 @@ actor BridgeServer {
             guard buffer.count <= Self.maxRequestBytes else {
                 throw BridgeServerError.requestTooLarge
             }
-            if let req = HTTPRequest(data: buffer) { return req }
+            if let req = BridgeHTTPRequest(data: buffer) { return req }
         }
     }
 
@@ -128,7 +128,7 @@ actor BridgeServer {
 
     // MARK: - Router
 
-    private func route(_ req: HTTPRequest, conn: NWConnection) async {
+    private func route(_ req: BridgeHTTPRequest, conn: NWConnection) async {
         switch (req.method, req.path) {
         case ("POST", "/v1/pair"):   await handlePair(req, conn: conn)
         case ("GET",  "/v1/info"):   await handleInfo(req, conn: conn)
@@ -139,7 +139,7 @@ actor BridgeServer {
 
     // MARK: - /v1/pair
 
-    private func handlePair(_ req: HTTPRequest, conn: NWConnection) async {
+    private func handlePair(_ req: BridgeHTTPRequest, conn: NWConnection) async {
         if let locked = pairLockedUntil, locked > Date() {
             await respond(conn, status: 429, body: "Too many pairing attempts")
             return
@@ -172,7 +172,7 @@ actor BridgeServer {
 
     // MARK: - /v1/info
 
-    private func handleInfo(_ req: HTTPRequest, conn: NWConnection) async {
+    private func handleInfo(_ req: BridgeHTTPRequest, conn: NWConnection) async {
         guard bearerValid(req) else { await respond(conn, status: 401, body: "Unauthorized"); return }
         let info = await MainActor.run { BridgeManager.shared.deviceInfoResponse() }
         guard let data = try? JSONEncoder().encode(info) else {
@@ -183,7 +183,7 @@ actor BridgeServer {
 
     // MARK: - /v1/infer (SSE streaming)
 
-    private func handleInfer(_ req: HTTPRequest, conn: NWConnection) async {
+    private func handleInfer(_ req: BridgeHTTPRequest, conn: NWConnection) async {
         guard bearerValid(req) else { await respond(conn, status: 401, body: "Unauthorized"); return }
         guard let lease = RemoteInferenceGate.shared.acquire() else {
             await respond(conn, status: 503, body: "Model busy")
@@ -287,7 +287,7 @@ actor BridgeServer {
         }
     }
 
-    private func bearerValid(_ req: HTTPRequest) -> Bool {
+    private func bearerValid(_ req: BridgeHTTPRequest) -> Bool {
         guard let auth = req.headers["authorization"],
               auth.hasPrefix("Bearer ") else { return false }
         return BridgePairingStore.shared.isValid(token: String(auth.dropFirst(7)))
@@ -348,7 +348,7 @@ private final class ThrowingResumeOnce: @unchecked Sendable {
 
 // MARK: - Minimal HTTP/1.1 Request Parser
 
-struct HTTPRequest {
+struct BridgeHTTPRequest {
     let method: String
     let path: String
     let headers: [String: String]

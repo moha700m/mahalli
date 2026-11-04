@@ -3022,7 +3022,7 @@ struct ModelsManagerView: View {
             guard let engine = supportedVoiceEngine(for: model) else {
                 ToastCenter.shared.info(
                     "Voice model downloaded",
-                    detail: "This repo is stored locally, but iOS Local LLM can only switch between Apple System Voice, KittenTTS, and Kokoro right now."
+                    detail: "This repo is stored locally, but Mahalli can only switch between Apple System Voice, KittenTTS, and Kokoro right now."
                 )
                 return
             }

@@ -64,7 +64,7 @@ enum LocalAPIKeyStore {
     static let account = "localAPI.bearerKey"
     // Use a second namespace inside the cloned app so its bearer token is
     // independent from both the reference app and any web-tool credentials.
-    static let keychainService = "com.mesutcydev.ondevicelas.localapi"
+    static let keychainService = "com.justmgz.mahalli.localapi"
 
     static func key() -> String {
         if let existing = KeychainStore.get(
@@ -4531,7 +4531,7 @@ actor LocalAPIServer {
 
     private func describeAPI(_ connection: NWConnection) async {
         let payload = LocalAPIResponse.json([
-            "name": "On Device LAS",
+            "name": "Mahalli",
             "status": "ok",
             "authentication": ["bearer", "x-api-key"],
             "openai_base_url": "/v1",
@@ -5495,7 +5495,7 @@ final class LocalAPIManager: ObservableObject {
 
     private let server = LocalAPIServer()
     private let pathMonitor = NWPathMonitor()
-    private let pathQueue = DispatchQueue(label: "com.mesutcydev.ioslocalllm.local-api-network")
+    private let pathQueue = DispatchQueue(label: "com.justmgz.mahalli.local-api-network")
     private var shouldRun = false
     private var recoveryAttempt = 0
     private var recoveryTask: Task<Void, Never>?

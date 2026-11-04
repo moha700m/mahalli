@@ -16,7 +16,7 @@ public enum KeychainStore {
     /// of the app can use their own keychain space if they want one.
     // Keep this product's keychain namespace separate from the reference app.
     // A sideloaded clone must not read or overwrite the reference app's keys.
-    public static let service = "com.mesutcydev.ondevicelas.webtool"
+    public static let service = "com.justmgz.mahalli.webtool"
 
     public static func set(
         _ value: String,
