@@ -62,7 +62,11 @@ jobs:
 
       - name: Build llama.cpp + whisper.cpp XCFrameworks
         if: steps.native-cache.outputs.cache-hit != 'true'
-        run: ./scripts/build_native_frameworks.sh 2>&1 | tee "$RUNNER_TEMP/native.log"
+        run: |
+          set -o pipefail
+          ./scripts/build_native_frameworks.sh 2>&1 | tee "$RUNNER_TEMP/native.log"
+          test -d ThirdParty/whisper.cpp/build-apple/whisper.xcframework
+          test -d ThirdParty/llama.cpp/build-apple/llama.xcframework
 
       - name: Generate Xcode project (XcodeGen, project.yml is the source of truth)
         run: |
