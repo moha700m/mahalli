@@ -46,6 +46,12 @@ jobs:
           xcodebuild -version
           xcodebuild -showsdks | grep -i ios || true
 
+      - name: Install Metal Toolchain (not preinstalled for beta/RC Xcode)
+        run: |
+          sudo xcodebuild -runFirstLaunch || true
+          xcrun metal --version 2>/dev/null || xcodebuild -downloadComponent MetalToolchain
+          xcrun metal --version
+
       - name: Install tools
         run: |
           brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
