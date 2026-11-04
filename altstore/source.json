@@ -1,0 +1,12 @@
+{
+  "name": "Mesutcydev Apps — Retired",
+  "subtitle": "App Store releases coming soon",
+  "description": "Public sideload distribution has ended. This source no longer lists apps or IPA downloads. Visit ondevice.fun for upcoming App Store releases.",
+  "iconURL": "https://raw.githubusercontent.com/Mesutcydev/ios-local-llm/b751e7444ce198d323d25c44e7cf2a85b90a4f29/IOSLocalLLM/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png",
+  "headerURL": "https://raw.githubusercontent.com/Mesutcydev/ios-local-llm/59060017c4f8931950041f7e32382c5ca74bf60e/Docs/Images/ios-local-llm-spec-chart.png",
+  "website": "https://ondevice.fun/",
+  "tintColor": "#5EEAD4",
+  "featuredApps": [],
+  "apps": [],
+  "news": []
+}
