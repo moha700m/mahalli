@@ -110,7 +110,8 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
     @Published private(set) var language: AppLanguage
 
     private init() {
-        let raw = UserDefaults.standard.string(forKey: "uiLanguage") ?? AppLanguage.system.rawValue
+        // Arabic-first: default to Arabic until the user picks another language.
+        let raw = UserDefaults.standard.string(forKey: "uiLanguage") ?? AppLanguage.arabic.rawValue
         self.language = AppLanguage(rawValue: raw) ?? .system
     }
 
@@ -135,7 +136,19 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
     /// Falls back to the English source if no translation is registered,
     /// so the UI never goes blank for a missing key. Safe to call from
     /// any thread — reads an immutable lookup table.
-    func t(_ key: String) -> String {
+    /// The language actually in effect (resolves `.system`).
+    var effectiveLanguage: AppLanguage { resolvedLanguage() }
+
+    /// BCP-47 code for the effective language (used for `\.locale`).
+    var effectiveLanguageCode: String {
+        let lang = effectiveLanguage
+        return lang == .system ? "en" : lang.rawValue
+    }
+
+    /// True when the UI should be laid out right-to-left (Arabic).
+    var isRightToLeft: Bool { effectiveLanguage == .arabic }
+
+    private func resolvedLanguage() -> AppLanguage {
         let effective: AppLanguage = {
             if language != .system { return language }
             let preferred = Locale.preferredLanguages.first ?? "en"
@@ -155,6 +168,11 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
             if preferred.hasPrefix("ko") { return .korean }
             return .english
         }()
+        return effective
+    }
+
+    func t(_ key: String) -> String {
+        let effective = resolvedLanguage()
         switch effective {
         case .english, .system: return key
         case .german:           return Self.de[key] ?? key
@@ -240,7 +258,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("describe", "açıkla"),
         ("Browse", "Gözat"),
 
-        // — Lens / camera
+        // — vision / camera
         ("torch", "fener"),
         ("history", "geçmiş"),
         ("scan", "tara"),
@@ -366,7 +384,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         // — Errors / toasts
         ("Can't load", "Yüklenemedi"),
         ("Switching VLM", "VLM değiştiriliyor"),
-        // NB: "Vision model ready" is already mapped above in the lens
+        // NB: "Vision model ready" is already mapped above in the vision
         // section. Same translation, single source of truth.
         ("Pre-fetching FastVLM in the background", "FastVLM arka planda önceden indiriliyor"),
         ("We noticed you use the camera — getting weights ready so capture is instant.", "Kamerayı sık kullandığınızı fark ettik — çekim anlık olsun diye ağırlıklar hazırlanıyor."),
@@ -413,7 +431,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
          "aynı görüntü üzerinde iki VLM'yi yan yana çalıştır"),
         ("Voice", "Ses"),
 
-        // — Lens overflow + toolbar
+        // — vision overflow + toolbar
         ("aloud", "sesli"),
         ("more", "daha"),
         ("switch to code", "koda geç"),
@@ -3452,6 +3470,106 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
     private static let ar: [String: String] = Dictionary(arEntries, uniquingKeysWith: { first, _ in first })
 
     private static let arEntries: [(String, String)] = [
+        // Added 2026 by justmgz — Arabic-first strings for the main screens.
+        ("Assistant is ready", "المساعد جاهز"),
+        ("Assistant is thinking…", "المساعد يفكّر…"),
+        ("Preparing model…", "جارٍ تجهيز النموذج…"),
+        ("Tap New chat to start", "اضغط «محادثة جديدة» للبدء"),
+        ("Model needs setup", "النموذج يحتاج إلى إعداد"),
+        ("replies stay on your iPhone", "الردود تبقى على جهازك"),
+        ("Running on-device", "يعمل على الجهاز"),
+        ("New chat", "محادثة جديدة"),
+        ("Recent", "الأحدث"),
+        ("No recent activity yet", "لا يوجد نشاط حديث بعد"),
+        ("Untitled chat", "محادثة بلا عنوان"),
+        ("Private by design", "خصوصيتك أولاً"),
+        ("on this iPhone", "على هذا الجهاز"),
+        ("Manage", "إدارة"),
+        ("Good morning", "صباح الخير"),
+        ("Good afternoon", "مساء الخير"),
+        ("Good evening", "مساء الخير"),
+        ("Home", "الرئيسية"),
+        ("Chat", "المحادثة"),
+        ("Local API", "الخادم المحلي"),
+        ("Preferences", "التفضيلات"),
+        ("On-device & private", "على الجهاز وبخصوصية تامة"),
+        ("No account. Your data never leaves this iPhone.", "بلا حساب. بياناتك لا تغادر هذا الجهاز أبداً."),
+        ("New conversation", "محادثة جديدة"),
+        ("Image generation", "توليد الصور"),
+        ("Diagnose app errors", "تشخيص أخطاء التطبيق"),
+        ("Share conversation", "مشاركة المحادثة"),
+        ("Advanced", "متقدّم"),
+        ("Generate an image", "أنشئ صورة"),
+        ("On-device text-to-image — SDXL Turbo & Stable Diffusion", "تحويل النص إلى صورة على الجهاز — SDXL Turbo وStable Diffusion"),
+        ("Diagnose my app's recent errors and suggest fixes.", "شخّص الأخطاء الأخيرة في التطبيق واقترح حلولاً."),
+        ("Clean up partial downloads?", "حذف التنزيلات غير المكتملة؟"),
+        ("Clean up", "تنظيف"),
+        ("Freed up space", "تم تحرير مساحة"),
+        ("This removes leftover files from downloads that were cancelled or failed partway. Installed and in-progress models are not affected.", "يحذف هذا الملفات المتبقية من التنزيلات الملغاة أو المتعثرة. لا يتأثر أي نموذج مثبّت أو قيد التنزيل."),
+        ("Downloads", "التنزيلات"),
+        ("Downloads you start appear here.", "تظهر هنا التنزيلات التي تبدأها."),
+        ("Completed", "مكتمل"),
+        ("On-device storage", "التخزين على الجهاز"),
+        ("Language", "اللغة"),
+        ("Vision", "الرؤية"),
+        ("Model downloads can grow quickly. Keep the ones you use and remove the rest without resetting the app.", "قد تكبر تنزيلات النماذج بسرعة. احتفظ بما تستخدمه واحذف الباقي دون إعادة ضبط التطبيق."),
+        ("Search downloaded models…", "ابحث في النماذج المنزّلة…"),
+        ("Downloaded only", "المنزّلة فقط"),
+        ("Showing every model stored on this device", "عرض كل النماذج المخزّنة على هذا الجهاز"),
+        ("No models downloaded yet", "لم يتم تنزيل أي نموذج بعد"),
+        ("No downloaded models found", "لا توجد نماذج منزّلة مطابقة"),
+        ("Turn off this filter to browse models.", "أوقف هذا الفلتر لتصفّح النماذج."),
+        ("Try a broader search.", "جرّب بحثاً أوسع."),
+        ("Downloaded", "منزّل"),
+        ("Nothing to suggest yet", "لا توجد اقتراحات بعد"),
+        ("Search Hugging Face above to add a model.", "ابحث في Hugging Face بالأعلى لإضافة نموذج."),
+        ("All voice models", "كل نماذج الصوت"),
+        ("No voice models found", "لا توجد نماذج صوت"),
+        ("Select", "اختيار"),
+        ("Select & Test", "اختيار وتجربة"),
+        ("Details", "التفاصيل"),
+        ("Open Project", "فتح المشروع"),
+        ("Suggested · best fit first", "مقترحة · الأنسب أولاً"),
+        ("free", "متاح"),
+        ("Tight models shown — MLX load safety remains enforced", "تُعرض النماذج الكبيرة — حماية التحميل في MLX ما زالت مفعّلة"),
+        ("Only models that safely fit this device are shown", "تُعرض فقط النماذج المناسبة لهذا الجهاز بأمان"),
+        ("model(s) hidden that won't safely fit this device. Turn on Edge mode to try them.", "نموذج/نماذج مخفية لا تناسب هذا الجهاز بأمان. فعّل وضع الحافة لتجربتها."),
+        ("Recommended setups", "إعدادات مقترحة"),
+        ("Coherent Light · Medium · Heavy stacks for your device. Tap a model to open its category.", "مجموعات خفيفة · متوسطة · ثقيلة متناسقة لجهازك. اضغط نموذجاً لفتح فئته."),
+        ("Download all", "تنزيل الكل"),
+        ("Get", "تنزيل"),
+        ("Ready", "جاهز"),
+        ("Text to image", "نص إلى صورة"),
+        ("Generate images on-device", "أنشئ الصور على الجهاز"),
+        ("SD / SDXL diffusion via MLX. FLUX is too large for iOS memory.", "نماذج SD وSDXL عبر MLX. نموذج FLUX أكبر من ذاكرة iOS."),
+        ("Open generator", "فتح المولّد"),
+        ("Hugging Face results", "نتائج Hugging Face"),
+        ("Hugging Face search failed", "فشل البحث في Hugging Face"),
+        ("HF Token", "رمز HF"),
+        ("No matching models", "لا توجد نماذج مطابقة"),
+        ("Try a broader model name or paste owner/repository.", "جرّب اسماً أعمّ أو الصق المالك/المستودع."),
+        ("Tools & storage", "الأدوات والتخزين"),
+        ("Storage cleanup", "تنظيف التخزين"),
+        ("Choose models to keep", "اختر النماذج التي تريد إبقاءها"),
+        ("Review installed models together and safely remove everything you no longer need.", "راجع النماذج المثبّتة واحذف بأمان كل ما لا تحتاجه."),
+        ("Memory safety gate", "حماية الذاكرة"),
+        ("Refuse models too large for this device instead of crashing", "ارفض النماذج الأكبر من قدرة الجهاز بدلاً من التعطّل"),
+        ("MLX low-cache / GGUF paging", "ذاكرة MLX المنخفضة / ترحيل GGUF"),
+        ("Experimental · MLX still loads all weights; GGUF can page weights from storage", "تجريبي · يحمّل MLX كل الأوزان؛ ويمكن لـ GGUF قراءة الأوزان من التخزين تدريجياً"),
+        ("Load timeout", "مهلة التحميل"),
+        ("Off — a stuck load won't auto-cancel", "متوقف — لن يُلغى التحميل العالق تلقائياً"),
+        ("Loading voice engine…", "جارٍ تحميل محرّك الصوت…"),
+        ("Model settings", "إعدادات النموذج"),
+        ("Speech-to-text · ready", "تحويل الكلام إلى نص · جاهز"),
+        ("No in-app voice engine for this repo yet", "لا يوجد محرّك صوت داخلي لهذا المستودع بعد"),
+        ("Export to Files", "تصدير إلى الملفات"),
+        ("Default model updated", "تم تحديث النموذج الافتراضي"),
+        ("Assistant", "المساعد"),
+        ("Image", "الصور"),
+        ("Assistants", "المساعدات"),
+        ("tip: a smaller model replies faster — latency matters more than raw smarts in a spoken back-and-forth", "نصيحة: النموذج الأصغر يرد أسرع — في المحادثة الصوتية السرعة أهم من القوة"),
+        ("Settings", "الإعدادات"),
+        ("Mahalli", "محلّي"),
         ("assistant", "مساعد"),
         ("voice", "صوت"),
         ("mac", "Mac"),
@@ -4086,7 +4204,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("describe", "描述"),
         ("Browse", "浏览"),
 
-        // — Lens / camera
+        // — vision / camera
         ("torch", "闪光灯"),
         ("history", "历史"),
         ("scan", "扫描"),
@@ -4254,7 +4372,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
          "在同一张图片上并排运行两个 VLM"),
         ("Voice", "语音"),
 
-        // — Lens overflow + toolbar
+        // — vision overflow + toolbar
         ("aloud", "朗读"),
         ("more", "更多"),
         ("switch to code", "切换到代码"),

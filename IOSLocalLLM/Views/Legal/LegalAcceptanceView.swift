@@ -27,7 +27,7 @@ struct LegalAcceptanceView: View {
 
     var body: some View {
         ZStack {
-            LiquidPinkBackdrop()
+            SahlBackdrop()
 
             ScrollView {
                 VStack(spacing: 16) {

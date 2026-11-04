@@ -300,7 +300,7 @@ public final class LocalAIController {
             throw RuntimeError.underlying("Invalid repo id: \(repoID)")
         }
         var request = URLRequest(url: url)
-        request.setValue("ios-local-llm/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        request.setValue("Mahalli/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         HFTokenStore.authorize(&request)
 
@@ -354,7 +354,7 @@ public final class LocalAIController {
     }
 
     private func selectedVisionTarget() -> (runtime: ModelRuntime, repoID: String)? {
-        let stored = AppSettings.shared.cameraVisualModelID
+        let stored = AppSettings.shared.visionModelID
         let selectionID = LocalModelRegistry.storedVisionSelectionID(stored)
         guard !LocalModelRegistry.isDefaultVisionSelection(selectionID) else { return nil }
         let runtime = LocalModelRegistry.visionRuntime(

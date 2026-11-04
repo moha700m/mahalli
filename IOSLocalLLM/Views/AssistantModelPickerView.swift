@@ -243,7 +243,7 @@ struct AssistantModelPickerView: View {
                     activateApplePrivateCloud()
                 }
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -1066,7 +1066,7 @@ private struct ApplePrivateCloudPrivacyDisclosureView: View {
                 }
                 .padding(22)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }

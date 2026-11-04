@@ -1,17 +1,17 @@
-# iOS Local LLM Privacy Policy
+# Mahalli Privacy Policy
 
 _Last updated: 2026-07-29_
 
-iOS Local LLM is a privacy-first iOS app. AI inference and app storage are local by
-default. The iOS Local LLM project does not operate an account system, analytics
+Mahalli is a privacy-first iOS app. AI inference and app storage are local by
+default. The Mahalli project does not operate an account system, analytics
 service, advertising service, or telemetry backend.
 
-## What iOS Local LLM does NOT do
+## What Mahalli does NOT do
 
 - We do not collect any personal information.
 - We do not require an account or sign-in.
 - We do not include analytics, advertising SDKs, or third-party trackers.
-- We do not send your conversations, photos, code, or voice to an iOS Local LLM-operated service.
+- We do not send your conversations, photos, code, or voice to an Mahalli-operated service.
 - We do not have access to your data — even if we wanted to, we have no servers that hold it.
 
 ## What stays on your device
@@ -24,7 +24,7 @@ service, advertising service, or telemetry backend.
   save one for gated repositories.
 - **MetricKit diagnostics** (crash/perf reports): stored locally for your reference. Apple aggregates these system-wide; that's an OS behavior, not ours.
 
-## When iOS Local LLM DOES talk to the network
+## When Mahalli DOES talk to the network
 
 The app makes network requests only for these explicit, user-initiated actions:
 
@@ -47,21 +47,21 @@ If you turn on "Sync conversations to iCloud" in Settings, your conversations ar
 
 ## Children's privacy
 
-iOS Local LLM does not knowingly collect any data — from any age group, including children.
+Mahalli does not knowingly collect any data — from any age group, including children.
 
 ## Your control
 
 - "Wipe all on-device data" in Settings clears every conversation, snippet, memory, downloaded model, and cache.
-- Uninstalling iOS Local LLM removes everything we've stored.
+- Uninstalling Mahalli removes everything we've stored.
 
 ## Models
 
-iOS Local LLM can run third-party models through Apple's MLX framework and other
+Mahalli can run third-party models through Apple's MLX framework and other
 local runtimes. Models are subject to their own licenses and may be open
 source, source-available, community-licensed, non-commercial, or research-only.
 We do not relicense them.
 
 ## Contact
 
-If you have questions about this policy, open an issue in the iOS Local LLM GitHub
+If you have questions about this policy, open an issue in the Mahalli GitHub
 repository. Do not put private data in a public issue.

@@ -11,7 +11,7 @@ import SwiftUI
 // Reusable across three surfaces (per session-3 spec):
 //
 //   • Voice-conversation tab — replaces the old engine chip.
-//   • Lens tab — visible next to the caption when Lens streaming
+//   • vision tab — visible next to the caption when vision streaming
 //     TTS is on.
 //   • Assistant tab — header chip when voice-answer mode is on.
 //
@@ -23,14 +23,14 @@ struct VoiceStatusPill: View {
     /// Queue to observe for live state. Pass the queue that's
     /// actually driving audio for the surface the pill is shown on
     /// — `VoiceService.shared` exposes the assistant-conversation
-    /// queue via its `speakStream`; `LensVoiceNarrator.shared`
-    /// exposes its own queue for the Lens surface.
+    /// queue via its `speakStream`; `the removed narrator.shared`
+    /// exposes its own queue for the vision surface.
     @ObservedObject var audioQueue: AudioQueue
 
     /// Display name of the model driving the active stream. Caller
     /// pulls this from `CodingAssistantService.shared.activeModel`
     /// for Assistant contexts or `VisionInferenceLoop.shared` for
-    /// Lens contexts.
+    /// vision contexts.
     let modelName: String
 
     @Environment(\.koduTheme) private var T

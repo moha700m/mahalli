@@ -9,7 +9,7 @@ import Foundation
 //
 //   1. Three @Published properties (`isSpeaking`, `queueDepth`,
 //      `currentLanguage`) update automatically as the consumer pulls
-//      utterances. Session 3 (Lens streaming TTS) binds the status
+//      utterances. Session 3 (vision streaming TTS) binds the status
 //      pill against these without going through VoiceService.
 //
 //   2. `drainPending()` — drops the pending queue but lets the
@@ -38,7 +38,7 @@ final class AudioQueue: ObservableObject {
     // consumers don't have to maintain parallel UI bindings. Existing
     // `VoiceService.isPlaying` stays in place for back-compat with
     // the many UI sites already bound to it; AudioQueue's state is
-    // the pipeline-level view for new (Lens) and future surfaces.
+    // the pipeline-level view for new (vision) and future surfaces.
 
     @Published private(set) var isSpeaking: Bool = false
     @Published private(set) var queueDepth: Int = 0
@@ -111,7 +111,7 @@ final class AudioQueue: ObservableObject {
 
     /// Drop the PENDING queue but let the currently-playing utterance
     /// finish naturally. No current caller — kept for session 3
-    /// scenarios where the user dismisses a Lens caption but the
+    /// scenarios where the user dismisses a vision caption but the
     /// current sentence should still finish. Setting `inputFinished`
     /// means `next()` returns nil once the consumer is ready for it,
     /// without forcing a hard cancel.

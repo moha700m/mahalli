@@ -96,7 +96,7 @@ enum MemoryAdvisor {
 
     static let pressureCooldown: TimeInterval = 20
     /// A model at/under this peak may still load during the cooldown if it fits
-    /// the live headroom — lets a small camera VLM recover the lens immediately.
+    /// the live headroom — lets a small camera VLM recover the vision immediately.
     static let smallRecoveryModelCeiling: Int64 = 1_073_741_824   // 1 GB
 
     /// When set and in the future, heavy loads are on cooldown. MainActor-only;
@@ -172,7 +172,7 @@ enum MemoryAdvisor {
     /// `processMemoryCeiling` did (`os_proc_available_memory() + resident_size`)
     /// — made the ceiling read ~1 GB+ LOW whenever a VLM was resident, because
     /// `os_proc_available_memory()` had already subtracted the GPU footprint
-    /// while `resident_size` never added it back. That's the "open the Lens
+    /// while `resident_size` never added it back. That's the "open the vision
     /// VLM, switch to Assistant, Qwen3-4B is suddenly too large for this
     /// device" bug: the ceiling was polluted by the just-used VLM's GPU memory.
     static var physFootprint: Int64 {
@@ -294,7 +294,7 @@ enum MemoryAdvisor {
     ///     Both use the identical footprint accounting, so the sum recovers the
     ///     limit and is STABLE regardless of what is resident. (The previous
     ///     version added `resident_size`, which omits GPU/Metal buffers, so the
-    ///     ceiling sagged by a resident VLM's GPU footprint — the "open Lens,
+    ///     ceiling sagged by a resident VLM's GPU footprint — the "open vision,
     ///     switch to Assistant, 4B won't load" regression. See `physFootprint`.)
     ///   • Entitlement: `physicalRAM × tierFraction`, only when the kernel
     ///     reports nothing.
@@ -658,7 +658,7 @@ enum MemoryAdvisor {
             // live headroom right now, full reserve kept. The earlier gate also
             // required `assumed <= smallRecoveryModelCeiling` (1 GB) — but every
             // shipping model is ≥1.4 GB, so NO real model could ever recover and
-            // the assistant/lens was dead for the whole 20s window even after
+            // the assistant/vision was dead for the whole 20s window even after
             // the dump had freed plenty of memory. The full reserve is the
             // safety margin against the in-flight reclaim race; the size ceiling
             // added nothing but the dead-end.

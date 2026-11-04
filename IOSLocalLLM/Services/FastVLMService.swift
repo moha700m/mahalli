@@ -115,7 +115,7 @@ final class FastVLMService: ObservableObject {
         componentStatus.decoder   = .loading
         componentStatus.tokenizer = .loading
 
-        // FastVLM owns the Lens runtime exclusively. Drain the assistant,
+        // FastVLM owns the vision runtime exclusively. Drain the assistant,
         // downloaded MLX VLM, and llama.cpp VLM before any Core ML/MLX model
         // registration or load can allocate. The explicit gate wait covers
         // native Metal work that outlives Swift task cancellation.

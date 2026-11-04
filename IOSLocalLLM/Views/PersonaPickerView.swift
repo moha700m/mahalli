@@ -23,7 +23,7 @@ struct PersonaPickerView: View {
                 }
                 .padding(.bottom, 32)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -193,7 +193,7 @@ struct PersonaEditorView: View {
                 }
                 .padding(.bottom, 24)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationTitle(isNew ? "new persona" : "edit persona")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)

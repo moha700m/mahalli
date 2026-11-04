@@ -11,9 +11,9 @@ import SwiftUI
 // the main app via a custom URL scheme.
 //
 // Hand-off URLs:
-//   ios-local-llm://share?file=<jpg-name>          → image (lens tab)
-//   ios-local-llm://share?text=<percent-encoded>   → text snippet (assistant tab)
-//   ios-local-llm://share?url=<percent-encoded>    → URL (assistant tab)
+//   mahalli://share?file=<jpg-name>          → image (assistant tab)
+//   mahalli://share?text=<percent-encoded>   → text snippet (assistant tab)
+//   mahalli://share?url=<percent-encoded>    → URL (assistant tab)
 //
 // Long text shares (>1500 chars) go through the file-staging path instead of
 // the URL — iOS truncates open URLs around 2KB and Safari/Mail share
@@ -23,7 +23,7 @@ final class ShareViewController: UIViewController {
 
     // App Group identifier — must match the main app's entitlements.
     private static let appGroupID = "group.com.justmgz.mahalli.shared"
-    private static let urlScheme  = "ios-local-llm"
+    private static let urlScheme  = "mahalli"
 
     /// Threshold above which we stash text in a file and hand the
     /// filename to the main app instead of inlining via URL query.

@@ -71,7 +71,7 @@ struct BridgePairingView: View {
                 }
                 .padding(20)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             // Start the iPhone's inference server as soon as the tab opens so it's
             // ready by the time the QR is scanned and the Mac tries to connect.
             .task {
@@ -907,7 +907,7 @@ private struct ScannerSheet: View {
                 // its overlay into the next presentation.
                 .id(showScanner ? "scanner-on" : "scanner-off")
             } else {
-                LiquidPinkBackdrop()
+                SahlBackdrop()
                 Text("Camera scanner not available on this device.")
                     .font(T.mono(14, .regular))
                     .foregroundColor(T.ink2)

@@ -20,7 +20,7 @@ struct KnowledgeBaseView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                LiquidPinkBackdrop()
+                SahlBackdrop()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
                         if !kb.isAvailable { unavailableCard }
@@ -178,7 +178,7 @@ struct KnowledgeBaseView: View {
     private var pasteSheet: some View {
         NavigationStack {
             ZStack {
-                LiquidPinkBackdrop()
+                SahlBackdrop()
                 VStack(spacing: 12) {
                     TextField("Name (e.g. Project notes)", text: $pasteName)
                         .font(T.sans(15)).padding(12)

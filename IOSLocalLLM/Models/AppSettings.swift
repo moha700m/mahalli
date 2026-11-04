@@ -178,12 +178,12 @@ final class AppSettings: ObservableObject {
     /// HuggingFace repo id of an MLX-format VLM the user has downloaded
     /// (Qwen2-VL, SmolVLM, Paligemma, Gemma 3 vision, etc.) and is routed
     /// through MLXVisionService instead.
-    @AppStorage("cameraVisualModelID")     var cameraVisualModelID: String = ""
+    @AppStorage("visionModelID")           var visionModelID: String = ""
 
     /// True once the user explicitly picked a VLM from the picker.
     /// Until then `DeviceTierAdvisor.applyDefaultVisualModelIfNeeded()` is
     /// allowed to set a tier-appropriate SmolVLM on each cold launch.
-    @AppStorage("hasPickedCameraVisualModel") var hasPickedCameraVisualModel: Bool = false
+    @AppStorage("hasPickedVisionModel") var hasPickedVisionModel: Bool = false
 
     /// Auto-caption follow-up interval (ms) while the live caption overlay is
     /// up in visual mode. Clamped to [6000, 30000] when read by the loop.
@@ -205,7 +205,7 @@ final class AppSettings: ObservableObject {
     @AppStorage("hapticsEnabled")          var hapticsEnabled: Bool = true
     /// "system", "light", "dark", or "oled" — the palette switches accordingly.
     /// "oled" is the Plum Dusk glass direction (see KoduTheme.oled).
-    @AppStorage("appearance")              var appearance: String = "system"
+    @AppStorage("appearance")              var appearance: String = "light"
     /// Selected brand-accent palette; the rawValue of `KoduTheme.KoduAccent`.
     @AppStorage("themeAccent")             var themeAccent: String = KoduTheme.appAccent.rawValue
 
@@ -224,7 +224,7 @@ final class AppSettings: ObservableObject {
     /// UI language override: "system" (follow device), "en", or "tr".
     /// Live-switchable via LocalizationService — see Settings → INTERFACE
     /// → language picker.
-    @AppStorage("uiLanguage")              var uiLanguage: String = "system"
+    @AppStorage("uiLanguage")              var uiLanguage: String = "ar"
     /// Model-input debug: shows a thumbnail of the EXACT image MLX
     /// receives (post-orientation, post-resize) so we can verify the
     /// preprocessing pipeline visually instead of guessing why captions

@@ -4,7 +4,7 @@ import Combine
 
 // MARK: - Per-family execution policy
 
-/// Lens requests are short, single-image turns. Large VLMs should not inherit
+/// vision requests are short, single-image turns. Large VLMs should not inherit
 /// a desktop-chat context allocation just because llama.cpp defaults to one.
 /// Keeping this policy explicit lets every catalog family select the smallest
 /// safe context without special-casing the C++ bridge itself.
@@ -17,7 +17,7 @@ struct LlamaCppVLMExecutionProfile: Equatable, Sendable {
         let id = repoID.lowercased()
         if id.contains("gemma-3") || id.contains("gemma3") {
             // Gemma 3 expands one image to 256 soft tokens. A 1K context still
-            // leaves ample room for the Lens prompt + 192-token answer while
+            // leaves ample room for the vision prompt + 192-token answer while
             // avoiding the multi-GB KV allocation a desktop-style 4K context
             // can create for a 4B model.
             return .init(
@@ -37,7 +37,7 @@ struct LlamaCppVLMExecutionProfile: Equatable, Sendable {
 // MARK: - LlamaCppVLMService
 //
 // Parallel to VisionInferenceLoop, but for GGUF-format VLMs running
-// through llama.cpp + mtmd instead of MLX. The lens tab routes
+// through llama.cpp + mtmd instead of MLX. The vision tab routes
 // to this service when the active visual model is a GGUF file
 // (detected by repoID containing "GGUF" or by the on-disk file
 // extension); routes to VisionInferenceLoop otherwise.
@@ -222,7 +222,7 @@ final class LlamaCppVLMService: ObservableObject {
         }
 
         if activeRepoID == repoID, vlm != nil {
-            // A resident Lens model still owns the device exclusively. Returning
+            // A resident vision model still owns the device exclusively. Returning
             // to it from Assistant must drain the chat/MLX runtimes first.
             await CodingAssistantService.shared.unloadAndWaitForCleanup()
             MLXVisionService.shared.unload()
@@ -427,7 +427,7 @@ final class LlamaCppVLMService: ObservableObject {
 
         // Thermal/memory + background safety gates — same as the MLX path
         // (VisionInferenceLoop.describe). Submitting llama.cpp Metal work while
-        // backgrounding (the common scene-transition lens path) hits
+        // backgrounding (the common scene-transition vision path) hits
         // kIOGPUCommandBufferCallbackErrorBackgroundExecutionNotPermitted,
         // which aborts the process. Reading applicationState is safe: this
         // type is @MainActor.

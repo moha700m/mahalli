@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - VoiceProfileRegistry
 //
-// Resolves a `VoiceProfile` for any model id the assistant or lens
+// Resolves a `VoiceProfile` for any model id the assistant or vision
 // pipeline might present. Resolution layers, in order:
 //
 //   1. **Built-in exact match.** A preset key (`qwen3-4b`,
@@ -50,7 +50,7 @@ enum VoiceProfileRegistry {
     // MARK: - Built-in catalog
     //
     // Keys match `AssistantModel.id` for presets. Vision-language
-    // models (Lens) typically fall to `_fallback` because their
+    // models (vision) typically fall to `_fallback` because their
     // repoIDs are non-preset; the fallback profile is tuned for
     // English descriptive narration which works well for SmolVLM /
     // FastVLM / Qwen-VL captions.
@@ -163,7 +163,7 @@ enum VoiceProfileRegistry {
         ),
 
         // Generic fallback — tuned for descriptive narration so a
-        // Lens vision model (SmolVLM, FastVLM, etc.) that falls here
+        // vision vision model (SmolVLM, FastVLM, etc.) that falls here
         // gets sensible clause-level chunking instead of long
         // run-on sentences.
         "_fallback": VoiceProfile(
@@ -228,7 +228,7 @@ enum VoiceProfileRegistry {
 
     /// Persists a chunking strategy as a stable string token. Only
     /// `.sentence` and `.clause` are exposable as user overrides —
-    /// `.minWords(_)` is an internal-only mode used by Lens for
+    /// `.minWords(_)` is an internal-only mode used by vision for
     /// captions with no punctuation and isn't surfaced in the UI.
     static func setChunkingStrategyOverride(_ strategy: SemanticChunker.Strategy?,
                                             for modelId: String) {

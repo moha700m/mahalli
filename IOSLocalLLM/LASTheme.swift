@@ -1,3 +1,4 @@
+// Modified 2026 by justmgz: light-first "Sahl" theme host with Arabic RTL.
 import SwiftUI
 
 // MARK: - Appearance
@@ -22,8 +23,8 @@ enum LASAppearance: String, CaseIterable, Identifiable {
     var detail: String {
         switch self {
         case .system: return "Follow iOS"
-        case .light:  return "Pearl canvas"
-        case .dark:   return "Smoked glass"
+        case .light:  return "Paper (default)"
+        case .dark:   return "Dim"
         case .oled:   return "True black"
         }
     }
@@ -81,6 +82,7 @@ extension AppSettings {
 /// modally presented surface so its chrome matches the rest of the app.
 struct LASThemeHost<Content: View>: View {
     @ObservedObject private var settings = AppSettings.shared
+    @ObservedObject private var loc = LocalizationService.shared
     @Environment(\.colorScheme) private var deviceColorScheme
 
     private let content: Content
@@ -100,7 +102,10 @@ struct LASThemeHost<Content: View>: View {
 
         content
             .koduTheme(theme)
-            .tint(theme.accentStrong)
+            .tint(theme.accent)
+            .font(theme.sans(16))
+            .environment(\.layoutDirection, loc.isRightToLeft ? .rightToLeft : .leftToRight)
+            .environment(\.locale, Locale(identifier: loc.effectiveLanguageCode))
             .preferredColorScheme(appearance.colorScheme)
             .koduScaledType()
     }

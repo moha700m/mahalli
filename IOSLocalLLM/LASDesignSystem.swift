@@ -1,3 +1,4 @@
+// Modified 2026 by justmgz: re-tokenised for the light "Sahl" design system.
 import SwiftUI
 
 enum LASDesignTokens {
@@ -9,21 +10,21 @@ enum LASDesignTokens {
     static let cardPadding: CGFloat = 20
     static let section: CGFloat = 24
 
-    static let majorRadius: CGFloat = 28
-    static let cardRadius: CGFloat = 24
-    static let tileRadius: CGFloat = 20
-    static let controlRadius: CGFloat = 15
+    static let majorRadius: CGFloat = 20
+    static let cardRadius: CGFloat = 16
+    static let tileRadius: CGFloat = 14
+    static let controlRadius: CGFloat = 12
 
-    static let hairline = Color.primary.opacity(0.09)
-    static let pageTop = Color(red: 0.94, green: 0.95, blue: 0.97)
-    static let pageBottom = Color(red: 0.98, green: 0.99, blue: 1.0)
-    static let terminalBackground = Color(red: 0.055, green: 0.065, blue: 0.085)
+    static let hairline = Color.black.opacity(0.07)
+    static let pageTop = Color(red: 0.973, green: 0.973, blue: 0.965)
+    static let pageBottom = Color(red: 0.973, green: 0.973, blue: 0.965)
+    static let terminalBackground = Color(red: 0.067, green: 0.094, blue: 0.086)
 }
 
-/// Soft ambient sample field so clear Liquid Glass has live pixels to refract.
+/// Plain paper page background.
 struct LASPageBackground: View {
     var body: some View {
-        LiquidPinkBackdrop()
+        SahlBackdrop()
     }
 }
 
@@ -36,13 +37,7 @@ struct LASCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(padding)
-            // Clear glass: iOS 26+ Liquid Glass, otherwise
-            // ultra-thin material so the ambient backdrop still reads through.
             .glassSurface(.card, cornerRadius: radius)
-            .overlay {
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(T.rule.opacity(0.85), lineWidth: 1)
-            }
     }
 }
 
@@ -64,8 +59,7 @@ struct LASSectionLabel: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             Text(title)
-                .font(.caption.weight(.bold).monospaced())
-                .tracking(0.6)
+                .font(.footnote.weight(.semibold))
                 .foregroundStyle(foreground)
             Spacer(minLength: LASDesignTokens.tight)
             if let trailing {
@@ -112,7 +106,7 @@ struct LASDetailHeader<Trailing: View>: View {
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: "chevron.left")
+                        Image(systemName: "chevron.backward")
                             .font(.system(size: 18, weight: .semibold))
                             .frame(width: 44, height: 44)
                             .contentShape(Circle())
@@ -150,10 +144,7 @@ struct LASHeaderIconButtonStyle: ButtonStyle {
             } else {
                 configuration.label
                     .foregroundStyle(Color.primary)
-                    .glassSurface(.toolbarButton, cornerRadius: 22)
-                    .overlay {
-                        Circle().stroke(LASDesignTokens.hairline, lineWidth: 1)
-                    }
+                    .background(Color.black.opacity(configuration.isPressed ? 0.08 : 0.04), in: Circle())
             }
         }
         .scaleEffect(configuration.isPressed ? 0.96 : 1)
@@ -197,15 +188,13 @@ struct LASSearchField: View {
         }
         .padding(.horizontal, LASDesignTokens.component)
         .frame(minHeight: 52)
-        .glassSurface(.card, cornerRadius: 20)
-        .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(LASDesignTokens.hairline, lineWidth: 1)
-        }
+        .glassSurface(.card, cornerRadius: LASDesignTokens.controlRadius)
     }
 }
 
 struct LASPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.koduTheme) private var T
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.subheadline.weight(.semibold))
@@ -213,7 +202,7 @@ struct LASPrimaryButtonStyle: ButtonStyle {
             .padding(.horizontal, LASDesignTokens.component)
             .frame(minHeight: 44)
             .background(
-                Color.accentColor.opacity(configuration.isPressed ? 0.78 : 1),
+                T.accent.opacity(configuration.isPressed ? 0.82 : 1),
                 in: RoundedRectangle(cornerRadius: LASDesignTokens.controlRadius, style: .continuous)
             )
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
@@ -262,6 +251,6 @@ struct LASMetricTile: View {
         }
         .padding(LASDesignTokens.row)
         .frame(minHeight: 88)
-        .background(Color.primary.opacity(0.035), in: RoundedRectangle(cornerRadius: LASDesignTokens.tileRadius))
+        .glassSurface(.listRow, cornerRadius: LASDesignTokens.tileRadius)
     }
 }

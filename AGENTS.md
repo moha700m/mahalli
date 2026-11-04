@@ -1,3 +1,10 @@
+# Mahalli (محلّي) — agent notes
+
+Copyright (c) 2026 justmgz. Derived from ios-local-llm (MIT); see NOTICE.
+The Lens/camera/OCR feature was removed; do not reintroduce it. UI uses the
+light "Sahl" design system (Views/Design, Models/KoduTheme.swift) and is
+Arabic-first RTL. Generate the project with `xcodegen generate`.
+
 # Agent guide
 
 This file applies to the repository root and everything below it except Git
@@ -85,8 +92,8 @@ App tests, after native dependencies and CocoaPods are available:
 
 ```bash
 xcodebuild test \
-  -workspace IOSLocalLLM.xcworkspace \
-  -scheme IOSLocalLLM \
+  -project Mahalli.xcodeproj \
+  -scheme Mahalli \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 

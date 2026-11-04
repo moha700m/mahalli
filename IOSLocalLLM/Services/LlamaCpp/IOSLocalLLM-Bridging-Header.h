@@ -44,4 +44,8 @@
 // decode in one call.
 #import "mtmd-helper.h"
 
+// whisper.cpp C API (WhisperService / SpeechDictationService). Added for the
+// full-app target; resolves via ThirdParty/whisper.cpp/include.
+#import "whisper.h"
+
 #endif  // IOS_LOCAL_LLM_BRIDGING_HEADER_H

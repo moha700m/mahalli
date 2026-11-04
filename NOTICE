@@ -1,0 +1,25 @@
+Mahalli (محلّي)
+Copyright (c) 2026 justmgz
+
+This product is a derivative work of "iOS Local LLM" / "OnDevice Local AI
+Studio" (https://github.com/mesutcydev/ios-local-llm), Copyright (c) 2026
+Mesut and iOS Local LLM contributors, used under the MIT License (see LICENSE,
+whose original copyright notice is retained unchanged).
+
+Mahalli is an independent project. It is not affiliated with, endorsed by, or
+sponsored by the upstream authors. In line with the upstream TRADEMARKS.md, it
+does not use the upstream product names, app icons, screenshots, or other
+artwork; the name "Mahalli", the app icon and the "Sahl" light UI are new.
+
+Changes from upstream (summary):
+  * Removed the Lens / live-camera / OCR / Code-Mode feature entirely.
+  * Restored a full multi-tab app (chat, voice, models, image generation,
+    knowledge base, local API, Mac bridge) on a new XcodeGen project.
+  * New light, minimal, Arabic-first (RTL) design system and app identity.
+  * Additional Arabic localization for the main screens.
+
+Bundled third-party components keep their own licenses, including:
+  * IBM Plex Sans Arabic — SIL Open Font License 1.1
+    (IOSLocalLLM/Resources/Fonts/OFL.txt), Copyright 2017 IBM Corp.
+  * llama.cpp, whisper.cpp (git submodules, MIT) and the components listed in
+    THIRD_PARTY_NOTICES.md and LICENSES/.

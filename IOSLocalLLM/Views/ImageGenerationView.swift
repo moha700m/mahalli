@@ -22,7 +22,7 @@ struct ImageGenerationView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                LiquidPinkBackdrop()
+                SahlBackdrop()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
                         modelPicker

@@ -58,7 +58,7 @@ struct VoiceSettingsView: View {
                 }
             }
             .toolbarBackground(.hidden, for: .navigationBar)
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .sheet(isPresented: $showEnginePicker) {
                 VoiceModelPickerView()
             }

@@ -5,7 +5,7 @@ import UIKit
 // MARK: - VLMCapabilities
 //
 // Model-aware preprocessing parameters resolved at VLM load time. The
-// Lens pipeline (LensFramePreparer / VisionInferenceLoop) reads this to
+// vision pipeline (the removed camera frame preparer / VisionInferenceLoop) reads this to
 // decide how to scale, align, and color-correct a camera frame before
 // handing it to the model.
 //
@@ -29,7 +29,7 @@ struct VLMCapabilities: Equatable {
     // MARK: - Input sizing strategy
     //
     // Each strategy maps to a family of processors in mlx-vlm /
-    // transformers and dictates how LensFramePreparer must reshape the
+    // transformers and dictates how the removed camera frame preparer must reshape the
     // input before the processor itself runs. Getting this wrong shows
     // up as one of: stretched aspect ratio, illegible text, hallucinated
     // content, or — for Qwen2-VL specifically — a fallback path inside
@@ -164,8 +164,8 @@ struct VLMCapabilities: Equatable {
     // MARK: - Known-broken architectures
     //
     // Some VLM families in `mlx-swift-examples` have upstream bugs that
-    // make them unusable through the lens pipeline. When we detect
-    // one, the lens inference path refuses to dispatch — surfacing a
+    // make them unusable through the vision pipeline. When we detect
+    // one, the vision inference path refuses to dispatch — surfacing a
     // clear error or auto-routing to a working alternative (e.g. the
     // bundled SmolVLM2 GGUF via `recoverFromSmolVLMSelection`)
     // instead of letting the broken code path crash the process.
@@ -180,7 +180,7 @@ struct VLMCapabilities: Equatable {
     //     upstream source, still present at HEAD as of 2026-05).
     //     The image-token count in the prompt doesn't agree with the
     //     encoder's tile count, producing an Index out of range in
-    //     the language model. The lens dispatcher reacts by
+    //     the language model. The vision dispatcher reacts by
     //     auto-swapping the active VLM to the bundled SmolVLM2-500M
     //     GGUF (handled by `recoverFromSmolVLMSelection` in
     //     VisionInferenceLoop.swift), which routes through llama.cpp +
@@ -210,7 +210,7 @@ struct VLMCapabilities: Equatable {
 
     /// User-facing description of WHY a known-broken model can't run.
     /// Empty string for compatible architectures. Used as the final
-    /// fallback message — in practice the lens dispatcher tries to
+    /// fallback message — in practice the vision dispatcher tries to
     /// auto-swap to the bundled SmolVLM2 GGUF first, and only shows
     /// this reason if no recovery path is available.
     var incompatibilityReason: String {
@@ -219,7 +219,7 @@ struct VLMCapabilities: Equatable {
     }
 
     /// True when this architecture is the SmolVLM family (smolvlm /
-    /// smolvlm2 / idefics3). Used by the lens dispatcher to decide
+    /// smolvlm2 / idefics3). Used by the vision dispatcher to decide
     /// whether the bundled SmolVLM2 GGUF is a safe drop-in fallback —
     /// it is, since the GGUF + llama.cpp path bypasses the broken
     /// mlx-swift-examples message generator entirely.

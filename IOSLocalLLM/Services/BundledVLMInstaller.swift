@@ -32,7 +32,7 @@ import Foundation
 
 enum BundledVLMInstaller {
 
-    /// HuggingFace repo id this bundle ships. Lens defaults point
+    /// HuggingFace repo id this bundle ships. vision defaults point
     /// here via DeviceTierAdvisor.recommendedVisualModelRepoID.
     static let bundledRepoID = "ggml-org/SmolVLM2-500M-Video-Instruct-GGUF"
 

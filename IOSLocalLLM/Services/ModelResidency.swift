@@ -96,7 +96,7 @@ final class ModelResidency: ObservableObject {
     ///   • Combined weights exceeds the budget
     static func canResideTogether() -> Bool {
         let llm = AssistantModelCatalog.currentSelection()
-        let storedVisionID = AppSettings.shared.cameraVisualModelID
+        let storedVisionID = AppSettings.shared.visionModelID
         let visionSelection = LocalModelRegistry.storedVisionSelectionID(storedVisionID)
 
         let budget = dualResidenceBudgetBytes
@@ -104,7 +104,7 @@ final class ModelResidency: ObservableObject {
 
         let llmBytes = CodingAssistantService.estimatedWeightBytes(for: llm)
 
-        // Default FastVLM selection: the lens tab still loads its weights,
+        // Default FastVLM selection: the vision tab still loads its weights,
         // so they count against the budget like any other VLM (this used
         // to return true unconditionally, ignoring the tier budget).
         if LocalModelRegistry.isDefaultVisionSelection(visionSelection) {
@@ -207,7 +207,7 @@ final class ModelResidency: ObservableObject {
             let llm = await MainActor.run { AssistantModelCatalog.currentSelection() }
             dir = CodingAssistantService.preStagedDirectory(for: llm)
         case .vision:
-            let storedVisionID = await MainActor.run { AppSettings.shared.cameraVisualModelID }
+            let storedVisionID = await MainActor.run { AppSettings.shared.visionModelID }
             let selectionID = await MainActor.run {
                 LocalModelRegistry.storedVisionSelectionID(storedVisionID)
             }

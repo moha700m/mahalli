@@ -6,7 +6,7 @@ import SwiftUI
 // (download center + assistant picker + visual picker + HF search + fix
 // repo sheet). One page, one search bar, four sections:
 //
-//   • Active     — what the lens and the assistant are currently set to
+//   • Active     — what the vision and the assistant are currently set to
 //   • Installed  — every model whose weights are on disk and usable
 //   • Catalog    — curated entries from ModelDownloadCenter (FastVLM,
 //                  KittenTTS, every AssistantModelCatalog preset)
@@ -23,7 +23,7 @@ struct ModelsManagerView: View {
     var isActive: Bool = true
 
     // Category-first navigation. The Models hub is organised around the four
-    // roles a model can play — Assistant (chat/code), Lens (vision/camera),
+    // roles a model can play — Assistant (chat/code), vision (vision/camera),
     // Voice (TTS), Image (text-to-image) — rather than the old function-first
     // split (Active / Installing / Installed / Catalog / Images / Discover).
     // Each category page is self-contained: what's active, what's installed,
@@ -78,7 +78,7 @@ struct ModelsManagerView: View {
     @State private var searchText: String = ""
     /// Global inventory mode requested by users with models spread across
     /// several role tabs. When enabled, the page becomes a local-only library
-    /// and shows every downloaded model (Assistant, Lens, Voice, and Image)
+    /// and shows every downloaded model (Assistant, vision, Voice, and Image)
     /// in one list instead of filtering by the selected role.
     @State private var showDownloadedOnly = false
     @State private var searchTask: Task<Void, Never>?
@@ -150,7 +150,7 @@ struct ModelsManagerView: View {
 
     var body: some View {
         ZStack {
-            LiquidPinkBackdrop()
+            SahlBackdrop()
                 .allowsHitTesting(false)
                 .opacity(0.6)
 
@@ -400,7 +400,7 @@ struct ModelsManagerView: View {
     private var downloadsSheet: some View {
         let items = allInFlightDownloads
         return ZStack {
-            LiquidPinkBackdrop()
+            SahlBackdrop()
             ScrollView {
                 VStack(spacing: 14) {
                     HStack {
@@ -1793,7 +1793,7 @@ struct ModelsManagerView: View {
                 // Search is global even while a role tab is selected. Each
                 // row identifies its inferred role and Download routes it to
                 // the right tab, so valid results never disappear merely
-                // because the user happened to be browsing Lens or Voice.
+                // because the user happened to be browsing vision or Voice.
                 ForEach(search.results) { result in
                     discoverRow(result)
                 }
@@ -2154,7 +2154,7 @@ struct ModelsManagerView: View {
         // state machine — branch on which one the user has selected as
         // active so we display the right pipeline's progress.
         if LocalModelRegistry.isDefaultVisionSelection(
-            LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         ) {
             if fastVLM.componentStatus.canGenerate { return .ready }
             if fastVLM.componentStatus.isLoading {
@@ -2250,7 +2250,7 @@ struct ModelsManagerView: View {
         HapticManager.impact(.medium)
         visionLoadStarting = true
         if LocalModelRegistry.isDefaultVisionSelection(
-            LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         ) {
             visionLoadTask = Task {
                 await fastVLM.load()
@@ -2261,7 +2261,7 @@ struct ModelsManagerView: View {
                 }
             }
         } else {
-            let repoID = LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            let repoID = LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
             visionLoadTask = Task {
                 await vision.switchTo(repoID: repoID)
                 await MainActor.run {
@@ -2280,7 +2280,7 @@ struct ModelsManagerView: View {
     private func unloadVision() {
         HapticManager.impact(.light)
         if LocalModelRegistry.isDefaultVisionSelection(
-            LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         ) {
             fastVLM.unload()
         } else {
@@ -2294,7 +2294,7 @@ struct ModelsManagerView: View {
         visionWatchdog?.cancel(); visionWatchdog = nil
         visionLoadStarting = false
         if LocalModelRegistry.isDefaultVisionSelection(
-            LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         ) {
             fastVLM.unload()
         } else {
@@ -2321,7 +2321,7 @@ struct ModelsManagerView: View {
 
     private var visionDisplayName: String {
         if LocalModelRegistry.isDefaultVisionSelection(
-            LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         ) {
             // FastVLM ships the encoder + config + tokenizer in the bundle
             // but NOT the language-model safetensors — those are fetched
@@ -2330,16 +2330,16 @@ struct ModelsManagerView: View {
             // the loader sits at "not loaded" until they tap Load model.
             return "FastVLM 0.5B"
         }
-        let selectionID = LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+        let selectionID = LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         return selectionID.split(separator: "/").last.map(String.init)
             ?? selectionID
     }
     private var visionRepoID: String {
         LocalModelRegistry.isDefaultVisionSelection(
-            LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         )
             ? "apple/FastVLM-MLX"
-            : LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            : LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
     }
 
     private func activeRow(
@@ -2793,7 +2793,7 @@ struct ModelsManagerView: View {
                             }
                             Spacer(minLength: 0)
                             if isActive {
-                                KActivePinkBadge(
+                                KActiveBadge(
                                     roleCategory == .assistant ? "DEFAULT" : "ACTIVE"
                                 )
                             }
@@ -2924,10 +2924,10 @@ struct ModelsManagerView: View {
             let currentSelection = LocalModelRegistry.unwrapAssistantSelectionID(settings.assistantModelID)
             return currentSelection == model.id || currentSelection == model.sourceRepoID
         case .vlm:
-            // FastVLM default = empty cameraVisualModelID; for all
+            // FastVLM default = empty visionModelID; for all
             // others compare against the subtitle (which is the
             // repoID for VLM rows in the catalog).
-            let currentSelection = LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            let currentSelection = LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
             if model.id == LocalModelRegistry.defaultVisionSelectionID {
                 return LocalModelRegistry.isDefaultVisionSelection(currentSelection)
             }
@@ -2972,7 +2972,7 @@ struct ModelsManagerView: View {
             ToastCenter.shared.info("Loading (model.displayName)…")
 
         case .vlm:
-            // Reuse the same prewarm/commit path as the Lens picker so the
+            // Reuse the same prewarm/commit path as the vision picker so the
             // catalog card cannot persist a model that fails its load gate.
             setActive(model, as: .vlm)
 
@@ -2998,9 +2998,9 @@ struct ModelsManagerView: View {
             let selectionID = model.id == LocalModelRegistry.defaultVisionSelectionID
                 ? LocalModelRegistry.defaultVisionSelectionID
                 : model.sourceRepoID
-            // Use the same pre-warm-and-commit path as the Lens picker. The old
+            // Use the same pre-warm-and-commit path as the vision picker. The old
             // direct settings write persisted Gemma before proving it could
-            // load, so Lens retried the unsafe model on every visit.
+            // load, so vision retried the unsafe model on every visit.
             Task { @MainActor in
                 if await VisualModelPickerView.applySelection(selectionID) {
                     ToastCenter.shared.info(loc.t("Set as active"),
@@ -3365,7 +3365,7 @@ struct ModelsManagerView: View {
                             // was the user-selected default; users
                             // would tap "Set as active" on a model that
                             // was already active and see a no-op toast.
-                            KActivePinkBadge(
+                            KActiveBadge(
                                 roleCategory == .assistant ? "DEFAULT" : "ACTIVE"
                             )
                         }
@@ -3757,7 +3757,7 @@ struct ModelsManagerView: View {
         default: break
         }
         if LocalModelRegistry.isDefaultVisionSelection(
-            LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+            LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         ) {
             if fastVLM.componentStatus.canGenerate { count += 1 }
         } else {
@@ -3770,7 +3770,7 @@ struct ModelsManagerView: View {
     }
 
     /// Per-category brand tint — the single source for colour-coding cards,
-    /// glyphs, headers and tabs by model type. Assistant=rose, Lens=sage,
+    /// glyphs, headers and tabs by model type. Assistant=rose, vision=sage,
     /// Voice=violet, Image=amber.
     // Every category now tracks the SELECTED accent so the Models page matches
     // the chosen theme. Categories stay distinguishable by their SF Symbol

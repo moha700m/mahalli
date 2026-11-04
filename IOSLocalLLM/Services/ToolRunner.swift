@@ -701,7 +701,7 @@ enum ToolRunner {
     @MainActor
     private static func runDescribeImage() async -> String {
         guard let img = ToolBridge.shared.lastImage else {
-            return "Error: no recent image. Ask the user to attach one or open the camera tab."
+            return "Error: no recent image. Ask the user to attach one."
         }
         // Convert UIImage to CVPixelBuffer for FastVLM's analyze() API.
         guard let pb = img.toCVPixelBuffer() else {

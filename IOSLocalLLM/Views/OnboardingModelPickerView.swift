@@ -175,7 +175,7 @@ struct OnboardingModelPickerView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
         }
-        .background(LiquidPinkBackdrop())
+        .background(SahlBackdrop())
         .overlay {
             // The gate is a blocking setup state, so it gets a full-screen
             // scrim + solid panel rather than a gradient bottom bar. The old
@@ -670,9 +670,9 @@ struct OnboardingModelPickerView: View {
         settings.hasPickedAssistantModel = true
 
         // Save visual pick — written as the camera-visual repo ID so
-        // the lens tab picks it up without further plumbing.
+        // the vision tab picks it up without further plumbing.
         LocalModelRegistry.setVisionSelection(pickedVisualRepoID, settings: settings)
-        settings.hasPickedCameraVisualModel = true
+        settings.hasPickedVisionModel = true
 
         // Trigger downloads where needed.
         if let assistant = center.models.first(where: { $0.id == pickedAssistantID }),

@@ -28,7 +28,7 @@ struct ModelStorageCleanupView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                LiquidPinkBackdrop()
+                SahlBackdrop()
                 ScrollView {
                     LazyVStack(spacing: 14) {
                         ModelStorageCleanupHeader(
@@ -181,7 +181,7 @@ private struct ModelStorageCleanupItem: Identifiable {
         let settings = AppSettings.shared
         let assistant = LocalModelRegistry.unwrapAssistantSelectionID(settings.assistantModelID)
         let voiceAssistant = LocalModelRegistry.unwrapAssistantSelectionID(settings.voiceConversationModelID)
-        let vision = LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+        let vision = LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         let ids = Set([model.id, model.sourceRepoID])
         if ids.contains(assistant) || ids.contains(voiceAssistant) || ids.contains(vision) { return true }
         if let engine = model.supportedVoiceEngine,

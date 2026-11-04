@@ -283,7 +283,7 @@ private enum Vision {
         ///
         /// On ANY Core ML failure — the model failed to load/compile, OOM, a
         /// prediction error — this returns a zero-filled feature map instead of
-        /// crashing. This path runs on the live Lens loop via the MLX module
+        /// crashing. This path runs on the live vision loop via the MLX module
         /// graph (a non-throwing `callAsFunction`), so a thrown error here had
         /// nowhere to go but `try!` → SIGABRT, taking the whole app down the
         /// instant the camera saw a frame with a bad/half-loaded encoder. A

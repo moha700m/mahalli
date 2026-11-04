@@ -74,7 +74,7 @@ struct CompareView: View {
                 }
                 .padding(.bottom, 32)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {

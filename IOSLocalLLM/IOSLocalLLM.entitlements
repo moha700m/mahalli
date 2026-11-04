@@ -12,5 +12,10 @@
        space on devices with >4 GB of physical memory. -->
   <key>com.apple.developer.kernel.extended-virtual-addressing</key>
   <true/>
+  <!-- Shared container with the share extension. -->
+  <key>com.apple.security.application-groups</key>
+  <array>
+    <string>group.com.justmgz.mahalli.shared</string>
+  </array>
 </dict>
 </plist>

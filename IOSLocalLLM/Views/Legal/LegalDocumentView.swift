@@ -68,7 +68,7 @@ struct LegalDocumentView: View {
                         .kClearGlass(in: Rectangle(), fallbackFill: T.surface)
                 }
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationTitle(title.lowercased())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)

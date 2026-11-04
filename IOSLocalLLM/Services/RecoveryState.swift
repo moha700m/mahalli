@@ -12,7 +12,7 @@ struct RecoveryState: Codable, Sendable {
     /// True when the previous session did NOT complete a clean shutdown.
     var uncleanExit: Bool = false
 
-    /// The runtime slot active at shutdown time (assistant / lens / voice).
+    /// The runtime slot active at shutdown time (assistant / vision / voice).
     var lastActiveSlot: String?
 
     /// Repo ID of the model loaded when the app last went to background.

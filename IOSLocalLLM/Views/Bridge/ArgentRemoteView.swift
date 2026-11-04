@@ -74,7 +74,7 @@ struct ArgentRemoteView: View {
             .padding(.top, 12)
             .padding(.bottom, 24)
         }
-        .background(LiquidPinkBackdrop())
+        .background(SahlBackdrop())
         .navigationTitle("Argent Remote")
         .navigationBarTitleDisplayMode(.inline)
         .task { await initialLoad() }

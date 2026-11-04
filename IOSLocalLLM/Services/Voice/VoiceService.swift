@@ -221,7 +221,7 @@ final class VoiceService: ObservableObject {
         // Strip chain-of-thought before chunking. Thinking-mode users
         // can still see the reasoning on screen — `liveReply` in the
         // conversation service is fed the raw stream — but anything
-        // routed through `speak()` (analysis panel auto-read, Lens
+        // routed through `speak()` (analysis panel auto-read, vision
         // speak-on-final, "read aloud" button, voice preview) is for
         // audio only and must not narrate the model's scratch work.
         let speakable = ReasoningStripper.strip(text)
@@ -915,7 +915,7 @@ final class VoiceService: ObservableObject {
 // MARK: - StreamingSpeechSession (retired)
 //
 // The producer/consumer queue that used to live here now lives in
-// `Services/Voice/Pipeline/AudioQueue.swift`. The rename gives Lens
+// `Services/Voice/Pipeline/AudioQueue.swift`. The rename gives vision
 // (session 3) an independent queue instance per surface and makes
 // the @Published state available for the status pill UI. The shape
 // is otherwise identical — same suspension semantics, same

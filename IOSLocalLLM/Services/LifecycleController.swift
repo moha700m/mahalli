@@ -81,7 +81,7 @@ final class LifecycleController: Sendable {
     // MARK: - .inactive
 
     /// Transient — do NOT unload models. Pause camera, stop accepting new
-    /// Lens requests. Debounce destructive cleanup because Control Center,
+    /// vision requests. Debounce destructive cleanup because Control Center,
     /// alerts, and system overlays all trigger `.inactive`.
     private func onInactive(epoch: UInt64) async {
         guard epoch == lifecycleEpoch else { return }
@@ -93,7 +93,7 @@ final class LifecycleController: Sendable {
 
         guard epoch == lifecycleEpoch else { return }
 
-        // Stop accepting new Lens requests — any in-flight describe() will
+        // Stop accepting new vision requests — any in-flight describe() will
         // complete naturally.
         VisionInferenceLoop.shared.suspendNewRequests()
 
@@ -243,7 +243,7 @@ final class LifecycleController: Sendable {
             operation: "active"
         )
 
-        // Resume Lens request acceptance.
+        // Resume vision request acceptance.
         VisionInferenceLoop.shared.resumeNewRequests()
 
         // Camera handles its own lifecycle via willEnterForeground notification.

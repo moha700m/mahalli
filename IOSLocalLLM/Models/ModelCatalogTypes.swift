@@ -339,7 +339,7 @@ enum LocalModelRole: String, CaseIterable, Codable, Hashable {
 }
 
 /// Routing contract for a single model package that can serve Assistant and
-/// Lens. A fitting VLM runtime may be shared, while oversized vision models
+/// vision. A fitting VLM runtime may be shared, while oversized vision models
 /// remain usable through an independently bounded Assistant text runtime.
 enum DualRoleModelPolicy {
     static func isTextAndVision(repoID: String) -> Bool {
@@ -354,7 +354,7 @@ enum DualRoleModelPolicy {
     static func selectionsMatch(repoID: String) -> Bool {
         let assistantRepo = AssistantModelCatalog.currentSelection().repoID
         let visionSelection = LocalModelRegistry.storedVisionSelectionID(
-            AppSettings.shared.cameraVisualModelID
+            AppSettings.shared.visionModelID
         )
         return isTextAndVision(repoID: repoID)
             && assistantRepo.caseInsensitiveCompare(repoID) == .orderedSame
@@ -448,7 +448,7 @@ enum LocalModelRegistry {
 
     /// Repository IDs that shipped as selectable visual models in older
     /// builds but now have a safer, API-compatible runtime representation.
-    /// Keep this at the selection boundary so every caller (Lens, narrator,
+    /// Keep this at the selection boundary so every caller (vision, narrator,
     /// residency advisor, picker, and LocalAIController) sees one canonical
     /// model/backend without each feature maintaining its own migration.
     private static let legacyVisionSelectionAliases: [String: String] = [
@@ -523,7 +523,7 @@ enum LocalModelRegistry {
     }
 
     static func setVisionSelection(_ selectionID: String, settings: AppSettings = .shared) {
-        settings.cameraVisualModelID = persistedVisionRepoID(for: selectionID)
+        settings.visionModelID = persistedVisionRepoID(for: selectionID)
     }
 
     static func visionRuntime(forStoredSelectionID storedRepoID: String,

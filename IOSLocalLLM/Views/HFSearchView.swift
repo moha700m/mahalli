@@ -33,7 +33,7 @@ struct HFSearchView: View {
                 Rectangle().fill(T.rule).frame(height: 1)
                 resultsList
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationTitle("Find Models")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)

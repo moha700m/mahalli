@@ -62,7 +62,7 @@ final class DownloadableModel: ObservableObject, Identifiable {
 
     /// A package can serve more than its primary catalog category. Today this
     /// is used by unified text+vision models: they stay a single download but
-    /// surface in both Assistant and Lens.
+    /// surface in both Assistant and vision.
     func supportsCategory(_ requested: Category) -> Bool {
         if category == requested { return true }
         return requested == .vlm && capabilities.contains(.vision)
@@ -378,11 +378,11 @@ final class ModelDownloadCenter: ObservableObject {
             settings.voiceConversationModelID = ""
         }
 
-        let visualStored = LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+        let visualStored = LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         if let visualModel = matchingModel(visualStored),
            !visualModel.supportsCategory(.vlm) {
-            settings.cameraVisualModelID = ""
-            settings.hasPickedCameraVisualModel = false
+            settings.visionModelID = ""
+            settings.hasPickedVisionModel = false
         }
     }
 
@@ -994,7 +994,7 @@ final class ModelDownloadCenter: ObservableObject {
             || Self.selects(model, assistantID: assistant.activeSelectionID) {
             assistant.unload()
         }
-        if Self.selects(model, visualID: settings.cameraVisualModelID) {
+        if Self.selects(model, visualID: settings.visionModelID) {
             if model.id == FastVLMService.modelID {
                 FastVLMService.shared.unload()
             } else {
@@ -1021,9 +1021,9 @@ final class ModelDownloadCenter: ObservableObject {
         if Self.selects(model, assistantID: settings.voiceConversationModelID) {
             settings.voiceConversationModelID = ""
         }
-        if Self.selects(model, visualID: settings.cameraVisualModelID) {
-            settings.cameraVisualModelID = ""        // default = FastVLM
-            settings.hasPickedCameraVisualModel = false
+        if Self.selects(model, visualID: settings.visionModelID) {
+            settings.visionModelID = ""        // default = FastVLM
+            settings.hasPickedVisionModel = false
         }
     }
 

@@ -41,7 +41,7 @@ import MLXVLM
 // `SmolVLMProcessor.prepare(input:)` has a video branch, but the
 // `VideoFrame` and `ProcessedFrames` types only expose their CIImage /
 // MLXArray storage with `internal` access — we cannot reconstruct
-// them from outside the MLXVLM module. The IOSLocalLLM lens loop never
+// them from outside the MLXVLM module. The IOSLocalLLM vision loop never
 // feeds video into the processor (it streams CIImage frames as
 // `input.images`), so dropping that branch is a correctness no-op
 // here; the live-camera and describe paths only exercise the image
@@ -116,7 +116,7 @@ final class SmolVLM2RescueProcessor: UserInputProcessor {
 
         // Video path is intentionally unsupported (see the header
         // comment: VideoFrame/ProcessedFrames have internal storage,
-        // and the lens pipeline doesn't feed video anyway).
+        // and the vision pipeline doesn't feed video anyway).
         throw VLMError.singleMediaTypeAllowed
     }
 

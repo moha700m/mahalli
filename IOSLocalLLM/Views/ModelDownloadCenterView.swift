@@ -69,7 +69,7 @@ struct ModelDownloadCenterView: View {
             .sheet(item: $presetSearch) { p in
                 HFSearchView(initialFilter: p.filter, initialQuery: p.query)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .onAppear { center.refreshAllStates() }
             // Refresh when app comes back to foreground, in case the user
             // deleted files externally or another tab finished a download.

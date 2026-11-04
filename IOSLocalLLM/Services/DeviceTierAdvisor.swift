@@ -226,7 +226,7 @@ enum DeviceTierAdvisor {
 
     /// HuggingFace repo IDs that earlier builds auto-selected but that
     /// turned out to 404 / lack required files. If a stale install still
-    /// has one of these in `cameraVisualModelID`, we replace it with the
+    /// has one of these in `visionModelID`, we replace it with the
     /// current recommendation on next launch even though the user has
     /// "touched the picker" (auto-pick from a prior build counted as a
     /// touch, which trapped users on a broken repo).
@@ -246,7 +246,7 @@ enum DeviceTierAdvisor {
     /// an explicit pick) get migrated to the current recommendation.
     /// Distinguished from `staleVisualModelRepoIDs` because these repos DO
     /// exist and load — they just don't work for our use case. Migration
-    /// respects `hasPickedCameraVisualModel`: if the user genuinely went
+    /// respects `hasPickedVisionModel`: if the user genuinely went
     /// to the picker and chose one of these, we don't override.
     private static let inaccurateAutoPickedVisualModelRepoIDs: Set<String> = [
         // SmolVLM2-500M-Video-Instruct (MLX): the old bundled default.
@@ -269,14 +269,14 @@ enum DeviceTierAdvisor {
         // Old MLX SmolVLM2-Video bundle. The weights were deleted
         // from the app's Resources folder when we switched to the
         // GGUF Q8 pair. If a user upgrades and their persisted
-        // cameraVisualModelID still points here, the load would
+        // visionModelID still points here, the load would
         // fail immediately. Force-migrate to the new recommendation
         // (SmolVLM2 GGUF, which IS bundled).
         "HuggingFaceTB/SmolVLM2-500M-Video-Instruct-mlx",
     ]
 
     /// First-launch wiring for the camera VLM. We default the user onto a
-    /// tier-appropriate SmolVLM (the lens UI was clearly designed around
+    /// tier-appropriate SmolVLM (the vision UI was clearly designed around
     /// SmolVLM-style captions) and trigger the background download so the
     /// camera works the first time they open it instead of staring at a
     /// "FastVLM failed to load" toast. Idempotent — switchTo() short-
@@ -286,14 +286,14 @@ enum DeviceTierAdvisor {
     static func applyDefaultVisualModelIfNeeded() {
         let s = AppSettings.shared
 
-        // One-shot migration: clear hasPickedCameraVisualModel if the
+        // One-shot migration: clear hasPickedVisionModel if the
         // persisted repo id was auto-selected by an earlier build that
         // turned out to point at a broken repo. Without this, users who
         // launched with the old SmolVLM2 default get stuck on it forever
         // because the picker logic treats "set by anyone" as "user picked".
-        if staleVisualModelRepoIDs.contains(s.cameraVisualModelID) {
-            s.hasPickedCameraVisualModel = false
-            s.cameraVisualModelID = ""
+        if staleVisualModelRepoIDs.contains(s.visionModelID) {
+            s.hasPickedVisionModel = false
+            s.visionModelID = ""
         }
 
         // Forced migration: bundled-asset removals require us to move
@@ -302,9 +302,9 @@ enum DeviceTierAdvisor {
         // deletion of the MLX SmolVLM2-Video bundle when we switched
         // to the GGUF version — users persisted to that repoID would
         // fail to load on the new build because the weights are gone.
-        if Self.forciblyMigrateAwayVisualModelRepoIDs.contains(s.cameraVisualModelID) {
-            s.hasPickedCameraVisualModel = false
-            s.cameraVisualModelID = ""
+        if Self.forciblyMigrateAwayVisualModelRepoIDs.contains(s.visionModelID) {
+            s.hasPickedVisionModel = false
+            s.visionModelID = ""
             print("[DeviceTierAdvisor] Forcibly migrated user off retired VLM repo")
         }
 
@@ -316,28 +316,28 @@ enum DeviceTierAdvisor {
 
         // Recovery: a previous build of this app migrated users from the
         // bundled SmolVLM2-Video-Instruct to mlx-community/SmolVLM-Instruct-4bit
-        // (which isn't bundled, so the lens would silently wait for a
+        // (which isn't bundled, so the vision would silently wait for a
         // 600 MB download). If we detect that state — recommended repo
         // set, but its weights aren't on disk, AND the bundled repo IS
-        // on disk — restore the bundled repo so the lens works
+        // on disk — restore the bundled repo so the vision works
         // immediately. This is idempotent: once the new model is
         // downloaded, both branches have weights and the existing
         // selection wins.
-        if !s.hasPickedCameraVisualModel,
-           s.cameraVisualModelID == "mlx-community/SmolVLM-Instruct-4bit",
-           !hasHubApiWeights(for: s.cameraVisualModelID),
+        if !s.hasPickedVisionModel,
+           s.visionModelID == "mlx-community/SmolVLM-Instruct-4bit",
+           !hasHubApiWeights(for: s.visionModelID),
            hasHubApiWeights(for: BundledVLMInstaller.bundledRepoID) {
-            s.cameraVisualModelID = BundledVLMInstaller.bundledRepoID
+            s.visionModelID = BundledVLMInstaller.bundledRepoID
         }
 
-        guard !s.hasPickedCameraVisualModel else { return }
+        guard !s.hasPickedVisionModel else { return }
 
         // First-launch only: pick a tier-appropriate VLM so the picker
-        // and the lens UI know which repo to target. We deliberately do
+        // and the vision UI know which repo to target. We deliberately do
         // NOT call MLXVisionService.switchTo() here — that ran on every
         // cold launch in the previous shape and was the auto-load that
         // tripped `mlx::core::gpu::check_error` SIGABRTs before the user
-        // even reached the lens tab. The actual model load now happens
+        // even reached the vision tab. The actual model load now happens
         // lazily on first capture (AnalysisService.tryMLXVisionPath →
         // switchTo), which is gated by the user-initiated capture tap
         // in CameraRootView. Launch becomes free of any Metal work.
@@ -360,9 +360,9 @@ enum DeviceTierAdvisor {
         if preferBundled,
            (bundledVLMShipsWithApp() || hasHubApiWeights(for: BundledVLMInstaller.bundledRepoID))
         {
-            s.cameraVisualModelID = BundledVLMInstaller.bundledRepoID
+            s.visionModelID = BundledVLMInstaller.bundledRepoID
         } else {
-            s.cameraVisualModelID = recommendedVisualModelRepoID
+            s.visionModelID = recommendedVisualModelRepoID
         }
     }
 

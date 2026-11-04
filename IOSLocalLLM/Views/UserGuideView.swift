@@ -143,19 +143,30 @@ struct UserGuideView: View {
             }
             .padding(.bottom, 40)
         }
-        .background(LiquidPinkBackdrop())
+        .background(SahlBackdrop())
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
     }
 
     @ViewBuilder
+    /// Simple symbol illustration (the upstream screenshots are not reused).
     private func visualImage(_ name: String) -> some View {
-        Image(name)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .cornerRadius(12)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(T.glassBorder, lineWidth: 0.5))
-            .shadow(color: .black.opacity(0.08), radius: 14, y: 3)
+        let symbol: String = {
+            switch name {
+            case "img_assistant":   return "bubble.left.and.bubble.right"
+            case "img_prompting":   return "text.cursor"
+            case "img_generation":  return "wand.and.stars"
+            case "img_voice":       return "waveform"
+            case "img_mac_bridge":  return "desktopcomputer"
+            default:                return "sparkles"
+            }
+        }()
+        return Image(systemName: symbol)
+            .font(.system(size: 34, weight: .regular))
+            .foregroundColor(T.accent)
+            .frame(maxWidth: .infinity, minHeight: 96)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(T.accentSofter))
+            .accessibilityHidden(true)
     }
 
     @ViewBuilder

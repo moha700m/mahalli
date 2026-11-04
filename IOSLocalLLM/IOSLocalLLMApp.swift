@@ -1,38 +1,50 @@
+// Copyright (c) 2026 justmgz
+// SPDX-License-Identifier: MIT
+//
+// Mahalli (محلّي) — app entry point. Derived from the MIT-licensed
+// ios-local-llm project; see NOTICE.
+
 import SwiftUI
 import UIKit
 
 @main
-struct OnDeviceLASApp: App {
-    @UIApplicationDelegateAdaptor(LASAppDelegate.self) private var appDelegate
+struct MahalliApp: App {
+    @UIApplicationDelegateAdaptor(MahalliAppDelegate.self) private var appDelegate
     @ObservedObject private var settings = AppSettings.shared
     @Environment(\.scenePhase) private var scenePhase
+
+    init() {
+        // Fonts are declared in Info.plist (UIAppFonts); this is a fallback.
+        SahlFonts.registerBundledFonts()
+    }
 
     var body: some Scene {
         WindowGroup {
             ZStack {
-                // Shared ambient sample field so clear Liquid Glass has live
-                // pixels to refract (transparent-glass pattern).
-                LiquidPinkBackdrop()
+                SahlBackdrop()
 
                 Group {
                     if settings.hasSeenOnboarding {
-                        LocalAPIServerView()
+                        MahalliRootView()
                             .transition(.opacity)
                     } else {
-                        LASOnboardingView()
+                        OnboardingView()
                             .transition(.opacity)
                     }
                 }
             }
             .lasTheme()
+            .onOpenURL { url in
+                AppBridge.shared.handleIncomingURL(url)
+            }
         }
         .onChange(of: scenePhase) { _, newPhase in
-            LASLifecycleController.shared.handle(newPhase)
+            LifecycleController.shared.handle(phase: newPhase)
         }
     }
 }
 
-final class LASAppDelegate: NSObject, UIApplicationDelegate {
+final class MahalliAppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
@@ -59,64 +71,6 @@ final class LASAppDelegate: NSObject, UIApplicationDelegate {
             let coordinator = BackgroundDownloadCoordinator.shared
             coordinator.systemCompletionHandler = completionHandler
             coordinator.reattach()
-        }
-    }
-}
-
-/// Lifecycle policy for the server-only product.
-///
-/// The listener is deliberately stopped when the app backgrounds. This keeps
-/// the local API opt-in and matches iOS's foreground execution boundary. Any
-/// resident model is drained before the process gives the system its memory
-/// back; the user can load the selected model again after returning.
-@MainActor
-final class LASLifecycleController {
-    static let shared = LASLifecycleController()
-
-    private var epoch: UInt64 = 0
-
-    func handle(_ phase: ScenePhase) {
-        epoch &+= 1
-        let currentEpoch = epoch
-        Task { [weak self] in
-            guard let self else { return }
-            await self.apply(phase, epoch: currentEpoch)
-        }
-    }
-
-    private func apply(_ phase: ScenePhase, epoch: UInt64) async {
-        guard epoch == self.epoch else { return }
-
-        switch phase {
-        case .active:
-            CrashReporter.shared.markRunning()
-            guard AppSettings.shared.hasSeenOnboarding else { return }
-            if AppSettings.shared.localAPIEnabled {
-                await LocalAPIManager.shared.start()
-            }
-            guard epoch == self.epoch else { return }
-            if AppSettings.shared.localAPIAutoLoadModel {
-                CodingAssistantService.shared.startLoad()
-            }
-            guard epoch == self.epoch else { return }
-        case .background:
-            // Clear the crash marker before the first suspension point. iOS
-            // may suspend or terminate a backgrounded process while an
-            // awaited shutdown is still pending; leaving the foreground
-            // marker armed past that await misclassifies an ordinary
-            // background termination as a jetsam/watchdog crash next launch.
-            CrashReporter.shared.markCleanShutdown()
-            await LocalAPIManager.shared.stop()
-            guard epoch == self.epoch else { return }
-            CodingAssistantService.shared.cancelLoad()
-            CodingAssistantService.shared.stopGeneration()
-            await CodingAssistantService.shared.unloadAndWaitForCleanup()
-            guard epoch == self.epoch else { return }
-            await MLXGenerationGate.shared.clearCacheWhenIdle()
-        case .inactive:
-            break
-        @unknown default:
-            break
         }
     }
 }

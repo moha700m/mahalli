@@ -88,7 +88,7 @@ struct VoiceLibraryView: View {
             .padding(.top, 8)
             .padding(.bottom, 28)
         }
-        .background(LiquidPinkBackdrop())
+        .background(SahlBackdrop())
         .scrollIndicators(.hidden)
         .onAppear { tabVisible = true }
         .onDisappear { tabVisible = false }

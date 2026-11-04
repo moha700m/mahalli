@@ -228,7 +228,7 @@ enum AssistantModelCatalog {
             repoID: "prism-ml/Bonsai-27B-mlx-1bit",
             displayName: "Bonsai 27B",
             subtitle: "1-bit · 5.2 GB download · high-memory iOS + Mac",
-            // Text-only peak with the bounded 2K/4-bit KV profile. Lens uses
+            // Text-only peak with the bounded 2K/4-bit KV profile. vision uses
             // its separate vision admission estimate (~8.7 GB including load
             // and camera headroom), so this value must not include image
             // activations or Assistant becomes unusable on 12 GB iPhones.

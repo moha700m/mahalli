@@ -82,7 +82,7 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            LiquidPinkBackdrop()
+            SahlBackdrop()
 
             VStack(spacing: 0) {
                 // Wordmark header

@@ -38,7 +38,7 @@ struct VoiceProfile: Equatable {
 
     /// Which boundary detector to use for streaming TTS chunking.
     /// `.sentence` is the historical default (Assistant); `.clause`
-    /// produces snappier audio for descriptive Lens narration.
+    /// produces snappier audio for descriptive vision narration.
     let chunkingStrategy: SemanticChunker.Strategy
 
     /// Multiplier applied to AVSpeech's base rate. Profile defaults

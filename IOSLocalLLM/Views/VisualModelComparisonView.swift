@@ -87,7 +87,7 @@ struct VisualModelComparisonView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {

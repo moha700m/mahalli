@@ -22,7 +22,7 @@ struct WebActivityLogView: View {
                 }
                 .padding(.bottom, 32)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationTitle("Web Activity")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)

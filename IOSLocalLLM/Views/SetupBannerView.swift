@@ -131,7 +131,7 @@ struct SetupBannerView: View {
     private var shouldShow: Bool {
         // If the user switched the camera VLM to another downloaded model,
         // the FastVLM banner is irrelevant.
-        if !LocalModelRegistry.isDefaultVisionSelection(AppSettings.shared.cameraVisualModelID) {
+        if !LocalModelRegistry.isDefaultVisionSelection(AppSettings.shared.visionModelID) {
             return false
         }
         // Show WHILE downloading so the live progress is visible (this is the
@@ -160,7 +160,7 @@ struct SetupBannerView: View {
             return "tap to retry"
         }
         // FastVLM-specific — NOT a whole-catalog "N/25 ready" count, which was
-        // meaningless to a user trying to enable the Lens.
+        // meaningless to a user trying to enable the vision.
         let size = center.fastvlmModel?.sizeLabel ?? "~400 MB"
         return "on-device vision model · \(size)"
     }

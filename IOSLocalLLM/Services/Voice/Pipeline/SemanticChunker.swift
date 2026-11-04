@@ -44,7 +44,7 @@ final class SemanticChunker {
         case sentence
 
         /// `.sentence` PLUS `, ; :` + whitespace + word. Used by the
-        /// Lens descriptive narration in session 3 for snappier
+        /// vision descriptive narration in session 3 for snappier
         /// chunking. NOT used by the conversation pipeline.
         case clause
 

@@ -653,7 +653,7 @@ final class HFModelDownloadManager: ObservableObject, Identifiable {
         guard let url = URL(string: urlString) else { throw URLError(.badURL) }
 
         var request = URLRequest(url: url)
-        request.setValue("ios-local-llm/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        request.setValue("Mahalli/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.timeoutInterval = 30
         HFTokenStore.authorize(&request)
@@ -862,7 +862,7 @@ final class HFModelDownloadManager: ObservableObject, Identifiable {
         let urlString = "https://huggingface.co/api/models/\(repoID)"
         guard let url = URL(string: urlString) else { throw URLError(.badURL) }
         var request = URLRequest(url: url)
-        request.setValue("ios-local-llm/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        request.setValue("Mahalli/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         HFTokenStore.authorize(&request)
         let (data, _) = try await URLSession.shared.data(for: request)
@@ -891,7 +891,7 @@ final class HFModelDownloadManager: ObservableObject, Identifiable {
         guard let url = URL(string: urlString) else { return nil }
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
-        request.setValue("ios-local-llm/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        request.setValue("Mahalli/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.timeoutInterval = 15
         HFTokenStore.authorize(&request)
         do {

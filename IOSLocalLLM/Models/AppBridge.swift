@@ -18,7 +18,7 @@ final class AppBridge: ObservableObject {
 
     // Drives tab switch in ContentView. Use `requestTab(_:)` rather than
     // poking the int directly so call sites are self-documenting.
-    //   0 = camera (lens), 1 = assistant, 2 = models, 3 = mac (bridge),
+    //   0 = camera (vision), 1 = assistant, 2 = models, 3 = mac (bridge),
     //   4 = voice.
     @Published var requestedTab: Int? = nil
 
@@ -126,16 +126,16 @@ final class AppBridge: ObservableObject {
 
     // MARK: - Share-extension inbound
 
-    /// Handles `ios-local-llm://share?...` URLs from the share extension.
+    /// Handles `mahalli://share?...` URLs from the share extension.
     /// Supports four payload shapes:
-    ///   • `file=<jpg>`     — staged image, routes to camera/lens tab
+    ///   • `file=<jpg>`     — staged image, routes to camera/vision tab
     ///   • `textfile=<txt>` — long text staged to a file, routes to assistant
     ///   • `text=<...>`     — short text inlined in the query
     ///   • `url=<...>`      — URL inlined in the query, routes to assistant
     /// The text/URL paths land in `pendingSharedText` and switch to the
     /// assistant tab so CodingAssistantView can prefill the composer.
     func handleIncomingURL(_ url: URL) {
-        guard url.scheme == "ios-local-llm", url.host == "share" else { return }
+        guard url.scheme == "mahalli", url.host == "share" else { return }
         guard let comps = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let items = comps.queryItems
         else { return }
@@ -162,7 +162,7 @@ final class AppBridge: ObservableObject {
         }
     }
 
-    /// `ios-local-llm://share?file=…` is a PUBLIC custom URL scheme — any app or web
+    /// `mahalli://share?file=…` is a PUBLIC custom URL scheme — any app or web
     /// page can invoke it. The filename must be a single safe path component so
     /// a value like "../../Documents/conversations.json" can't escape the
     /// staging dir and give an out-of-app caller arbitrary read/delete in our

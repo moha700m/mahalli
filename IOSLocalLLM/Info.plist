@@ -3,9 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>ar</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ar</string>
+		<string>en</string>
+	</array>
+	<key>CFBundleAllowMixedLocalizations</key>
+	<true/>
 	<key>CFBundleDisplayName</key>
-	<string>On Device: LAS</string>
+	<string>محلّي</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,15 +24,48 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.2.6</string>
+	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.justmgz.mahalli</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mahalli</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2026 justmgz. Based on ios-local-llm (MIT) by Mesut and contributors.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>On Device: LAS exposes your selected on-device language model to trusted computers on your local network.</string>
+	<string>يتيح «محلّي» نموذجك المحلي للأجهزة الموثوقة على شبكتك المحلية، ويقترن بجهاز Mac عند طلبك.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_localllm._tcp</string>
+	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>يستخدم «محلّي» الميكروفون للمحادثة الصوتية والإملاء، وتتم المعالجة على جهازك.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>يحوّل «محلّي» كلامك إلى نص على جهازك أثناء المحادثة الصوتية.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>تُستخدم الكاميرا فقط لمسح رمز QR عند إقران جهاز Mac.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>يحفظ «محلّي» الصور التي تنشئها في مكتبة الصور عند طلبك.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>IBMPlexSansArabic-Light.ttf</string>
+		<string>IBMPlexSansArabic-Regular.ttf</string>
+		<string>IBMPlexSansArabic-Medium.ttf</string>
+		<string>IBMPlexSansArabic-SemiBold.ttf</string>
+		<string>IBMPlexSansArabic-Bold.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -36,7 +76,7 @@
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
-		<string></string>
+		<string>LaunchBackground</string>
 	</dict>
 	<key>UIRequiresFullScreen</key>
 	<true/>

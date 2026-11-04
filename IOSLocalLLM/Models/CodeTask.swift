@@ -19,7 +19,7 @@ enum CodeTask: String, CaseIterable, Identifiable {
     /// model loading entirely (and works even with no LLM downloaded).
     var usesLLM: Bool { self != .extract }
 
-    /// Short chip label (lowercase to match the lens' mono-pill aesthetic).
+    /// Short chip label (lowercase to match the vision' mono-pill aesthetic).
     var label: String {
         switch self {
         case .extract: return "extract"

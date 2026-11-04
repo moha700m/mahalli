@@ -33,7 +33,7 @@ private struct AssistantRuntimeDetailsSheetHost: View {
 
 struct CodingAssistantView: View {
     /// TabView keeps inactive tabs mounted. Thread the real selection through
-    /// so a hidden Assistant cannot reload its model while Lens is taking
+    /// so a hidden Assistant cannot reload its model while vision is taking
     /// ownership of the inference runtime.
     let isActive: Bool
     var onClose: () -> Void = {}
@@ -200,9 +200,9 @@ struct CodingAssistantView: View {
     private let conversationBottomAnchorID = "conversation-bottom-anchor"
 
     var body: some View {
-        // Backdrop is owned by ContentView (LiquidPinkBackdrop for the assistant
+        // Backdrop is owned by ContentView (SahlBackdrop for the assistant
         // tab, Color.black for the camera tab). Painting a full-bleed T.bg here
-        // used to leak as a cream-colored vertical strip on the lens tab when
+        // used to leak as a cream-colored vertical strip on the vision tab when
         // SwiftUI kept this subtree resident across a tab switch.
         NavigationStack {
             VStack(spacing: 0) {
@@ -433,7 +433,7 @@ struct CodingAssistantView: View {
                     }
                 }
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             // Pin the composer + toolbar above the keyboard.
             //
             // Layout when keyboard is up:
@@ -878,7 +878,7 @@ struct CodingAssistantView: View {
         //
         // The "Jetsam at 6 GB" concern that drove an earlier lazy-load
         // pattern is now addressed by the cross-tab unload in
-        // ContentView.onChange(of: selectedTab) — switching to the lens
+        // ContentView.onChange(of: selectedTab) — switching to the vision
         // drops the LLM, so only one model is ever resident.
         //
         // The "Downloading on every launch" complaint was a labelling bug
@@ -3743,7 +3743,7 @@ struct CodingAssistantView: View {
     private func describeForChatGrounding(image: UIImage, prompt: String) async -> String {
         // SmolVLM2-500M Q8 is the smallest compatible visual runtime shipped
         // by the app (~520 MB on disk / ~850 MB working set). Prefer it for
-        // text-model handoffs regardless of the heavier Lens model the user
+        // text-model handoffs regardless of the heavier vision model the user
         // may have selected. The llama.cpp + mtmd path also avoids the known
         // upstream MLX SmolVLM2 tiling crash.
         if BundledVLMInstaller.isInstalled {
@@ -3779,9 +3779,9 @@ struct CodingAssistantView: View {
         }
 
         // Compatibility fallbacks: FastVLM when it is the configured default,
-        // then the user's installed Lens model. Every backend still runs
+        // then the user's installed vision model. Every backend still runs
         // sequentially and is drained before the chat model reloads.
-        let storedSelection = AppSettings.shared.cameraVisualModelID
+        let storedSelection = AppSettings.shared.visionModelID
         let selectionID = LocalModelRegistry.storedVisionSelectionID(storedSelection)
 
         if LocalModelRegistry.isDefaultVisionSelection(selectionID) {
@@ -3884,7 +3884,7 @@ struct CodingAssistantView: View {
 
         let desiredRepoID: String = {
             let visionDescriptor = LocalModelRegistry.visualDescriptor(
-                forStoredSelectionID: AppSettings.shared.cameraVisualModelID,
+                forStoredSelectionID: AppSettings.shared.visionModelID,
                 catalog: ModelDownloadCenter.shared.models
             )
             return visionDescriptor.repoID
@@ -3896,7 +3896,7 @@ struct CodingAssistantView: View {
         }
 
         let runtime = LocalModelRegistry.visionRuntime(
-            forStoredSelectionID: AppSettings.shared.cameraVisualModelID,
+            forStoredSelectionID: AppSettings.shared.visionModelID,
             catalog: ModelDownloadCenter.shared.models
         )
 
@@ -4517,7 +4517,7 @@ struct ConversationPickerView: View {
             .searchable(text: $searchText,
                         placement: .navigationBarDrawer(displayMode: .always),
                         prompt: "search conversations…")
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationTitle("history")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)

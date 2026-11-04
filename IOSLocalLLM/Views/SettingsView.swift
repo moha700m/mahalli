@@ -73,7 +73,7 @@ struct SettingsView: View {
                 }
                 .padding(.bottom, 32)
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -262,7 +262,7 @@ struct SettingsView: View {
             }
             .padding(.bottom, 32)
         }
-        .background(LiquidPinkBackdrop())
+        .background(SahlBackdrop())
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
     }
@@ -765,18 +765,18 @@ struct SettingsView: View {
                         value: $settings.fastvlmMaxTokens, in: 64...1024, step: 64)
                     .labelsHidden()
             }, last: fastVLMStatus.canGenerate || !LocalModelRegistry.isDefaultVisionSelection(
-                AppSettings.shared.cameraVisualModelID
+                AppSettings.shared.visionModelID
             ))
 
             // FastVLM "missing components" panel — only relevant when the
             // user is actually relying on FastVLM. If they've picked an MLX
-            // VLM (SmolVLM etc.) the lens won't touch FastVLM, so nagging
+            // VLM (SmolVLM etc.) the vision won't touch FastVLM, so nagging
             // them about its components here is just noise. The panel also
             // stayed visible after a successful download because
             // canGenerate requires the model to be LOADED into memory, not
             // just present on disk — copy now makes that distinction clear.
             let usingFastVLM = LocalModelRegistry.isDefaultVisionSelection(
-                AppSettings.shared.cameraVisualModelID
+                AppSettings.shared.visionModelID
             )
             if usingFastVLM, !fastVLMStatus.canGenerate {
                 let filesOnDisk = ModelDownloadCenter.shared.fastvlmModel?.isReady == true
@@ -910,7 +910,7 @@ struct SettingsView: View {
                 Rectangle().fill(T.rule).frame(height: 1)
             }
 
-            // Diagnostic toggle. When on, the lens shows a small
+            // Diagnostic toggle. When on, the vision shows a small
             // thumbnail of the exact image MLX received last (post-
             // orientation, post-resize, post-everything). Lets you
             // diagnose accuracy issues at a glance.

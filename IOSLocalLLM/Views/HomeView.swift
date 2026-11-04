@@ -49,7 +49,7 @@ struct HomeView: View {
             .padding(.top, 8)
             .padding(.bottom, 28)
         }
-        .background(LiquidPinkBackdrop())
+        .background(SahlBackdrop())
         .scrollIndicators(.hidden)
     }
 
@@ -62,7 +62,7 @@ struct HomeView: View {
                     .font(T.sans(13, .semibold))
                     .tracking(0)
                     .foregroundColor(T.ink3)
-                Text("Studio")
+                Text(loc.t("Mahalli"))
                     .font(T.display(30, .semibold))
                     .foregroundColor(T.ink)
             }

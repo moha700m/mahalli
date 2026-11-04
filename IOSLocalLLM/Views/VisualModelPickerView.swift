@@ -12,7 +12,7 @@ struct VisualModelPickerView: View {
     @ObservedObject private var center = ModelDownloadCenter.shared
     @ObservedObject private var loc = LocalizationService.shared
     // NB: deliberately NOT observing MLXVisionService.shared. While the
-    // picker is open the live caption auto-loop in the lens behind it
+    // picker is open the live caption auto-loop in the vision behind it
     // keeps ticking vision.state between .ready and .generating, which
     // re-renders the picker every few seconds. Combined with the
     // `.id(downloadTick)` rebuild trick that subtree-tear-down made the
@@ -37,7 +37,7 @@ struct VisualModelPickerView: View {
 
     init() {
         _selectedID = State(initialValue: LocalModelRegistry.storedVisionSelectionID(
-            AppSettings.shared.cameraVisualModelID
+            AppSettings.shared.visionModelID
         ))
     }
 
@@ -103,7 +103,7 @@ struct VisualModelPickerView: View {
                 // @Published, so SwiftUI rebuilds the affected rows on its
                 // own when a download completes; no manual id-bump needed.
             }
-            .background(LiquidPinkBackdrop())
+            .background(SahlBackdrop())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -610,12 +610,12 @@ struct VisualModelPickerView: View {
         }
     }
 
-    /// Commit a camera-VLM selection. Shared with the lens top-bar menu
+    /// Commit a camera-VLM selection. Shared with the vision top-bar menu
     /// in `CameraRootView` so picking from the menu and picking from this
     /// sheet have identical side-effects: AppSettings is updated, the
     /// non-matching backend is unloaded to free RAM, and the chosen
     /// backend is pre-warmed via its own `switchTo`. The picker rows and
-    /// the lens top-strip menu both funnel through here so activation stays
+    /// the vision top-strip menu both funnel through here so activation stays
     /// consistent no matter where the user switches models.
     @MainActor
     @discardableResult
@@ -638,8 +638,8 @@ struct VisualModelPickerView: View {
                 LlamaCppVLMService.shared.unload()
                 LocalModelRegistry.setVisionSelection(selectedID)
                 // Persist only after a runnable backend is confirmed. Saving a
-                // failed heavy model first made every later Lens entry retry it.
-                AppSettings.shared.hasPickedCameraVisualModel = true
+                // failed heavy model first made every later vision entry retry it.
+                AppSettings.shared.hasPickedVisionModel = true
                 ToastCenter.shared.info("FastVLM is now active")
                 return true
             } else {
@@ -679,7 +679,7 @@ struct VisualModelPickerView: View {
                 if case .ready = LlamaCppVLMService.shared.state,
                    LlamaCppVLMService.shared.activeRepoID == selectedID {
                     LocalModelRegistry.setVisionSelection(selectedID)
-                    AppSettings.shared.hasPickedCameraVisualModel = true
+                    AppSettings.shared.hasPickedVisionModel = true
                     ToastCenter.shared.info("Switched to \(model.displayName)")
                     return true
                 }
@@ -695,11 +695,11 @@ struct VisualModelPickerView: View {
                         "Vision model rejected · \(selectedID) · required=\(Int64(required).formattedBytes) · available=\(Int64(available).formattedBytes) · text-only model cannot serve as a vision model",
                         category: "vision"
                     )
-                    // Revert to the currently valid Lens selection. Never
-                    // retain a text-only model (Bonsai-27B) as the Lens
+                    // Revert to the currently valid vision selection. Never
+                    // retain a text-only model (Bonsai-27B) as the vision
                     // preference — it was rejected by VLM preflight and
                     // must not appear as the active vision model.
-                    // settings.cameraVisualModelID already holds the correct
+                    // settings.visionModelID already holds the correct
                     // safe value (setVisionSelection was never called for the
                     // rejected model); the picker UI will re-read it.
                     ToastCenter.shared.info(
@@ -712,12 +712,12 @@ struct VisualModelPickerView: View {
                 // over. switchTo() short-circuits when already loaded.
                 LlamaCppVLMService.shared.unload()
                 // Selecting the same repository in both pickers does not prove
-                // the runtime is shared. Lens must drain any independently
+                // the runtime is shared. vision must drain any independently
                 // owned Assistant text container before loading vision.
                 await vision.switchTo(repoID: selectedID)
                 if case .ready = vision.state, vision.activeRepoID == selectedID {
                     LocalModelRegistry.setVisionSelection(selectedID)
-                    AppSettings.shared.hasPickedCameraVisualModel = true
+                    AppSettings.shared.hasPickedVisionModel = true
                     ToastCenter.shared.info("Switched to \(model.displayName)")
                     return true
                 }
@@ -729,7 +729,7 @@ struct VisualModelPickerView: View {
                 vision.unload()
                 LlamaCppVLMService.shared.unload()
                 LocalModelRegistry.setVisionSelection(selectedID)
-                AppSettings.shared.hasPickedCameraVisualModel = true
+                AppSettings.shared.hasPickedVisionModel = true
                 return true
             }
         }

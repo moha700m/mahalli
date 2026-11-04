@@ -10,10 +10,11 @@ path = [
   "!IOSLocalLLM/Vendor/StableDiffusion/**",
   "!IOSLocalLLM/Resources/Voice/cmudict.txt",
   "!IOSLocalLLM/Services/FastVLM.swift",
-  "!LICENSES/**"
+  "!LICENSES/**",
+  "!IOSLocalLLM/Resources/Fonts/**"
 ]
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2026 Mesut and iOS Local LLM contributors"
+SPDX-FileCopyrightText = ["2026 justmgz", "2026 Mesut and iOS Local LLM contributors"]
 SPDX-License-Identifier = "MIT"
 
 [[annotations]]
@@ -27,3 +28,9 @@ path = "IOSLocalLLM/Resources/Voice/cmudict.txt"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Carnegie Mellon University"
 SPDX-License-Identifier = "LicenseRef-CMUdict"
+
+[[annotations]]
+path = "IOSLocalLLM/Resources/Fonts/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2017 IBM Corp."
+SPDX-License-Identifier = "OFL-1.1"

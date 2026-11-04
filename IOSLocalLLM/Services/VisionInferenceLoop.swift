@@ -27,7 +27,7 @@ struct MLXVLMExecutionProfile: Equatable, Sendable {
         let identity = "\(repoID) \(architecture ?? "")".lowercased()
         if identity.contains("bonsai-27b") || identity.contains("qwen3_5") {
             // Qwen 3.5/Bonsai 27B is a large unified text+vision backbone.
-            // Bound Lens activations/KV aggressively; Assistant and Lens may
+            // Bound vision activations/KV aggressively; Assistant and vision may
             // share its one container, but no second model should coexist.
             return .init(
                 cacheLimitBytes: 0,
@@ -62,7 +62,7 @@ struct MLXVLMExecutionProfile: Equatable, Sendable {
 
 // MARK: - VisionInferenceLoop
 //
-// Sole owner of the Lens tab's vision-language model. Replaces the
+// Sole owner of the vision tab's vision-language model. Replaces the
 // streaming inference path that used to live in MLXVisionService;
 // that class survives as a backward-compat shim for the 14 UI bindings
 // it still has, but the container, capabilities, streaming hook, and
@@ -73,7 +73,7 @@ struct MLXVLMExecutionProfile: Equatable, Sendable {
 // Two responsibilities, in order of importance:
 //
 //   1. **Container ownership.** A single `ModelContainer` resides
-//      here while the Lens tab is active. Loaded via switchTo(),
+//      here while the vision tab is active. Loaded via switchTo(),
 //      torn down via unload(). Concurrent loads are guarded by the
 //      same `loadingRepoID` latch the old service used — that
 //      pattern is what prevents two simultaneous loadContainer()
@@ -81,10 +81,10 @@ struct MLXVLMExecutionProfile: Equatable, Sendable {
 //
 //   2. **One-shot describe.** AnalysisService and the imported-image
 //      pipeline ask "describe this image" through describe(image:…),
-//      driven by the Lens tap-to-capture / interval loop in
+//      driven by the vision tap-to-capture / interval loop in
 //      CameraRootView. (A continuous per-frame streaming pipeline
 //      used to live here too, fed by the camera's
-//      `streamingFrameHandler`; it was never wired up — the Lens has
+//      `streamingFrameHandler`; it was never wired up — the vision has
 //      always been tap-to-capture — and was a crash-sensitive Metal
 //      path, so it was removed. The voice narrator now reads the
 //      one-shot describe results via AnalysisService.activeResult.)
@@ -116,12 +116,12 @@ final class VisionInferenceLoop: ObservableObject {
     @Published private(set) var activeRepoID: String?
 
     /// Resolved capabilities for the active model. Built immediately
-    /// after switchTo() succeeds; consumed by LensFramePreparer and
+    /// after switchTo() succeeds; consumed by the removed camera frame preparer and
     /// the debug overlay. nil when no model is loaded.
     @Published private(set) var capabilities: VLMCapabilities?
 
     /// Last preprocessed input the model saw — a debug-only
-    /// thumbnail captured immediately before dispatch. Lens debug
+    /// thumbnail captured immediately before dispatch. vision debug
     /// overlay reads this.
     @Published private(set) var lastModelInput: UIImage?
 
@@ -129,7 +129,7 @@ final class VisionInferenceLoop: ObservableObject {
     /// request UUID). Surfaced in the debug overlay.
     @Published private(set) var lastModelInputInfo: ModelInputInfo?
 
-    /// Whether to keep the model loaded when the Lens tab
+    /// Whether to keep the model loaded when the vision tab
     /// deactivates. Default false: a multi-GB container resident
     /// while the user is on a different tab is exactly the kind
     /// of thing that gets the app killed by Jetsam during a
@@ -148,8 +148,8 @@ final class VisionInferenceLoop: ObservableObject {
     /// streaming inference. Zero before any inference has run.
     @Published private(set) var lastTokensPerSecond: Double = 0
 
-    /// True while the lens debug overlay is on screen (set by
-    /// LensDebugOverlay onAppear/onDisappear). The `lastModelInput` /
+    /// True while the vision debug overlay is on screen (set by
+    /// the model-input debug view onAppear/onDisappear). The `lastModelInput` /
     /// `lastModelInputInfo` snapshots exist only for that overlay —
     /// building a UIImage per streaming inference when nothing reads
     /// it was pure waste, so the streaming path only populates them
@@ -162,13 +162,13 @@ final class VisionInferenceLoop: ObservableObject {
     /// unavailable. Cleared on `.active`.
     private var newRequestsSuspended = false
 
-    /// Block new Lens requests during lifecycle transitions.
+    /// Block new vision requests during lifecycle transitions.
     func suspendNewRequests() {
         newRequestsSuspended = true
         Diagnostics.shared.breadcrumb("Vision requests suspended", category: "vision")
     }
 
-    /// Re-enable Lens requests after returning to foreground.
+    /// Re-enable vision requests after returning to foreground.
     func resumeNewRequests() {
         newRequestsSuspended = false
         Diagnostics.shared.breadcrumb("Vision requests resumed", category: "vision")
@@ -176,9 +176,9 @@ final class VisionInferenceLoop: ObservableObject {
 
     #if DEBUG
     /// Diagnostic toggle (DEBUG only). When `true`, the streaming
-    /// loop bypasses LensFramePreparer and feeds the model a raw
+    /// loop bypasses the removed camera frame preparer and feeds the model a raw
     /// `CIImage(cvPixelBuffer:)` with no orientation, sRGB, or
-    /// resize correction. Used by the lens debug overlay to
+    /// resize correction. Used by the vision debug overlay to
     /// isolate "prep bugs" from "model bugs" — if the model
     /// produces sensible captions when this is on, the bug is in
     /// prep; if it still hallucinates, the bug is in the model.
@@ -218,7 +218,7 @@ final class VisionInferenceLoop: ObservableObject {
 
     private init() {
         // Drop discardable debug state on memory pressure. The last-input
-        // thumbnail + metadata exist only for the lens debug overlay — the
+        // thumbnail + metadata exist only for the vision debug overlay — the
         // cheapest possible reclaim when MemoryPressureCoordinator posts
         // .iosLocalLLMDropDiscardableCaches.
         dropCachesObserver = NotificationCenter.default.addObserver(
@@ -262,7 +262,7 @@ final class VisionInferenceLoop: ObservableObject {
         // Merely selecting the same repository in both pickers does not mean
         // the two tabs currently share one container: Assistant may own a
         // smaller text-only runtime. Treating matching selections as shared
-        // caused Lens and Assistant to load on top of each other.
+        // caused vision and Assistant to load on top of each other.
         let preserveAssistant = preserveMatchingAssistant
         // Same model already loaded — noop, but recover a stuck `.failed`
         // left behind by a prior describe() error so the next Ask tap
@@ -375,7 +375,7 @@ final class VisionInferenceLoop: ObservableObject {
         // emergency dump. Recovery is allowed when the VLM COMFORTABLY fits the
         // live headroom (full reserve kept) — mirrors MemoryAdvisor.safetyBlocker.
         // The previous `needed <= smallRecoveryModelCeiling` (1 GB) clause kept
-        // the lens stuck for the whole window because every real VLM is larger.
+        // the vision stuck for the whole window because every real VLM is larger.
         if let remaining = MemoryAdvisor.pressureCooldownRemaining {
             let fitsAsRecovery = Int64(required) <= MemoryAdvisor.availableMemoryForModel
             if !fitsAsRecovery {
@@ -657,7 +657,7 @@ final class VisionInferenceLoop: ObservableObject {
         }
     }
 
-    /// The Lens is intentionally single-runtime. Static "both fit" estimates
+    /// The vision is intentionally single-runtime. Static "both fit" estimates
     /// do not cover camera buffers, allocator peaks, or native work still
     /// finishing after cancellation. Drain every competing backend before an
     /// MLX VLM can remain active or begin loading.
@@ -733,7 +733,7 @@ final class VisionInferenceLoop: ObservableObject {
             return
         }
         // Lifecycle controller guard: during .inactive/.background
-        // transitions, refuse all new Lens work. The existing background
+        // transitions, refuse all new vision work. The existing background
         // guard above catches the steady-state case; this covers the
         // transient window where the GPU is still accessible but the
         // pipeline is draining.
@@ -790,7 +790,7 @@ final class VisionInferenceLoop: ObservableObject {
         // A catalog estimate can be wrong even when load preflight succeeded.
         // Re-check the measured loaded footprint before image encoding, where
         // vision activations are allocated on top of the resident weights. In
-        // build 45 Bonsai 27B loaded at ~5.3 GB, then its first Lens request
+        // build 45 Bonsai 27B loaded at ~5.3 GB, then its first vision request
         // lifted the process past the iPhone Jetsam watermark. Refuse before
         // submitting Metal work when the measured footprint + family reserve
         // cannot fit beneath the platform ceiling.
@@ -974,7 +974,7 @@ final class VisionInferenceLoop: ObservableObject {
             docs.appendingPathComponent("HFModels").appendingPathComponent(flattened),
             docs.appendingPathComponent("HFModels").appendingPathComponent(dirName),
             // Assistant catalog downloads land here. Dual-role packages must
-            // be consumed in place by Lens instead of downloaded again.
+            // be consumed in place by vision instead of downloaded again.
             docs.appendingPathComponent("LLMModels").appendingPathComponent(dirName),
             docs.appendingPathComponent("FastVLMModels").appendingPathComponent(dirName),
         ]
@@ -1005,7 +1005,7 @@ final class VisionInferenceLoop: ObservableObject {
             return false
         }
         let settings = AppSettings.shared
-        let currentSelection = LocalModelRegistry.storedVisionSelectionID(settings.cameraVisualModelID)
+        let currentSelection = LocalModelRegistry.storedVisionSelectionID(settings.visionModelID)
         guard currentSelection != bundledID else { return false }
         LocalModelRegistry.setVisionSelection(bundledID, settings: settings)
         ToastCenter.shared.info(
@@ -1054,7 +1054,7 @@ final class VisionInferenceLoop: ObservableObject {
         return UInt64(3 * 1_073_741_824)   // 3 GB
     }
 
-    /// Complete Lens load budget for a repository. Unlike Assistant's text
+    /// Complete vision load budget for a repository. Unlike Assistant's text
     /// footprint, this includes the model family's vision activation envelope
     /// and the fixed app/camera reserve. The catalog lookup accepts either an
     /// app preset slug or its canonical repository ID.
@@ -1236,7 +1236,7 @@ final class VisionInferenceLoop: ObservableObject {
     /// Crop both dimensions DOWN to a multiple of `alignment` (which
     /// is `patch * merge` for Qwen-VL). If the resulting pixel count
     /// would fall below `minPixels`, scale UP first and re-align.
-    /// Mirrors `LensFramePreparer.alignedToPatchGrid` for CGImage.
+    /// Mirrors `the removed camera frame preparer.alignedToPatchGrid` for CGImage.
     private static func alignedToPatchGrid(_ cg: CGImage, alignment: Int, minPixels: Int) -> CGImage {
         let w = cg.width, h = cg.height
         let alignedW = Swift.max(alignment, (w / alignment) * alignment)
@@ -1280,7 +1280,7 @@ final class VisionInferenceLoop: ObservableObject {
         return ctx.makeImage() ?? cg
     }
 
-    /// Top-left aligned crop. Mirrors LensFramePreparer's CIImage crop
+    /// Top-left aligned crop. Mirrors the removed camera frame preparer's CIImage crop
     /// — origin-anchored so the orientation step's effect on layout
     /// isn't shifted by an offset.
     private static func cropped(_ cg: CGImage, width: Int, height: Int) -> CGImage {
@@ -1350,7 +1350,7 @@ final class VisionInferenceLoop: ObservableObject {
     }
 
     /// Small UIImage thumbnail of the input the model saw, for the
-    /// lens debug overlay.
+    /// vision debug overlay.
     private static func thumbnail(from cg: CGImage, maxDim: CGFloat) -> UIImage {
         let w = CGFloat(cg.width), h = CGFloat(cg.height)
         let scale = min(maxDim / w, maxDim / h, 1)
@@ -1372,7 +1372,7 @@ final class VisionInferenceLoop: ObservableObject {
     }
 
     /// Resize-hint side length passed to MLX-VLM's processor. Pulled
-    /// from capabilities so the hint matches what the LensFrame-
+    /// from capabilities so the hint matches what the frame-
     /// Preparer already produced — the processor's internal bicubic
     /// step then has a clean square intermediate to work with.
     /// `nonisolated` because it's pure computation called from inside
