@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import UIKit
 
 // MARK: - ModelDownloadCenterView
 // Presents the full model catalog with per-model download cards.
@@ -465,6 +466,8 @@ struct ModelDownloadCard: View {
 
             memoryWarning
 
+            failureDetail
+
             if downloaderObs.isActive { progressSection }
 
             actionRow
@@ -517,6 +520,34 @@ struct ModelDownloadCard: View {
             HStack { KCompatChip(level: .blocked, text: "Won't fit", detail: msg); Spacer() }
         case .fitsComfortably:
             EmptyView()
+        }
+    }
+
+    /// The manager already produces a precise reason ("Not enough disk space…",
+    /// "Rate limited (429)…", "HTTP 403 for …"). The card used to render a bare
+    /// "failed" badge and throw that text away, so every failure looked the same
+    /// and none of them could be reported accurately.
+    @ViewBuilder
+    private var failureDetail: some View {
+        if case .failed(let message) = downloaderObs.state, !message.isEmpty {
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 10, weight: .semibold))
+                Text(message)
+                    .font(.system(size: 11, design: .monospaced))
+                    .lineLimit(4)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 4)
+                Button {
+                    UIPasteboard.general.string = message
+                    ToastCenter.shared.success("Copied", detail: "Failure reason copied")
+                } label: {
+                    Image(systemName: "doc.on.doc").font(.system(size: 11))
+                }
+                .buttonStyle(.plain)
+            }
+            .foregroundColor(T.bad)
+            .padding(.vertical, 2)
         }
     }
 
