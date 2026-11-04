@@ -719,7 +719,6 @@ final class CodingAssistantService: ObservableObject {
         // used to force `.localCoreAI` even after `currentSelection()` fell
         // back to an MLX preset, so every load failed with "Download … first."
         let resolvedModel = AssistantModelCatalog.currentSelection()
-        activeModel = resolvedModel
         activeExecutionLocation = ModelExecutionLocation.of(
             assistantModelID: resolvedModel.id
         )
