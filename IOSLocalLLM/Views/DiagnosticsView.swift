@@ -275,6 +275,15 @@ struct DiagnosticsView: View {
     /// One-button controlled A/B for the 35B family: Exact vs Bounded
     /// Prefetch through the production Assistant path with a fixed profile.
 
+
+    @MainActor
+    private func speedRunTimingSummary(_ run: Edge0SpeedABRunner.RunResult) -> String {
+        let decode = String(format: "%.2f", run.decodeTokensPerSecond)
+        let prefill = String(format: "%.1f", run.prefillSeconds)
+        let e2e = String(format: "%.2f", run.endToEndTokensPerSecond)
+        return "gen \(run.generatedTokens) · decode \(decode) tok/s · prefill \(prefill)s · e2e \(e2e) tok/s"
+    }
+
     @MainActor
     private func speedRunSummary(_ run: Edge0SpeedABRunner.RunResult) -> String {
         var parts: [String] = [
@@ -352,11 +361,7 @@ struct DiagnosticsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.red)
                         } else {
-                            Text(
-                                "gen \(run.generatedTokens) · decode \(String(format: "%.2f", run.decodeTokensPerSecond)) tok/s"
-                                + " · prefill \(String(format: "%.1f", run.prefillSeconds))s"
-                                + " · e2e \(String(format: "%.2f", run.endToEndTokensPerSecond)) tok/s"
-                            )
+                            Text(speedRunTimingSummary(run))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             Text(speedRunSummary(run))
