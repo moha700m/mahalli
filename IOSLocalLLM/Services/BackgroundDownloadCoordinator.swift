@@ -1,6 +1,7 @@
 import Foundation
 import CryptoKit
 import Network
+import UIKit
 
 // MARK: - BackgroundDownloadCoordinator
 // Shared URLSession with background configuration so model downloads continue
@@ -45,6 +46,28 @@ final class BackgroundDownloadCoordinator: NSObject {
         return URLSession(configuration: cfg, delegate: self, delegateQueue: .main)
     }()
 
+    /// Plain foreground session. Re-signed / sideloaded installs are the one
+    /// configuration where a background `URLSession` can stop delivering
+    /// delegate callbacks entirely (upstream's CoreAIHFDownloadManager carries
+    /// the same note). When that happens the file is retried here instead of
+    /// failing the whole model download.
+    private lazy var foregroundSession: URLSession = {
+        let cfg = URLSessionConfiguration.default
+        cfg.timeoutIntervalForRequest = 60
+        cfg.timeoutIntervalForResource = 60 * 60 * 6
+        cfg.waitsForConnectivity = true
+        cfg.httpMaximumConnectionsPerHost = 2
+        let wifiOnly = AppSettings.shared.wifiOnlyDownloads
+        cfg.allowsCellularAccess = !wifiOnly
+        cfg.allowsExpensiveNetworkAccess = !wifiOnly
+        return URLSession(configuration: cfg, delegate: self, delegateQueue: .main)
+    }()
+
+    /// Set once a background transfer stalled or the system refused to run it.
+    /// Every later file in this app session goes straight to the foreground
+    /// session instead of waiting out another 60-second stall.
+    private var backgroundSessionUnusable = false
+
     /// Watches the current network path so enqueue-time checks can tell
     /// whether we're on an expensive (cellular / hotspot) link.
     private let pathMonitor: NWPathMonitor = {
@@ -66,8 +89,18 @@ final class BackgroundDownloadCoordinator: NSObject {
         let expectedSize: Int64
         let progress: (Int64, Int64) -> Void
         let continuation: CheckedContinuation<URL, Error>
+        /// Last time bytes actually arrived — drives the stall watchdog.
+        var lastProgressAt: Date
+        /// The task object, so the watchdog and cancel paths can stop it
+        /// regardless of which session owns it.
+        var task: URLSessionTask?
     }
     private var pendingByTaskID: [Int: Pending] = [:]
+    private var watchdogs: [Int: Task<Void, Never>] = [:]
+    /// Synthetic "HFDownload"-domain code for a transfer that made no progress.
+    private nonisolated static let stalledCode = -3
+    /// No bytes for this long ⇒ the transfer is dead, not slow.
+    private static let stallSeconds: TimeInterval = 60
     private static let generationKey = "ondevice.downloadGeneration"
     private nonisolated static let taskDescriptionPrefix = "odc-generation:"
 
@@ -100,6 +133,35 @@ final class BackgroundDownloadCoordinator: NSObject {
         expectedSize: Int64,
         progress: @escaping (Int64, Int64) -> Void
     ) async throws -> URL {
+        if backgroundSessionUnusable {
+            return try await enqueue(from: url, to: destination, expectedSize: expectedSize,
+                                     progress: progress, foreground: true)
+        }
+        do {
+            return try await enqueue(from: url, to: destination, expectedSize: expectedSize,
+                                     progress: progress, foreground: false)
+        } catch {
+            guard Self.shouldFallBackToForeground(error) else { throw error }
+            backgroundSessionUnusable = true
+            Diagnostics.shared.warning(
+                "Background download failed (\(error.localizedDescription)) — switching to a foreground session for this run",
+                category: "hf-download"
+            )
+            return try await enqueue(from: url, to: destination, expectedSize: expectedSize,
+                                     progress: progress, foreground: true)
+        }
+    }
+
+    /// Enqueues one transfer on the chosen session and resolves when it lands
+    /// or fails. A watchdog aborts transfers that stop receiving bytes, which
+    /// is the only way out of a background task that never calls back.
+    private func enqueue(
+        from url: URL,
+        to destination: URL,
+        expectedSize: Int64,
+        progress: @escaping (Int64, Int64) -> Void,
+        foreground: Bool
+    ) async throws -> URL {
         return try await withCheckedThrowingContinuation { continuation in
             var request = URLRequest(url: url)
             request.timeoutInterval = 60
@@ -129,6 +191,8 @@ final class BackgroundDownloadCoordinator: NSObject {
                 }
             }
 
+            let session = foreground ? self.foregroundSession : self.session
+
             // Resume an interrupted transfer when URLSession handed us
             // resume data for this URL — otherwise a dropped multi-GB file
             // restarted from byte 0. EXCEPTION: an authorized request can't be
@@ -138,13 +202,15 @@ final class BackgroundDownloadCoordinator: NSObject {
             // When an auth header is present we discard the resume data and
             // rebuild from the fresh authorized request; restarting beats a
             // guaranteed auth failure. Public/non-HF downloads keep resume.
+            // Background resume data is also session-bound, so a foreground
+            // retry always starts clean.
             let hasAuthHeader = request.value(forHTTPHeaderField: "Authorization") != nil
             let task: URLSessionDownloadTask
-            if !hasAuthHeader, let resumeData = Self.consumeResumeData(for: url) {
-                task = self.session.downloadTask(withResumeData: resumeData)
+            if !foreground, !hasAuthHeader, let resumeData = Self.consumeResumeData(for: url) {
+                task = session.downloadTask(withResumeData: resumeData)
             } else {
                 if hasAuthHeader { Self.clearResumeData(for: url) }
-                task = self.session.downloadTask(with: request)
+                task = session.downloadTask(with: request)
             }
             // The destination rides on the task itself so it survives an app
             // relaunch — pendingByTaskID is in-memory only, and without this
@@ -154,9 +220,69 @@ final class BackgroundDownloadCoordinator: NSObject {
                 destination: destination,
                 expectedSize: expectedSize,
                 progress: progress,
-                continuation: continuation
+                continuation: continuation,
+                lastProgressAt: Date(),
+                task: task
             )
+            self.startWatchdog(taskID: task.taskIdentifier)
             task.resume()
+        }
+    }
+
+    // MARK: - Stall watchdog
+
+    /// Aborts a transfer that has received nothing for `stallSeconds`. The
+    /// check is skipped while the app is not active: a suspended app stops
+    /// running this task too, so "no progress" would be a false positive.
+    private func startWatchdog(taskID: Int) {
+        watchdogs[taskID]?.cancel()
+        watchdogs[taskID] = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 10 * 1_000_000_000)
+                guard let self, let pending = self.pendingByTaskID[taskID] else { return }
+                guard UIApplication.shared.applicationState == .active else {
+                    // Treat the suspension window as progress so returning to
+                    // the app never kills a healthy background transfer.
+                    self.pendingByTaskID[taskID]?.lastProgressAt = Date()
+                    continue
+                }
+                guard Date().timeIntervalSince(pending.lastProgressAt) >= Self.stallSeconds else { continue }
+                self.watchdogs[taskID] = nil
+                self.pendingByTaskID.removeValue(forKey: taskID)
+                pending.task?.cancel()
+                pending.continuation.resume(throwing: NSError(
+                    domain: "HFDownload",
+                    code: Self.stalledCode,
+                    userInfo: [NSLocalizedDescriptionKey:
+                        "Download stalled — no data for \(Int(Self.stallSeconds)) seconds."]
+                ))
+                return
+            }
+        }
+    }
+
+    private func stopWatchdog(_ taskID: Int) {
+        watchdogs[taskID]?.cancel()
+        watchdogs[taskID] = nil
+    }
+
+    /// A background session that refuses to run, stalls, or dies mid-flight is
+    /// retried once on the foreground session. Real HTTP answers (401/403/404)
+    /// are not retried — those are the server speaking, not the transport.
+    private nonisolated static func shouldFallBackToForeground(_ error: Error) -> Bool {
+        let ns = error as NSError
+        if ns.domain == "HFDownload" { return ns.code == stalledCode }
+        guard ns.domain == NSURLErrorDomain else { return false }
+        switch ns.code {
+        case NSURLErrorBackgroundSessionInUseByAnotherProcess,
+             NSURLErrorBackgroundSessionWasDisconnected,
+             NSURLErrorBackgroundSessionRequiresSharedContainer,
+             NSURLErrorTimedOut,
+             NSURLErrorNetworkConnectionLost,
+             NSURLErrorCannotConnectToHost:
+            return true
+        default:
+            return false
         }
     }
 
@@ -231,7 +357,11 @@ final class BackgroundDownloadCoordinator: NSObject {
 
     /// Cancels every in-flight download.
     func cancelAll() {
+        for task in pendingByTaskID.values { task.task?.cancel() }
         session.getAllTasks { tasks in
+            tasks.forEach { $0.cancel() }
+        }
+        foregroundSession.getAllTasks { tasks in
             tasks.forEach { $0.cancel() }
         }
     }
@@ -256,8 +386,21 @@ final class BackgroundDownloadCoordinator: NSObject {
             .filter { $0.value.destination.path.hasPrefix(destinationPrefix) }
             .map(\.key)
 
+        // Cancel through the stored task first: the transfer may be running on
+        // the foreground fallback session, which getAllTasks on `session`
+        // would never see.
+        for id in matchingIDs { pendingByTaskID[id]?.task?.cancel() }
+
         await withCheckedContinuation { continuation in
             session.getAllTasks { tasks in
+                for task in tasks where matchingIDs.contains(task.taskIdentifier) {
+                    task.cancel()
+                }
+                continuation.resume()
+            }
+        }
+        await withCheckedContinuation { continuation in
+            foregroundSession.getAllTasks { tasks in
                 for task in tasks where matchingIDs.contains(task.taskIdentifier) {
                     task.cancel()
                 }
@@ -288,7 +431,8 @@ extension BackgroundDownloadCoordinator: URLSessionDownloadDelegate {
         // method already runs on the main thread. We can use
         // MainActor.assumeIsolated to access MainActor-isolated state safely.
         let pending: Pending? = MainActor.assumeIsolated {
-            self.pendingByTaskID.removeValue(forKey: taskID)
+            self.stopWatchdog(taskID)
+            return self.pendingByTaskID.removeValue(forKey: taskID)
         }
         // After an app relaunch the in-memory Pending map is gone, but the
         // destination was stored on the task itself (taskDescription) at
@@ -376,6 +520,7 @@ extension BackgroundDownloadCoordinator: URLSessionDownloadDelegate {
         Task { @MainActor [weak self] in
             guard let self,
                   let p = self.pendingByTaskID[taskID] else { return }
+            self.pendingByTaskID[taskID]?.lastProgressAt = Date()
             let expected = totalBytesExpectedToWrite > 0
                 ? totalBytesExpectedToWrite : p.expectedSize
             p.progress(totalBytesWritten, expected)
@@ -402,6 +547,7 @@ extension BackgroundDownloadCoordinator: URLSessionDownloadDelegate {
         let taskID = task.taskIdentifier
         Task { @MainActor [weak self] in
             guard let self else { return }
+            self.stopWatchdog(taskID)
             if let p = self.pendingByTaskID.removeValue(forKey: taskID) {
                 p.continuation.resume(throwing: error)
             }
