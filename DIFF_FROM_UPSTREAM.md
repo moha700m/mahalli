@@ -3,7 +3,7 @@
 Baseline: `Mesutcydev/ondevice-core` snapshot (upstream commit 6b145d5, 2026-10-01), imported unchanged as the first commit of this repo (`Import upstream ondevice-core (MIT) source snapshot`).
 Counts are lines added / removed per file (`-` = binary). Every file not listed here is **byte-identical** to upstream.
 
-Summary: 74 removed, 14 added, 114 modified, 8 renamed.
+Summary: 74 removed, 14 added, 115 modified, 8 renamed.
 
 Removed = Lens/camera/OCR/Code-Mode sources and their test, upstream icons/screenshots/promo art, upstream CI workflows/CODEOWNERS/dependabot. Modified = Lens call-site cleanup, rebrand (ids/names/links), Sahl light theme tokens, fonts, Arabic (Saudi) strings. No engine/service logic was changed besides removing Lens hooks.
 
@@ -103,8 +103,8 @@ Removed = Lens/camera/OCR/Code-Mode sources and their test, upstream icons/scree
 
 | File | + | - |
 |---|---|---|
-| `.github/workflows/build-ipa.yml` | 141 | 0 |
-| `DIFF_FROM_UPSTREAM.md` | 237 | 0 |
+| `.github/workflows/build-ipa.yml` | 145 | 0 |
+| `DIFF_FROM_UPSTREAM.md` | 239 | 0 |
 | `IOSLocalLLM/Resources/Fonts/IBMPlexSansArabic-Bold.ttf` | - | - |
 | `IOSLocalLLM/Resources/Fonts/IBMPlexSansArabic-Light.ttf` | - | - |
 | `IOSLocalLLM/Resources/Fonts/IBMPlexSansArabic-Medium.ttf` | - | - |
@@ -118,7 +118,7 @@ Removed = Lens/camera/OCR/Code-Mode sources and their test, upstream icons/scree
 | `ThirdParty/llama.cpp` | 1 | 0 |
 | `ThirdParty/whisper.cpp` | 1 | 0 |
 
-## Modified files (114)
+## Modified files (115)
 
 | File | + | - |
 |---|---|---|
@@ -230,6 +230,7 @@ Removed = Lens/camera/OCR/Code-Mode sources and their test, upstream icons/scree
 | `scripts/build_sideload_ipa.sh` | 15 | 15 |
 | `scripts/collect_sideload_notices.py` | 1 | 1 |
 | `scripts/download_voice_models.sh` | 1 | 1 |
+| `scripts/native/build_whisper_ios.sh` | 26 | 4 |
 | `scripts/package_adhoc_sideloadable_ipa.sh` | 1 | 1 |
 | `scripts/package_background_assets.sh` | 1 | 1 |
 | `scripts/package_sideloadable_ipa.sh` | 1 | 1 |
