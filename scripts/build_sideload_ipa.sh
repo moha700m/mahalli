@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Build the full CodeLens-derived workbench and package a profile-less,
-# re-signer-ready IPA. MLX, llama.cpp, Lens, Voice, Models, the share extension,
-# Apple Private Cloud and the new Core AI runtime all stay in this product.
+# Build the iOS 18+ Mahalli workbench and package a profile-less,
+# re-signer-ready IPA. MLX, llama.cpp, Voice, Models and the share extension
+# stay in this product; the optional Core AI runtime is a separate iOS 27 build.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-XCODE="${XCODE_BETA_PATH:-/Applications/Xcode-beta.app}"
+XCODE="${XCODE_BETA_PATH:-$(xcode-select -p | sed 's|/Contents/Developer$||')}"
 export DEVELOPER_DIR="$XCODE/Contents/Developer"
 OUT_DIR="${1:-$HOME/Desktop}"
 VERSION="$(awk -F'"' '/CFBundleShortVersionString:/ { print $2; exit }' project.yml)"
@@ -16,15 +16,15 @@ ARCHIVE="$ROOT/build/Mahalli-$VERSION-$BUILD.xcarchive"
 IPA="$OUT_DIR/Mahalli-sideload-entitled-$VERSION-$BUILD.ipa"
 LATEST="$OUT_DIR/Mahalli-sideload-entitled-latest.ipa"
 APP="$ARCHIVE/Products/Applications/Mahalli.app"
-MAIN_ENTITLEMENTS="$ROOT/IOSLocalLLM/IOSLocalLLM-PCC.entitlements"
+MAIN_ENTITLEMENTS="$ROOT/IOSLocalLLM/IOSLocalLLM.entitlements"
 EXT_ENTITLEMENTS="$ROOT/IOSLocalLLMShareExtension/IOSLocalLLMShareExtension.entitlements"
 
 die() { echo "error: $*" >&2; exit 1; }
 
-[[ -d "$XCODE" ]] || die "Xcode 27 not found at $XCODE"
+[[ -d "$XCODE" ]] || die "Xcode not found at $XCODE"
 [[ -n "$VERSION" && -n "$BUILD" ]] || die "could not resolve version/build"
 
-echo "=== 1/8  Generate Xcode 27 project + CocoaPods workspace"
+echo "=== 1/8  Generate Xcode project + CocoaPods workspace"
 xcodegen generate >/dev/null
 pod install >/dev/null
 
@@ -99,7 +99,6 @@ codesign -d --entitlements :- "$SIGNED_APP" > "$ACTUAL" 2>/dev/null
 for key in \
   com.apple.developer.kernel.increased-memory-limit \
   com.apple.developer.kernel.extended-virtual-addressing \
-  com.apple.developer.private-cloud-compute \
   com.apple.security.application-groups \
   com.apple.developer.icloud-container-identifiers; do
   /usr/libexec/PlistBuddy -c "Print :$key" "$ACTUAL" >/dev/null 2>&1 \
