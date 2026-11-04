@@ -29,6 +29,7 @@ struct OnboardingModelPickerView: View {
 
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject private var center   = ModelDownloadCenter.shared
+    @ObservedObject private var loc       = LocalizationService.shared
     @Environment(\.koduTheme) private var T
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -101,11 +102,11 @@ struct OnboardingModelPickerView: View {
         let vendor: ModelVendor
         let capabilities: Set<ModelCapability>
     }
-    private let assistantPicks: [AssistantPick] = [
+    private var assistantPicks: [AssistantPick] { [
         AssistantPick(
             id: "qwen2.5-coder-1.5b",
             displayName: "Qwen 2.5 Coder 1.5B",
-            summary: "A compact starting point for writing and code. Check the device guidance below.",
+            summary: loc.t("A compact starting point for writing and code. Check the device guidance below."),
             sizeLabel: "~900 MB",
             vendor: .qwen,
             capabilities: [.recommended]
@@ -113,7 +114,7 @@ struct OnboardingModelPickerView: View {
         AssistantPick(
             id: "qwen3-4b",
             displayName: "Qwen 3 4B",
-            summary: "Stronger reasoning with /think mode. Needs ≥ 6 GB process memory.",
+            summary: loc.t("Stronger reasoning with /think mode. Needs ≥ 6 GB process memory."),
             sizeLabel: "~2.3 GB",
             vendor: .qwen,
             capabilities: [.thinking, .best]
@@ -121,12 +122,12 @@ struct OnboardingModelPickerView: View {
         AssistantPick(
             id: "llama-3.2-3b",
             displayName: "Llama 3.2 3B",
-            summary: "Meta's general-purpose chat model. Good fallback if Qwen feels too terse.",
+            summary: loc.t("Meta's general-purpose chat model. Good fallback if Qwen feels too terse."),
             sizeLabel: "~1.8 GB",
             vendor: .meta,
             capabilities: []
         ),
-    ]
+    ] }
 
     private struct VisualPick: Identifiable {
         let id: String           // = repoID
@@ -136,19 +137,19 @@ struct OnboardingModelPickerView: View {
         let vendor: ModelVendor
         let capabilities: Set<ModelCapability>
     }
-    private let visualPicks: [VisualPick] = [
+    private var visualPicks: [VisualPick] { [
         VisualPick(
             id: "ggml-org/SmolVLM2-500M-Video-Instruct-GGUF",
             displayName: "SmolVLM 2 500M",
-            summary: "Tiny, fast multimodal. Already bundled — no download needed.",
-            sizeLabel: "bundled",
+            summary: loc.t("Tiny, fast multimodal. Already bundled — no download needed."),
+            sizeLabel: loc.t("bundled"),
             vendor: .huggingFace,
             capabilities: [.vision, .recommended]
         ),
         VisualPick(
             id: "mlx-community/Qwen3-VL-2B-Instruct-4bit",
             displayName: "Qwen 3 VL 2B",
-            summary: "Compact vision-language model with /think mode. Mid-tier devices.",
+            summary: loc.t("Compact vision-language model with /think mode. Mid-tier devices."),
             sizeLabel: "~1.7 GB",
             vendor: .qwen,
             capabilities: [.vision, .thinking]
@@ -156,12 +157,12 @@ struct OnboardingModelPickerView: View {
         VisualPick(
             id: "mlx-community/Qwen3-VL-4B-Instruct-4bit",
             displayName: "Qwen 3 VL 4B",
-            summary: "Sharper visual reasoning. Best on Pro / Max devices.",
+            summary: loc.t("Sharper visual reasoning. Best on Pro / Max devices."),
             sizeLabel: "~2.9 GB",
             vendor: .qwen,
             capabilities: [.vision, .thinking, .best]
         ),
-    ]
+    ] }
 
     // MARK: - Body
 
@@ -216,12 +217,12 @@ struct OnboardingModelPickerView: View {
     private var heroBlock: some View {
         VStack(spacing: 10) {
             VStack(spacing: 6) {
-                KCaption(text: "STEP 2 OF 2")
-                Text("Choose your models")
+                KCaption(text: loc.t("STEP 2 OF 2"))
+                Text(loc.t("Choose your models"))
                     .font(T.display(26, .semibold))
                     .tracking(-0.5)
                     .foregroundColor(T.ink)
-                Text("We selected a starting pair for your device. Review the download size, or explore first and choose later.")
+                Text(loc.t("We selected a starting pair for your device. Review the download size, or explore first and choose later."))
                     .font(T.sans(13.5))
                     .foregroundColor(T.ink2)
                     .multilineTextAlignment(.center)
@@ -235,9 +236,9 @@ struct OnboardingModelPickerView: View {
 
     private var assistantSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionHeader(eyebrow: "ASSISTANT",
-                          title: "Text & code",
-                          subtitle: "Chat, code review, refactoring, planning.")
+            sectionHeader(eyebrow: loc.t("ASSISTANT"),
+                          title: loc.t("Text & code"),
+                          subtitle: loc.t("Chat, code review, refactoring, planning."))
             VStack(spacing: 10) {
                 ForEach(assistantPicks) { pick in
                     assistantCard(pick)
@@ -248,9 +249,9 @@ struct OnboardingModelPickerView: View {
 
     private var visualSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionHeader(eyebrow: "VISION",
-                          title: "Multimodal",
-                          subtitle: "Understand camera captures, screenshots, and images.")
+            sectionHeader(eyebrow: loc.t("VISION"),
+                          title: loc.t("Multimodal"),
+                          subtitle: loc.t("Understand camera captures, screenshots, and images."))
             VStack(spacing: 10) {
                 ForEach(visualPicks) { pick in
                     visualCard(pick)
@@ -488,10 +489,10 @@ struct OnboardingModelPickerView: View {
     private var gateBar: some View {
         VStack(spacing: 14) {
             VStack(spacing: 6) {
-                Text("Setting up your models")
+                Text(loc.t("Setting up your models"))
                     .font(T.display(17, .semibold))
                     .foregroundColor(T.ink)
-                Text("Your selected models are downloading. Keep this app open to finish, or continue and track progress in Models. Downloaded local models work offline.")
+                Text(loc.t("Your selected models are downloading. Keep this app open to finish, or continue and track progress in Models. Downloaded local models work offline."))
                     .font(T.sans(13))
                     .foregroundColor(T.ink2)
                     .multilineTextAlignment(.center)
@@ -500,15 +501,15 @@ struct OnboardingModelPickerView: View {
             }
 
             VStack(spacing: 10) {
-                gateProgressRow(label: "Assistant", model: assistantDLModel, settled: assistantSettled)
-                gateProgressRow(label: "Vision", model: visualDLModel, settled: visualSettled)
+                gateProgressRow(label: loc.t("Assistant"), model: assistantDLModel, settled: assistantSettled)
+                gateProgressRow(label: loc.t("Vision"), model: visualDLModel, settled: visualSettled)
             }
 
             if anyDownloadFailed {
                 Button { retryDownloads() } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "arrow.clockwise").font(.system(size: 11, weight: .semibold))
-                        Text("Retry download").font(T.mono(11, .semibold))
+                        Text(loc.t("Retry download")).font(T.mono(11, .semibold))
                     }
                     .foregroundColor(T.bad)
                     .padding(.horizontal, 12).padding(.vertical, 7)
@@ -519,7 +520,7 @@ struct OnboardingModelPickerView: View {
             }
 
             Button { onComplete() } label: {
-                Text("Continue while downloading")
+                Text(loc.t("Continue while downloading"))
                     .font(T.sans(14, .semibold))
                     .foregroundColor(T.ink2)
                     .frame(minHeight: 44)
@@ -566,7 +567,7 @@ struct OnboardingModelPickerView: View {
                 HStack {
                     KMono(text: label, size: 11, color: T.ink2)
                     Spacer()
-                    KMono(text: settled ? "ready" : (failed ? "failed" : "\(Int(progress * 100))%"),
+                    KMono(text: settled ? loc.t("ready") : (failed ? loc.t("failed") : "\(Int(progress * 100))%"),
                           size: 10, color: settled ? T.good : (failed ? T.bad : T.ink3))
                 }
                 GeometryReader { geo in
@@ -592,9 +593,9 @@ struct OnboardingModelPickerView: View {
 
     private var ctaLabel: String {
         if needsAnyDownload {
-            return "Download & Continue · \(downloadSizeLabel)"
+            return String(format: loc.t("Download & Continue · %@"), downloadSizeLabel)
         }
-        return "Continue"
+        return loc.t("Continue")
     }
 
     /// True iff at least one picked model isn't already on disk.

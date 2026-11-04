@@ -512,7 +512,9 @@ struct ModelsManagerView: View {
                             .font(T.mono(13, .semibold))
                             .foregroundColor(T.accent)
                     }
-                    CoreAITransfersSection()
+                    if CoreAICapability.isCompiledIn {
+                        CoreAITransfersSection()
+                    }
                     if items.isEmpty && recentlyCompletedDownloads.isEmpty {
                         emptyState(icon: "arrow.down.circle",
                                    title: loc.t("No active downloads"),
@@ -874,7 +876,9 @@ struct ModelsManagerView: View {
                         .frame(minHeight: 44)
                     if filterAllCategories || selectedSection == .assistant {
                         recommendedSetupsCard
-                        CoreAIModelsSectionView(showsInstalled: false)
+                        if CoreAICapability.isCompiledIn {
+                            CoreAIModelsSectionView(showsInstalled: false)
+                        }
                     }
                 }
                 if filterAllCategories {
@@ -947,7 +951,7 @@ struct ModelsManagerView: View {
                     glyph: "internaldrive.fill",
                     tint: T.good
                 )
-                if !downloadedCoreAI.isEmpty {
+                if CoreAICapability.isCompiledIn && !downloadedCoreAI.isEmpty {
                     CoreAIModelsSectionView(showsCatalog: false, query: query)
                 }
                 ForEach(downloaded) { model in

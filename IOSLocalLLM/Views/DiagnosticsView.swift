@@ -274,6 +274,40 @@ struct DiagnosticsView: View {
 
     /// One-button controlled A/B for the 35B family: Exact vs Bounded
     /// Prefetch through the production Assistant path with a fixed profile.
+
+
+    @MainActor
+    private func speedRunTimingSummary(_ run: Edge0SpeedABRunner.RunResult) -> String {
+        let decode = String(format: "%.2f", run.decodeTokensPerSecond)
+        let prefill = String(format: "%.1f", run.prefillSeconds)
+        let e2e = String(format: "%.2f", run.endToEndTokensPerSecond)
+        return "gen \(run.generatedTokens) · decode \(decode) tok/s · prefill \(prefill)s · e2e \(e2e) tok/s"
+    }
+
+    @MainActor
+    private func speedRunSummary(_ run: Edge0SpeedABRunner.RunResult) -> String {
+        var parts: [String] = [
+            "mode \(run.effectiveMode)",
+            "pool \(run.poolSlots) slots",
+            "stop \(run.stopReason)"
+        ]
+        switch edge0SpeedAB.kind {
+        case .computeAB:
+            parts.append("readback \(run.routerReadbackEffective == 1 ? "batched" : "per-token")")
+        case .readaheadAB:
+            parts.append("readahead \(run.readaheadEffective ? "on" : "off")")
+        case .readsAB:
+            parts.append("reads \(run.readsEffective)")
+        case .poolBudgetAB:
+            parts.append("accounting \(run.poolAccountingEffective.rawValue)")
+        default:
+            break
+        }
+        if !run.sustainedEvidence { parts.append("sustained evidence insufficient") }
+        if run.sequenceMatch == false { parts.append("OUTPUT DIFFERS") }
+        return parts.joined(separator: " · ")
+    }
+
     private var edge0SpeedABSection: some View {
         Section {
             Picker("Diagnostic", selection: $edge0SpeedAB.kind) {
@@ -327,35 +361,15 @@ struct DiagnosticsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.red)
                         } else {
-                            Text(
-                                "gen \(run.generatedTokens) · decode \(String(format: "%.2f", run.decodeTokensPerSecond)) tok/s"
-                                + " · prefill \(String(format: "%.1f", run.prefillSeconds))s"
-                                + " · e2e \(String(format: "%.2f", run.endToEndTokensPerSecond)) tok/s"
-                            )
+                            Text(speedRunTimingSummary(run))
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                            Text(
-                                "mode \(run.effectiveMode) · pool \(run.poolSlots) slots · stop \(run.stopReason)"
-                                + (edge0SpeedAB.kind == .computeAB
-                                    ? " · readback \(run.routerReadbackEffective == 1 ? "batched" : "per-token")"
-                                    : "")
-                                + (edge0SpeedAB.kind == .readaheadAB
-                                    ? " · readahead \(run.readaheadEffective ? "on" : "off")"
-                                    : "")
-                                + (edge0SpeedAB.kind == .readsAB
-                                    ? " · reads \(run.readsEffective)"
-                                    : "")
-                                + (edge0SpeedAB.kind == .poolBudgetAB
-                                    ? " · accounting \(run.poolAccountingEffective.rawValue)"
-                                    : "")
-                                + (run.sustainedEvidence ? "" : " · sustained evidence insufficient")
-                                + (run.sequenceMatch == false ? " · OUTPUT DIFFERS" : "")
-                            )
-                            .font(.caption2)
-                            .foregroundStyle(
-                                run.sequenceMatch == false
-                                    ? Color.red : Color.secondary
-                            )
+                            Text(speedRunSummary(run))
+                                .font(.caption2)
+                                .foregroundStyle(
+                                    run.sequenceMatch == false
+                                        ? Color.red : Color.secondary
+                                )
                         }
                     }
                 }

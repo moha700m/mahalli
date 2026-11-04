@@ -1,3 +1,4 @@
+#if CORE_AI
 import Foundation
 
 enum CoreAIInferenceError: LocalizedError, Equatable {
@@ -310,3 +311,4 @@ private extension CoreAIInferenceService {
         return CoreAIUnavailableRuntime()
     }
 }
+#endif

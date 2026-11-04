@@ -714,8 +714,13 @@ final class CodingAssistantService: ObservableObject {
     // MARK: - Init / Deinit
 
     private init() {
+        // Derive the execution location from the model we actually resolved,
+        // not the raw persisted id. A stale `coreai:…` id from the iOS 27 build
+        // used to force `.localCoreAI` even after `currentSelection()` fell
+        // back to an MLX preset, so every load failed with "Download … first."
+        let resolvedModel = AssistantModelCatalog.currentSelection()
         activeExecutionLocation = ModelExecutionLocation.of(
-            assistantModelID: AppSettings.shared.assistantModelID
+            assistantModelID: resolvedModel.id
         )
         // Listen for global memory warnings so we can shed the model
         // proactively before iOS Jetsam-kills us.

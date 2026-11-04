@@ -1,4 +1,4 @@
-platform :ios, '27.0'
+platform :ios, '18.0'
 
 project 'Mahalli.xcodeproj'
 

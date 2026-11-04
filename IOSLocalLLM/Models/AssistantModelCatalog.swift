@@ -497,7 +497,24 @@ enum AssistantModelCatalog {
     @MainActor
     static func currentSelection() -> AssistantModel {
         let stored = AppSettings.shared.assistantModelID
-        return selection(forStoredID: stored) ?? presets[0]
+        return selection(forStoredID: stored) ?? safeDefault
+    }
+
+    /// A conservative fallback for a missing, removed, or Core-AI-only
+    /// selection. `presets[0]` is now an experimental Edge0 runtime that may
+    /// not be downloaded; using it as the fallback made a stale selection look
+    /// like a model-load failure. Prefer the device's tier recommendation, then
+    /// the bundled-friendly 1.5B preset, then any MLX preset.
+    @MainActor
+    static var safeDefault: AssistantModel {
+        let recommendedID = DeviceTierAdvisor.recommendedModelID
+        if let recommended = presets.first(where: { $0.id == recommendedID }) {
+            return recommended
+        }
+        if let small = presets.first(where: { $0.id == "qwen2.5-coder-1.5b" }) {
+            return small
+        }
+        return presets.first(where: { $0.runtime == .mlx }) ?? presets[0]
     }
 
     /// Resolves a persisted preset/download/import/custom selection without
@@ -505,6 +522,9 @@ enum AssistantModelCatalog {
     /// with its own model while leaving the user's default untouched.
     @MainActor
     static func selection(forStoredID stored: String) -> AssistantModel? {
+        if !CoreAICapability.isCompiledIn, stored.hasPrefix("coreai:") {
+            return resolveNonPreset(id: stored)
+        }
         if let preset = presets.first(where: { $0.id == stored }) { return preset }
         if let coreAI = CoreAIZooCatalog.assistantModel(forSelectionID: stored) {
             return coreAI
@@ -518,8 +538,9 @@ enum AssistantModelCatalog {
     }
 
     static func model(forID id: String) -> AssistantModel? {
-        presets.first { $0.id == id }
-            ?? CoreAIZooCatalog.assistantModel(forSelectionID: id)
+        if let preset = presets.first(where: { $0.id == id }) { return preset }
+        guard CoreAICapability.isCompiledIn else { return nil }
+        return CoreAIZooCatalog.assistantModel(forSelectionID: id)
     }
 
     // MARK: - Non-preset resolution
