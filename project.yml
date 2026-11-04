@@ -217,7 +217,7 @@ targets:
         # separate derived identifier.
         DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: NO
         # Catalyst matches the iOS 18+ deployment floor.
-        MACOSX_DEPLOYMENT_TARGET: "18.0"
+        MACOSX_DEPLOYMENT_TARGET: "15.0"
         # Use a Catalyst-specific entitlements set (App Sandbox + camera/
         # mic/network) on the macOS SDK; the iOS entitlements are untouched.
         "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": IOSLocalLLM/IOSLocalLLM-Catalyst.entitlements
