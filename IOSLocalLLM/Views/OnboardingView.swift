@@ -4,6 +4,7 @@ import SwiftUI
 /// Only the visible step exists, so the voice preview cannot render offscreen.
 struct OnboardingView: View {
     @ObservedObject private var settings = AppSettings.shared
+    @ObservedObject private var loc = LocalizationService.shared
     @State private var page = 0
     @State private var preview = 0
     @Environment(\.koduTheme) private var T
@@ -51,7 +52,7 @@ struct OnboardingView: View {
                         .font(T.sans(16, .semibold))
                         .frame(width: 44, height: 44)
                 }
-                .accessibilityLabel("Previous step")
+                .accessibilityLabel(loc.t("Previous step"))
             } else {
                 Image("app_logo_small")
                     .resizable().scaledToFit().frame(width: 32, height: 32)
@@ -60,11 +61,11 @@ struct OnboardingView: View {
             Text("Mahalli")
                 .font(T.sans(15, .semibold))
             Spacer(minLength: 4)
-            Button("Explore first") { settings.hasSeenOnboarding = true }
+            Button(loc.t("Explore first")) { settings.hasSeenOnboarding = true }
                 .font(T.sans(13))
                 .foregroundStyle(T.ink2)
                 .frame(minHeight: 44)
-                .accessibilityHint("Skip setup. Choose models later in the Models tab.")
+                .accessibilityHint(loc.t("Skip setup. Choose models later in the Models tab."))
         }
         .foregroundStyle(T.ink)
         .buttonStyle(KTactileButtonStyle())
@@ -75,13 +76,13 @@ struct OnboardingView: View {
     @ViewBuilder
     private var welcome: some View {
         VStack(alignment: .leading, spacing: 12) {
-            eyebrow("WELCOME TO YOUR STUDIO")
-            Text("Powerful AI.\nCloser to you.")
+            eyebrow(loc.t("WELCOME TO YOUR STUDIO"))
+            Text(loc.t("Powerful AI.\nCloser to you."))
                 .font(T.display(36, .semibold)).tracking(-1)
                 .foregroundStyle(T.ink)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
-            Text("Write, see, and speak with models running on your device.")
+            Text(loc.t("Write, see, and speak with models running on your device."))
                 .font(T.sans(16)).foregroundStyle(T.ink2)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -89,29 +90,29 @@ struct OnboardingView: View {
             VoiceActivityOrb(phase: previewPhase, micLevel: preview == 2 ? 0.45 : 0.18,
                              reduceMotion: reduceMotion, samplesLiveAudio: false)
                 .frame(height: dynamicTypeSize.isAccessibilitySize ? 130 : 160)
-                .accessibilityLabel("Voice appearance preview")
+                .accessibilityLabel(loc.t("Voice appearance preview"))
             if dynamicTypeSize.isAccessibilitySize {
                 previewPicker.pickerStyle(.menu)
             } else {
                 previewPicker.pickerStyle(.segmented)
             }
-            Text("A preview of voice. Your microphone is off.")
+            Text(loc.t("A preview of voice. Your microphone is off."))
                 .font(T.sans(12)).foregroundStyle(T.ink2)
                 .multilineTextAlignment(.center)
                 .padding(.top, 6)
         }
         VStack(spacing: 14) {
-            feature("text.bubble", title: "Assistant", detail: "Ask questions, shape ideas, and make writing your own.")
-            feature("photo", title: "Vision", detail: "Bring text and images into the conversation.")
-            feature("waveform", title: "Voice", detail: "Talk naturally and choose the voice that suits you.")
+            feature("text.bubble", title: loc.t("Assistant"), detail: loc.t("Ask questions, shape ideas, and make writing your own."))
+            feature("photo", title: loc.t("Vision"), detail: loc.t("Bring text and images into the conversation."))
+            feature("waveform", title: loc.t("Voice"), detail: loc.t("Talk naturally and choose the voice that suits you."))
         }
     }
 
     private var previewPicker: some View {
-        Picker("Preview a voice state", selection: $preview) {
-            Text("Listen").tag(0)
-            Text("Think").tag(1)
-            Text("Speak").tag(2)
+        Picker(loc.t("Preview a voice state"), selection: $preview) {
+            Text(loc.t("Listen")).tag(0)
+            Text(loc.t("Think")).tag(1)
+            Text(loc.t("Speak")).tag(2)
         }
         .accessibilityIdentifier("onboardingVoicePreview")
     }
@@ -143,11 +144,11 @@ struct OnboardingView: View {
                         .frame(width: 24, height: 3)
                 }
                 Spacer()
-                Text("\(page + 1) of 2").font(T.mono(11)).foregroundStyle(T.ink2)
+                Text(String(format: loc.t("%d of 2"), page + 1)).font(T.mono(11)).foregroundStyle(T.ink2)
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Step \(page + 1) of 2")
-            KPrimaryButton(label: "Choose your models",
+            .accessibilityLabel(String(format: loc.t("Step %d of 2"), page + 1))
+            KPrimaryButton(label: loc.t("Choose your models"),
                            systemImage: "arrow.right") {
                 advance(to: page + 1)
             }

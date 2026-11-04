@@ -13,6 +13,7 @@ import SwiftUI
 struct LegalAcceptanceView: View {
 
     @StateObject private var legal = LegalAcceptanceManager.shared
+    @ObservedObject private var loc = LocalizationService.shared
     @State private var didReadPrivacy = false
     @State private var didReadEULA    = false
     @State private var didReadDisclaimer = false
@@ -71,7 +72,7 @@ struct LegalAcceptanceView: View {
                                accepted: $didReadDeviceSafety,
                                openAction: { showDeviceSafety = true })
 
-                    Text("By tapping Agree, you confirm that you have read and accepted all four documents above. You can review them any time in Settings → Legal.")
+                    Text(loc.t("By tapping Agree, you confirm that you have read and accepted all four documents above. You can review them any time in Settings → Legal."))
                         .font(T.sans(11.5))
                         .foregroundColor(T.ink2)
                         .lineSpacing(2)
@@ -97,7 +98,7 @@ struct LegalAcceptanceView: View {
         // taps "I have read this" (onReadConfirmed) — not merely on dismiss.
         .sheet(isPresented: $showPrivacy) {
             LegalDocumentView(
-                title: "Privacy Policy",
+                title: loc.t("Privacy Policy"),
                 markdown: LegalDocuments.privacyPolicy,
                 externalURL: LegalDocuments.privacyPolicyURL,
                 onReadConfirmed: { didReadPrivacy = true }
@@ -105,7 +106,7 @@ struct LegalAcceptanceView: View {
         }
         .sheet(isPresented: $showEULA) {
             LegalDocumentView(
-                title: "License & Safety",
+                title: loc.t("License & Safety"),
                 markdown: LegalDocuments.eula,
                 externalURL: LegalDocuments.eulaURL,
                 onReadConfirmed: { didReadEULA = true }
@@ -113,14 +114,14 @@ struct LegalAcceptanceView: View {
         }
         .sheet(isPresented: $showDisclaimer) {
             LegalDocumentView(
-                title: "AI Disclaimer",
+                title: loc.t("AI Disclaimer"),
                 markdown: LegalDocuments.aiDisclaimer,
                 onReadConfirmed: { didReadDisclaimer = true }
             )
         }
         .sheet(isPresented: $showDeviceSafety) {
             LegalDocumentView(
-                title: "Device Safety",
+                title: loc.t("Device Safety"),
                 markdown: LegalDocuments.deviceSafetyNotice,
                 onReadConfirmed: { didReadDeviceSafety = true }
             )
@@ -133,8 +134,8 @@ struct LegalAcceptanceView: View {
         VStack(alignment: .leading, spacing: 8) {
             KWordmark(name: "Mahalli", logoAsset: "app_logo_small")
             VStack(alignment: .leading, spacing: 4) {
-                KCaption(text: "first launch")
-                Text("Before\nyou start.")
+                KCaption(text: loc.t("first launch"))
+                Text(loc.t("Before\nyou start."))
                     .font(T.display(34, .semibold))
                     .tracking(-1.2)
                     .foregroundColor(T.ink)
@@ -142,7 +143,7 @@ struct LegalAcceptanceView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.top, 8)
-            Text("Review the four documents below. Tap each to read — the button unlocks when all four are done.")
+            Text(loc.t("Review the four documents below. Tap each to read — the button unlocks when all four are done."))
                 .font(T.sans(13))
                 .foregroundColor(T.ink2)
                 .fixedSize(horizontal: false, vertical: true)
@@ -176,8 +177,8 @@ struct LegalAcceptanceView: View {
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
-                    KMono(text: title, size: 13, weight: .semibold, color: T.ink)
-                    KMono(text: subtitle, size: 10, color: T.ink2)
+                    KMono(text: loc.t(title), size: 13, weight: .semibold, color: T.ink)
+                    KMono(text: loc.t(subtitle), size: 10, color: T.ink2)
                 }
 
                 Spacer(minLength: 8)
@@ -197,7 +198,7 @@ struct LegalAcceptanceView: View {
             )
         }
         .buttonStyle(KTactileButtonStyle())
-        .accessibilityHint(isRead ? "Reviewed" : "Opens the document")
+        .accessibilityHint(isRead ? loc.t("Reviewed") : loc.t("Opens the document"))
         .opacity(entered ? 1 : 0)
         .offset(y: entered ? 0 : 10)
         .animation(reduceMotion ? nil
@@ -214,17 +215,17 @@ struct LegalAcceptanceView: View {
                         .frame(height: 3)
                         .frame(maxWidth: .infinity)
                 }
-                Text("\(readCount) of 4")
+                Text(String(format: loc.t("%d of 4"), readCount))
                     .font(T.mono(11))
                     .foregroundStyle(readCount == 4 ? T.good : T.ink2)
                     .padding(.leading, 6)
             }
             .animation(reduceMotion ? nil : .easeOut(duration: 0.3), value: readCount)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(readCount) of 4 documents reviewed")
+            .accessibilityLabel(String(format: loc.t("%d of 4 documents reviewed"), readCount))
 
             KPrimaryButton(
-                label: canContinue ? "Agree and continue" : "Review all four to continue",
+                label: loc.t(canContinue ? "Agree and continue" : "Review all four to continue"),
                 systemImage: canContinue ? "checkmark" : nil,
                 trailing: canContinue ? "↵" : nil,
                 action: accept,

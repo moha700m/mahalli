@@ -38,6 +38,7 @@ struct LegalDocumentView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.koduTheme) private var T
+    @ObservedObject private var loc = LocalizationService.shared
     /// Flips true once ScrollView geometry proves the visible viewport reaches
     /// the actual content end (or immediately for a document that fits).
     @State private var scrolledToEnd = false
@@ -81,7 +82,7 @@ struct LegalDocumentView: View {
                             Image(systemName: "safari").foregroundColor(T.accent)
                         }
                     } else {
-                        Button("Done") { dismiss() }
+                        Button(loc.t("Done")) { dismiss() }
                             .foregroundColor(T.ink)
                     }
                 }
@@ -93,7 +94,7 @@ struct LegalDocumentView: View {
                 // sheets already have Done in the trailing slot.) iOS unchanged.
                 if externalURL != nil {
                     ToolbarItem(placement: .topBarLeading) {
-                        Button("Done") { dismiss() }
+                        Button(loc.t("Done")) { dismiss() }
                             .foregroundColor(T.ink)
                     }
                 }
@@ -111,7 +112,7 @@ struct LegalDocumentView: View {
                     confirm()
                     dismiss()
                 } label: {
-                    Text(scrolledToEnd ? "i have read this" : "scroll to the end to continue")
+                    Text(scrolledToEnd ? loc.t("i have read this") : loc.t("scroll to the end to continue"))
                         .font(T.mono(13, .semibold))
                         .foregroundColor(scrolledToEnd ? T.bg : T.ink3)
                         .frame(maxWidth: .infinity)

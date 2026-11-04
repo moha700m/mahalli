@@ -212,6 +212,14 @@ enum DeviceTierAdvisor {
     @MainActor
     static func applyDefaultIfNeeded() {
         let s = AppSettings.shared
+        // The previous Core AI edition persisted `coreai:…` selections. This
+        // iOS 18+ binary has no CoreAI runtime, so leaving that id in place
+        // made the app fall through to the experimental Edge0 preset and
+        // report a load failure. Migrate it to the tier recommendation once.
+        if !CoreAICapability.isCompiledIn, s.assistantModelID.hasPrefix("coreai:") {
+            s.assistantModelID = recommendedModelID
+            s.hasPickedAssistantModel = false
+        }
         // `hasPickedAssistantModel` is the explicit "user touched the model
         // picker" flag. Without it we'd never auto-tune on devices where
         // assistantModelID was set by a stale default.
