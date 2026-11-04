@@ -83,7 +83,7 @@ public final class LocalAIController {
                         continuation.yield(.started)
                         if options.toolMode != .disabled {
                             continuation.yield(.warning(
-                                "Tool mode is a host-app feature; this facade streams model text and leaves tool execution to OnDevice."
+                                "Tool mode is a host-app feature; this facade streams model text and leaves tool execution to Mahalli."
                             ))
                         }
 
@@ -318,7 +318,7 @@ public final class LocalAIController {
             throw RuntimeError.underlying("Invalid repo id: \(repoID)")
         }
         var request = URLRequest(url: url)
-        request.setValue("ondevice-core/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        request.setValue("mahalli/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         HFTokenStore.authorize(&request)
 

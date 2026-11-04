@@ -33,7 +33,7 @@ private struct AssistantRuntimeDetailsSheetHost: View {
 
 struct CodingAssistantView: View {
     /// TabView keeps inactive tabs mounted. Thread the real selection through
-    /// so a hidden Assistant cannot reload its model while Lens is taking
+    /// so a hidden Assistant cannot reload its model while Vision is taking
     /// ownership of the inference runtime.
     let isActive: Bool
     var onClose: () -> Void = {}
@@ -231,7 +231,7 @@ struct CodingAssistantView: View {
         let reduceMotion = chatReduceMotion
         // Backdrop is owned by ContentView (LiquidPinkBackdrop for the assistant
         // tab, Color.black for the camera tab). Painting a full-bleed T.bg here
-        // used to leak as a cream-colored vertical strip on the lens tab when
+        // used to leak as a cream-colored vertical strip on the vision tab when
         // SwiftUI kept this subtree resident across a tab switch.
         NavigationStack {
             VStack(spacing: 0) {
@@ -914,7 +914,7 @@ struct CodingAssistantView: View {
         //
         // The "Jetsam at 6 GB" concern that drove an earlier lazy-load
         // pattern is now addressed by the cross-tab unload in
-        // ContentView.onChange(of: selectedTab) — switching to the lens
+        // ContentView.onChange(of: selectedTab) — switching to the vision
         // drops the LLM, so only one model is ever resident.
         //
         // The "Downloading on every launch" complaint was a labelling bug
@@ -1093,7 +1093,7 @@ struct CodingAssistantView: View {
         if route != .chat { route = .chat }
         inputText = prefill
 
-        // "Ask OnDevice" App Intent path: fire the prompt automatically so a
+        // "Ask Mahalli" App Intent path: fire the prompt automatically so a
         // Siri/Shortcuts request actually produces an answer. Defer one run
         // loop so the @State write above is committed before sendMessage()
         // reads `inputText`, and give ensureModelReady() a beat to kick in.
@@ -3033,7 +3033,7 @@ struct CodingAssistantView: View {
     private func diagnoseAppErrors() {
         if route != .chat { route = .chat }
         inputFocused = false
-        let instructions = "You are analyzing diagnostics from OnDevice, an on-device iOS AI app that runs local models (MLX / Core ML). Identify the most likely root cause(s), ranked, and give concrete prioritized fixes or user actions. Be concise and specific. If nothing looks wrong, say the device looks healthy. Do not invent log lines that are not present."
+        let instructions = "You are analyzing diagnostics from Mahalli, an on-device iOS AI app that runs local models (MLX / Core ML). Identify the most likely root cause(s), ranked, and give concrete prioritized fixes or user actions. Be concise and specific. If nothing looks wrong, say the device looks healthy. Do not invent log lines that are not present."
         let displayText = loc.t("Diagnose my app's recent errors and suggest fixes.")
         messages.append(ChatMessage(role: .user, content: displayText))
         let reply = ChatMessage(role: .assistant, content: "", isStreaming: true)
@@ -4235,7 +4235,7 @@ struct CodingAssistantView: View {
     private func describeForChatGrounding(image: UIImage, prompt: String) async -> String {
         // SmolVLM2-500M Q8 is the smallest compatible visual runtime shipped
         // by the app (~520 MB on disk / ~850 MB working set). Prefer it for
-        // text-model handoffs regardless of the heavier Lens model the user
+        // text-model handoffs regardless of the heavier Vision model the user
         // may have selected. The llama.cpp + mtmd path also avoids the known
         // upstream MLX SmolVLM2 tiling crash.
         if BundledVLMInstaller.isInstalled {
@@ -4271,7 +4271,7 @@ struct CodingAssistantView: View {
         }
 
         // Compatibility fallbacks: FastVLM when it is the configured default,
-        // then the user's installed Lens model. Every backend still runs
+        // then the user's installed Vision model. Every backend still runs
         // sequentially and is drained before the chat model reloads.
         let storedSelection = AppSettings.shared.cameraVisualModelID
         let selectionID = LocalModelRegistry.storedVisionSelectionID(storedSelection)
@@ -4848,7 +4848,7 @@ private struct UnsafeModelLoadConfirmationSheet: View {
                     VStack(alignment: .leading, spacing: 14) {
                         riskRow(
                             symbol: "xmark.app.fill",
-                            text: "iOS may terminate OnDevice while the model loads or generates."
+                            text: "iOS may terminate Mahalli while the model loads or generates."
                         )
                         riskRow(
                             symbol: "doc.badge.clock",

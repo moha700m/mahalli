@@ -353,7 +353,7 @@ enum LocalModelRole: String, CaseIterable, Codable, Hashable {
 }
 
 /// Routing contract for a single model package that can serve Assistant and
-/// Lens. A fitting VLM runtime may be shared, while oversized vision models
+/// Vision. A fitting VLM runtime may be shared, while oversized vision models
 /// remain usable through an independently bounded Assistant text runtime.
 enum DualRoleModelPolicy {
     static func isTextAndVision(repoID: String) -> Bool {
@@ -462,7 +462,7 @@ enum LocalModelRegistry {
 
     /// Repository IDs that shipped as selectable visual models in older
     /// builds but now have a safer, API-compatible runtime representation.
-    /// Keep this at the selection boundary so every caller (Lens, narrator,
+    /// Keep this at the selection boundary so every caller (Vision, narrator,
     /// residency advisor, picker, and LocalAIController) sees one canonical
     /// model/backend without each feature maintaining its own migration.
     private static let legacyVisionSelectionAliases: [String: String] = [

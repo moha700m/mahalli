@@ -9,7 +9,7 @@ import SwiftUI
 // Models hub now that neither is a bottom tab:
 //   • the avatar / gear button (top-right) opens Settings,
 //   • the "Models" quick action and the "Manage" pill open the Models hub.
-// Lens / Voice quick actions switch to those bottom tabs.
+// Voice quick action switch to those bottom tabs.
 //
 // All callbacks are injected by ContentView so this view stays navigation-free
 // and testable.
@@ -22,8 +22,6 @@ struct HomeView: View {
 
     /// Start a fresh chat (→ Assistant tab).
     var onNewChat: () -> Void
-    /// Switch to the Lens (camera) tab.
-    var onOpenLens: () -> Void
     /// Switch to the Voice tab.
     var onOpenVoice: () -> Void
     /// Open the Models tab.
@@ -58,7 +56,7 @@ struct HomeView: View {
     // MARK: Header — greeting + avatar/settings
 
     private var header: some View {
-        KScreenHeader(title: "OnDevice Core", eyebrow: greeting) {
+        KScreenHeader(title: "Mahalli", eyebrow: greeting) {
             Button(action: { HapticManager.impact(.light); onOpenSettings() }) {
                 Image(systemName: "gearshape")
                     .font(.system(size: 18, weight: .medium))
@@ -169,7 +167,7 @@ struct HomeView: View {
 
     private var quickActions: some View {
         HStack(spacing: 12) {
-            quickAction(icon: "camera.viewfinder", label: loc.t("lens"), action: onOpenLens)
+            quickAction(icon: "square.stack.3d.up", label: loc.t("models"), action: onOpenModels)
             quickAction(icon: "waveform", label: loc.t("voice"), action: onOpenVoice)
             quickAction(icon: "desktopcomputer", label: loc.t("mac"), action: onOpenMac)
         }

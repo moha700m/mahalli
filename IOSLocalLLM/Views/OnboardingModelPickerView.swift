@@ -654,7 +654,7 @@ struct OnboardingModelPickerView: View {
         settings.hasPickedAssistantModel = true
 
         // Save visual pick — written as the camera-visual repo ID so
-        // the lens tab picks it up without further plumbing.
+        // the vision tab picks it up without further plumbing.
         LocalModelRegistry.setVisionSelection(pickedVisualRepoID, settings: settings)
         settings.hasPickedCameraVisualModel = true
 

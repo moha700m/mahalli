@@ -12,7 +12,7 @@ struct VisualModelPickerView: View {
     @ObservedObject private var center = ModelDownloadCenter.shared
     @ObservedObject private var loc = LocalizationService.shared
     // NB: deliberately NOT observing MLXVisionService.shared. While the
-    // picker is open the live caption auto-loop in the lens behind it
+    // picker is open the live caption auto-loop in the vision behind it
     // keeps ticking vision.state between .ready and .generating, which
     // re-renders the picker every few seconds. Combined with the
     // `.id(downloadTick)` rebuild trick that subtree-tear-down made the
@@ -610,12 +610,12 @@ struct VisualModelPickerView: View {
         }
     }
 
-    /// Commit a camera-VLM selection. Shared with the lens top-bar menu
+    /// Commit a camera-VLM selection. Shared with the vision top-bar menu
     /// in `CameraRootView` so picking from the menu and picking from this
     /// sheet have identical side-effects: AppSettings is updated, the
     /// non-matching backend is unloaded to free RAM, and the chosen
     /// backend is pre-warmed via its own `switchTo`. The picker rows and
-    /// the lens top-strip menu both funnel through here so activation stays
+    /// the vision top-strip menu both funnel through here so activation stays
     /// consistent no matter where the user switches models.
     @MainActor
     @discardableResult
@@ -638,7 +638,7 @@ struct VisualModelPickerView: View {
                 LlamaCppVLMService.shared.unload()
                 LocalModelRegistry.setVisionSelection(selectedID)
                 // Persist only after a runnable backend is confirmed. Saving a
-                // failed heavy model first made every later Lens entry retry it.
+                // failed heavy model first made every later Vision entry retry it.
                 AppSettings.shared.hasPickedCameraVisualModel = true
                 ToastCenter.shared.info("FastVLM is now active")
                 return true
@@ -685,18 +685,18 @@ struct VisualModelPickerView: View {
                 }
                 return false
             case .mlx:
-                let required = LensInferenceLoop.requiredVisionLoadBytes(repoID: selectedID)
+                let required = VisionInferenceLoop.requiredVisionLoadBytes(repoID: selectedID)
                 let available = UInt64(max(0, MemoryAdvisor.availableMemoryForModel))
-                guard LensInferenceLoop.canSafelyLoadVision(
+                guard VisionInferenceLoop.canSafelyLoadVision(
                     repoID: selectedID,
                     availableBytes: available
                 ) else {
                     Diagnostics.shared.notice(
-                        "Lens rejected · \(selectedID) · required=\(Int64(required).formattedBytes) · available=\(Int64(available).formattedBytes) · text-only model cannot serve as Lens",
-                        category: "lens"
+                        "Vision model rejected · \(selectedID) · required=\(Int64(required).formattedBytes) · available=\(Int64(available).formattedBytes) · text-only model cannot serve as a vision model",
+                        category: "vision"
                     )
-                    // Revert to the currently valid Lens selection. Never
-                    // retain a text-only model (Bonsai-27B) as the Lens
+                    // Revert to the currently valid Vision selection. Never
+                    // retain a text-only model (Bonsai-27B) as the Vision
                     // preference — it was rejected by VLM preflight and
                     // must not appear as the active vision model.
                     // settings.cameraVisualModelID already holds the correct
@@ -704,7 +704,7 @@ struct VisualModelPickerView: View {
                     // rejected model); the picker UI will re-read it.
                     ToastCenter.shared.info(
                         "Keep this model in Assistant",
-                        detail: "Its text runtime fits, but image analysis needs more memory. Lens will keep using the current smaller visual model."
+                        detail: "Its text runtime fits, but image analysis needs more memory. The app will keep using the current smaller visual model."
                     )
                     return false
                 }
@@ -712,7 +712,7 @@ struct VisualModelPickerView: View {
                 // over. switchTo() short-circuits when already loaded.
                 LlamaCppVLMService.shared.unload()
                 // Selecting the same repository in both pickers does not prove
-                // the runtime is shared. Lens must drain any independently
+                // the runtime is shared. Vision must drain any independently
                 // owned Assistant text container before loading vision.
                 await vision.switchTo(repoID: selectedID)
                 if case .ready = vision.state, vision.activeRepoID == selectedID {

@@ -112,7 +112,8 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
     private var selectedLanguage: AppLanguage
 
     private init() {
-        let raw = UserDefaults.standard.string(forKey: "uiLanguage") ?? AppLanguage.system.rawValue
+        // Mahalli: Arabic-first default until the user picks another language.
+        let raw = UserDefaults.standard.string(forKey: "uiLanguage") ?? AppLanguage.arabic.rawValue
         let initial = AppLanguage(rawValue: raw) ?? .system
         self.language = initial
         self.selectedLanguage = initial
@@ -229,7 +230,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
         // — Tab bar / navigation
         ("assistant", "asistan"),
-        ("lens", "lens"),
         ("voice", "ses"),
         ("mac", "mac"),
         ("models", "modeller"),
@@ -277,7 +277,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("describe", "açıkla"),
         ("Browse", "Gözat"),
 
-        // — Lens / camera
+        // — Vision / camera
         ("torch", "fener"),
         ("history", "geçmiş"),
         ("scan", "tara"),
@@ -403,7 +403,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         // — Errors / toasts
         ("Can't load", "Yüklenemedi"),
         ("Switching VLM", "VLM değiştiriliyor"),
-        // NB: "Vision model ready" is already mapped above in the lens
+        // NB: "Vision model ready" is already mapped above in the vision
         // section. Same translation, single source of truth.
         ("Pre-fetching FastVLM in the background", "FastVLM arka planda önceden indiriliyor"),
         ("We noticed you use the camera — getting weights ready so capture is instant.", "Kamerayı sık kullandığınızı fark ettik — çekim anlık olsun diye ağırlıklar hazırlanıyor."),
@@ -450,7 +450,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
          "aynı görüntü üzerinde iki VLM'yi yan yana çalıştır"),
         ("Voice", "Ses"),
 
-        // — Lens overflow + toolbar
+        // — Vision overflow + toolbar
         ("aloud", "sesli"),
         ("more", "daha"),
         ("switch to code", "koda geç"),
@@ -541,7 +541,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared link received", "Paylaşılan bağlantı alındı"),
 
         // — Review prompt
-        ("Enjoying OnDevice?", "OnDevice'i beğendiniz mi?"),
+        ("Enjoying Mahalli?", "Mahalli'i beğendiniz mi?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.",
          "Kısa bir puanlama uygulamayı diğer insanların bulmasına yardımcı olur. Biz küçük bir ekibiz — geri bildiriminiz sıradakini şekillendiriyor."),
         ("Love it — rate on App Store", "Bayıldım — App Store'da puanla"),
@@ -612,7 +612,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "Open-Source-App · MIT-Lizenz"),
 
         ("assistant", "Assistent"),
-        ("lens", "Linse"),
         ("voice", "Sprache"),
         ("mac", "Mac"),
         ("models", "Modelle"),
@@ -868,7 +867,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "Geteiltes Bild empfangen"),
         ("Shared text received", "Geteilten Text empfangen"),
         ("Shared link received", "Geteilten Link empfangen"),
-        ("Enjoying OnDevice?", "Gefällt Ihnen OnDevice?"),
+        ("Enjoying Mahalli?", "Gefällt Ihnen Mahalli?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "Eine kurze Bewertung hilft anderen, die App zu finden. Wir sind ein kleines Team — Ihr Feedback bestimmt, was als Nächstes kommt."),
         ("Love it — rate on App Store", "Super — im App Store bewerten"),
         ("Send feedback instead", "Stattdessen Feedback senden"),
@@ -922,7 +921,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "Application open source · Licence MIT"),
 
         ("assistant", "assistant"),
-        ("lens", "lentille"),
         ("voice", "voix"),
         ("mac", "Mac"),
         ("models", "modèles"),
@@ -1178,7 +1176,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "Image partagée reçue"),
         ("Shared text received", "Texte partagé reçu"),
         ("Shared link received", "Lien partagé reçu"),
-        ("Enjoying OnDevice?", "Vous aimez OnDevice ?"),
+        ("Enjoying Mahalli?", "Vous aimez Mahalli ?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "Une note rapide aide les autres à trouver l'application. Nous sommes une petite équipe — vos commentaires déterminent la suite."),
         ("Love it — rate on App Store", "J'adore — noter sur l'App Store"),
         ("Send feedback instead", "Envoyer un commentaire à la place"),
@@ -1232,7 +1230,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "App de código abierto · Licencia MIT"),
 
         ("assistant", "asistente"),
-        ("lens", "lente"),
         ("voice", "voz"),
         ("mac", "Mac"),
         ("models", "modelos"),
@@ -1488,7 +1485,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "Imagen compartida recibida"),
         ("Shared text received", "Texto compartido recibido"),
         ("Shared link received", "Enlace compartido recibido"),
-        ("Enjoying OnDevice?", "¿Disfrutando OnDevice?"),
+        ("Enjoying Mahalli?", "¿Disfrutando Mahalli?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "Una calificación rápida ayuda a otros a encontrar la aplicación. Somos un equipo pequeño — sus comentarios definen lo que sigue."),
         ("Love it — rate on App Store", "Me encanta — calificar en App Store"),
         ("Send feedback instead", "Enviar comentarios en su lugar"),
@@ -1542,7 +1539,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "App open source · Licenza MIT"),
 
         ("assistant", "assistente"),
-        ("lens", "lente"),
         ("voice", "voce"),
         ("mac", "Mac"),
         ("models", "modelli"),
@@ -1798,7 +1794,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "Immagine condivisa ricevuta"),
         ("Shared text received", "Testo condiviso ricevuto"),
         ("Shared link received", "Link condiviso ricevuto"),
-        ("Enjoying OnDevice?", "Ti piace OnDevice?"),
+        ("Enjoying Mahalli?", "Ti piace Mahalli?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "Una valutazione rapida aiuta altre persone a trovare l'app. Siamo un piccolo team — il tuo feedback determina il futuro."),
         ("Love it — rate on App Store", "Lo adoro — valuta su App Store"),
         ("Send feedback instead", "Invia feedback invece"),
@@ -1852,7 +1848,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "App de código aberto · Licença MIT"),
 
         ("assistant", "assistente"),
-        ("lens", "lente"),
         ("voice", "voz"),
         ("mac", "Mac"),
         ("models", "modelos"),
@@ -2108,7 +2103,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "Imagem compartilhada recebida"),
         ("Shared text received", "Texto compartilhado recebido"),
         ("Shared link received", "Link compartilhado recebido"),
-        ("Enjoying OnDevice?", "Gostando do OnDevice?"),
+        ("Enjoying Mahalli?", "Gostando do Mahalli?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "Uma avaliação rápida ajuda outras pessoas a encontrarem o app. Somos uma equipe pequena — seu feedback define o que vem a seguir."),
         ("Love it — rate on App Store", "Adorei — avaliar na App Store"),
         ("Send feedback instead", "Enviar feedback em vez disso"),
@@ -2162,7 +2157,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "Приложение с открытым кодом · Лицензия MIT"),
 
         ("assistant", "ассистент"),
-        ("lens", "линза"),
         ("voice", "голос"),
         ("mac", "Mac"),
         ("models", "модели"),
@@ -2418,7 +2412,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "Получено общее изображение"),
         ("Shared text received", "Получен общий текст"),
         ("Shared link received", "Получена общая ссылка"),
-        ("Enjoying OnDevice?", "Нравится OnDevice?"),
+        ("Enjoying Mahalli?", "Нравится Mahalli?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "Быстрая оценка помогает другим найти приложение. Мы маленькая команда — ваш отзыв определяет будущее."),
         ("Love it — rate on App Store", "Супер — оценить в App Store"),
         ("Send feedback instead", "Отправить отзыв вместо этого"),
@@ -2472,7 +2466,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "ओपन-सोर्स ऐप · MIT लाइसेंस"),
 
         ("assistant", "सहायक"),
-        ("lens", "लेंस"),
         ("voice", "आवाज़"),
         ("mac", "Mac"),
         ("models", "मॉडल"),
@@ -2728,7 +2721,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "साझा इमेज प्राप्त"),
         ("Shared text received", "साझा टेक्स्ट प्राप्त"),
         ("Shared link received", "साझा लिंक प्राप्त"),
-        ("Enjoying OnDevice?", "OnDevice पसंद आ रहा है?"),
+        ("Enjoying Mahalli?", "Mahalli पसंद आ रहा है?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "एक त्वरित रेटिंग दूसरों को ऐप ढूंढने में मदद करती है। हम एक छोटी टीम हैं — आपकी प्रतिक्रिया आगे की दिशा तय करती है।"),
         ("Love it — rate on App Store", "बहुत पसंद — App Store पर रेट करें"),
         ("Send feedback instead", "इसके बजाय प्रतिक्रिया भेजें"),
@@ -2782,7 +2775,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "オープンソースアプリ · MITライセンス"),
 
         ("assistant", "アシスタント"),
-        ("lens", "レンズ"),
         ("voice", "音声"),
         ("mac", "Mac"),
         ("models", "モデル"),
@@ -3038,7 +3030,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "共有画像を受信"),
         ("Shared text received", "共有テキストを受信"),
         ("Shared link received", "共有リンクを受信"),
-        ("Enjoying OnDevice?", "OnDeviceをお楽しみですか？"),
+        ("Enjoying Mahalli?", "Mahalliをお楽しみですか？"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "簡単な評価で他の人がアプリを見つけやすくなります。私たちは小さなチームです — あなたのフィードバックが次を形作ります。"),
         ("Love it — rate on App Store", "気に入った — App Storeで評価"),
         ("Send feedback instead", "代わりにフィードバックを送信"),
@@ -3092,7 +3084,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "Εφαρμογή ανοιχτού κώδικα · Άδεια MIT"),
 
         ("assistant", "βοηθός"),
-        ("lens", "φακός"),
         ("voice", "φωνή"),
         ("mac", "mac"),
         ("models", "μοντέλα"),
@@ -3348,7 +3339,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "Λήφθηκε κοινόχρηστη εικόνα"),
         ("Shared text received", "Λήφθηκε κοινόχρηστο κείμενο"),
         ("Shared link received", "Λήφθηκε κοινόχρηστος σύνδεσμος"),
-        ("Enjoying OnDevice?", "Απολαμβάνετε το OnDevice;"),
+        ("Enjoying Mahalli?", "Απολαμβάνετε το Mahalli;"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "Μια γρήγορη αξιολόγηση βοηθά άλλους ανθρώπους να βρουν την εφαρμογή. Είμαστε μια μικρή ομάδα - τα σχόλιά σας διαμορφώνουν τη συνέχεια."),
         ("Love it — rate on App Store", "Λατρεύω - βαθμολογήστε στο App Store"),
         ("Send feedback instead", "Αντ' αυτού, στείλτε σχόλια"),
@@ -3402,7 +3393,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "Aplicație open-source · Licență MIT"),
 
         ("assistant", "asistent"),
-        ("lens", "obiectiv"),
         ("voice", "voce"),
         ("mac", "Mac"),
         ("models", "modele"),
@@ -3658,7 +3648,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "Imagine partajată primită"),
         ("Shared text received", "Primit text partajat"),
         ("Shared link received", "Link partajat primit"),
-        ("Enjoying OnDevice?", "Îți place OnDevice?"),
+        ("Enjoying Mahalli?", "Îți place Mahalli?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "O evaluare rapidă îi ajută pe ceilalți să găsească aplicația. Suntem o echipă mică – feedback-ul tău influențează ceea ce urmează."),
         ("Love it — rate on App Store", "Iubește-l - evaluează pe App Store"),
         ("Send feedback instead", "Trimiteți feedback în schimb"),
@@ -3698,6 +3688,81 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
     private static let ar: [String: String] = Dictionary(arEntries, uniquingKeysWith: { first, _ in first })
 
     private static let arEntries: [(String, String)] = [
+        // Mahalli (justmgz, 2026): Saudi-dialect overrides — listed first so they win.
+        ("Mahalli", "محلّي"),
+        ("Home", "الرئيسية"),
+        ("Assistant", "المساعد"),
+        ("Voice", "الصوت"),
+        ("Models", "النماذج"),
+        ("Settings", "الإعدادات"),
+        ("New chat", "سولف من جديد"),
+        ("New conversation", "سالفة جديدة"),
+        ("Recent", "آخر شي"),
+        ("No recent activity yet", "ما فيه نشاط للحين"),
+        ("Untitled chat", "سالفة بدون عنوان"),
+        ("Assistant is ready", "المساعد جاهز"),
+        ("Assistant is thinking…", "المساعد يفكّر…"),
+        ("Preparing model…", "نجهّز النموذج…"),
+        ("Tap New chat to start", "اضغط «سولف من جديد» وابدأ"),
+        ("Model needs setup", "النموذج يبي له إعداد"),
+        ("replies stay on your iPhone", "الردود تبقى في جوالك"),
+        ("Running on-device", "شغّال على جهازك"),
+        ("Private by design", "خصوصيتك أول شي"),
+        ("On-device & private", "على جهازك وبخصوصية"),
+        ("On-device inference by default.", "التشغيل على جهازك افتراضياً."),
+        ("Manage", "إدارة"),
+        ("Good morning", "صباح الخير"),
+        ("Good afternoon", "مساك الله بالخير"),
+        ("Good evening", "مساك الله بالخير"),
+        ("Generate an image", "سوّ صورة"),
+        ("Image generation", "توليد الصور"),
+        ("Image", "الصور"),
+        ("Vision", "الرؤية"),
+        ("Language", "اللغة"),
+        ("Downloads", "التنزيلات"),
+        ("Downloaded", "منزّل"),
+        ("Download all", "نزّل الكل"),
+        ("Get", "نزّل"),
+        ("Ready", "جاهز"),
+        ("Completed", "خلص"),
+        ("No models downloaded yet", "ما نزّلت أي نموذج للحين"),
+        ("No matching models", "ما فيه نماذج مطابقة"),
+        ("Try a broader search.", "جرّب بحث أوسع."),
+        ("Search downloaded models…", "دوّر في النماذج المنزّلة…"),
+        ("Select", "اختر"),
+        ("Details", "التفاصيل"),
+        ("Clean up", "نظّف"),
+        ("Clean up partial downloads?", "تبي تحذف التنزيلات الناقصة؟"),
+        ("Freed up space", "فضّينا مساحة"),
+        ("Share conversation", "شارك السالفة"),
+        ("Advanced", "متقدّم"),
+        ("Export to Files", "صدّر للملفات"),
+        ("Default model updated", "تغيّر النموذج الافتراضي"),
+        ("Model settings", "إعدادات النموذج"),
+        ("Loading voice engine…", "نحمّل محرّك الصوت…"),
+        ("Hugging Face search failed", "البحث في Hugging Face ما زبط"),
+        ("Storage cleanup", "تنظيف التخزين"),
+        ("Choose models to keep", "اختر النماذج اللي تبي تخليها"),
+        ("Memory safety gate", "حماية الذاكرة"),
+        ("Load timeout", "مهلة التحميل"),
+        ("My Models", "نماذجي"),
+        ("Discover", "اكتشف"),
+        ("All", "الكل"),
+        ("Help", "المساعدة"),
+        ("About", "عن التطبيق"),
+        ("Website", "الموقع"),
+        ("Appearance & Language", "الشكل واللغة"),
+        ("Downloads & Connections", "التنزيلات والاتصالات"),
+        ("Advanced & Diagnostics", "متقدّم وتشخيص"),
+        ("Privacy & Data", "الخصوصية والبيانات"),
+        ("Enjoying Mahalli?", "عاجبك محلّي؟"),
+        ("Shared image received", "وصلتنا الصورة"),
+        ("Bring text and images into the conversation.", "دخّل النصوص والصور في السالفة."),
+        ("Ask questions, shape ideas, and make writing your own.", "اسأل، رتّب أفكارك، واكتب بأسلوبك."),
+        ("Talk naturally and choose the voice that suits you.", "تكلّم على راحتك واختر الصوت اللي يناسبك."),
+        ("assistant", "المساعد"),
+        ("voice", "الصوت"),
+        ("models", "النماذج"),
         // — Local AI studio identity and conversation starters
         ("What would you like to explore?", "ما الذي تود استكشافه؟"),
         ("Learn something", "تعلّم شيئًا"),
@@ -3712,7 +3777,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "تطبيق مفتوح المصدر · ترخيص MIT"),
 
         ("assistant", "مساعد"),
-        ("lens", "عدسة"),
         ("voice", "صوت"),
         ("mac", "Mac"),
         ("models", "نماذج"),
@@ -3968,7 +4032,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "تم استلام صورة مشتركة"),
         ("Shared text received", "تم استلام نص مشترك"),
         ("Shared link received", "تم استلام رابط مشترك"),
-        ("Enjoying OnDevice?", "هل تستمتع بـ OnDevice؟"),
+        ("Enjoying Mahalli?", "هل تستمتع بـ Mahalli؟"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "تقييم سريع يساعد الآخرين في العثور على التطبيق. نحن فريق صغير — ملاحظاتك تشكل ما هو قادم."),
         ("Love it — rate on App Store", "أحبه — قيم على App Store"),
         ("Send feedback instead", "إرسال ملاحظات بدلاً من ذلك"),
@@ -4022,7 +4086,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Open-source app · MIT License", "오픈 소스 앱 · MIT 라이선스"),
 
         ("assistant", "어시스턴트"),
-        ("lens", "렌즈"),
         ("voice", "음성"),
         ("mac", "Mac"),
         ("models", "모델"),
@@ -4278,7 +4341,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared image received", "공유 이미지 수신됨"),
         ("Shared text received", "공유 텍스트 수신됨"),
         ("Shared link received", "공유 링크 수신됨"),
-        ("Enjoying OnDevice?", "OnDevice를 즐기고 계신가요?"),
+        ("Enjoying Mahalli?", "Mahalli를 즐기고 계신가요?"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.", "빠른 평가는 다른 사람들이 앱을 찾는 데 도움이 됩니다. 우리는 작은 팀입니다 — 피드백이 다음을 만듭니다."),
         ("Love it — rate on App Store", "최고예요 — App Store에서 평가하기"),
         ("Send feedback instead", "대신 피드백 보내기"),
@@ -4338,7 +4401,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
         // — Tab bar / navigation
         ("assistant", "助手"),
-        ("lens", "镜头"),
         ("voice", "语音"),
         ("mac", "Mac"),
         ("models", "模型"),
@@ -4386,7 +4448,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("describe", "描述"),
         ("Browse", "浏览"),
 
-        // — Lens / camera
+        // — Vision / camera
         ("torch", "闪光灯"),
         ("history", "历史"),
         ("scan", "扫描"),
@@ -4554,7 +4616,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
          "在同一张图片上并排运行两个 VLM"),
         ("Voice", "语音"),
 
-        // — Lens overflow + toolbar
+        // — Vision overflow + toolbar
         ("aloud", "朗读"),
         ("more", "更多"),
         ("switch to code", "切换到代码"),
@@ -4645,7 +4707,7 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
         ("Shared link received", "已接收共享链接"),
 
         // — Review prompt
-        ("Enjoying OnDevice?", "喜欢 OnDevice 吗？"),
+        ("Enjoying Mahalli?", "喜欢 Mahalli 吗？"),
         ("A quick rating helps other people find the app. We're a tiny team — your feedback shapes what's next.",
          "快速评分有助于其他人发现该应用。我们是一个小团队 — 您的反馈决定下一步。"),
         ("Love it — rate on App Store", "超喜欢 — 在 App Store 上评分"),

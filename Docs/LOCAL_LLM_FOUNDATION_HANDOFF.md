@@ -30,7 +30,7 @@ IOSLocalLLM/
 ├── Services/
 │   ├── CodingAssistantService.swift  ← Text LLM load/generate via mlx-swift-lm
 │   ├── FastVLMService.swift          ← FastVLM pipeline (Core ML encoder + MLX decoder)
-│   ├── LensInferenceLoop.swift       ← Lens VLM container owner + one-shot describe
+│   ├── VisionInferenceLoop.swift       ← Lens VLM container owner + one-shot describe
 │   ├── LlamaCpp/LlamaCppVLMService.swift ← GGUF VLM path via llama.cpp + mtmd
 │   ├── MLXGenerationGate.swift       ← Actor-based serial gate for all MLX GPU work
 │   ├── MemoryAdvisor.swift           ← RAM budget, per-model footprint, load gates
@@ -81,7 +81,7 @@ IOSLocalLLM/
 | Chat TMpl | `Models/ChatTemplate.swift` | `ChatTemplate` | Per-family prompt formatting (ChatML, Llama3, Gemma, Phi) | Yes, core |
 | Conv. Store | `Models/ConversationStore.swift` | `ConversationStore`, `StoredConversation` | Codable conversation CRUD with pagination | Yes, core |
 | LLM Service | `Services/CodingAssistantService.swift` | `CodingAssistantService` | Text LLM load/generate/switch via MLX | Yes, high value |
-| VLM Loop | `Services/LensInferenceLoop.swift` | `LensInferenceLoop` | VLM container owner + describe pipeline | Yes, high value |
+| VLM Loop | `Services/VisionInferenceLoop.swift` | `VisionInferenceLoop` | VLM container owner + describe pipeline | Yes, high value |
 | FastVLM | `Services/FastVLMService.swift` | `FastVLMService` | Built-in FastVLM pipeline | Yes, specific |
 | GGUF VLM | `Services/LlamaCpp/LlamaCppVLMService.swift` | `LlamaCppVLMService` | llama.cpp + mtmd VLM path | Yes |
 | GPU Gate | `Services/MLXGenerationGate.swift` | `MLXGenerationGate` | Actor-serialized MLX GPU command submissions | Yes, critical |
@@ -123,14 +123,14 @@ iOS Local LLM is a local AI workbench for iPhone. All inference runs on-device �
 
 ### How model execution is started
 1. User sends a message or taps capture
-2. The relevant service (`CodingAssistantService`, `LensInferenceLoop`, `LlamaCppVLMService`, `FastVLMService`) does a lazy-load if needed
+2. The relevant service (`CodingAssistantService`, `VisionInferenceLoop`, `LlamaCppVLMService`, `FastVLMService`) does a lazy-load if needed
 3. Load goes through `MLXGenerationGate.shared.run { ... }` for serialized GPU access
 4. Memory gates (`MemoryAdvisor.safetyBlocker`, `DeviceSafetyMonitor.shouldStopHeavyWork`) run pre-flight
 5. Inference streams tokens back via async closures
 
 ### How results are returned to the UI
 - **Text generation:** `CodingAssistantService.generate()` accepts `onToken: @Sendable (String) -> Void` and `onComplete: @Sendable (Double) -> Void` closures
-- **VLM describe:** `LensInferenceLoop.describe(image:)` returns `async` result
+- **VLM describe:** `VisionInferenceLoop.describe(image:)` returns `async` result
 - **UI state:** `@Published` properties on `@MainActor` services, observed by SwiftUI views
 - **Streaming tokens:** Appended to `ChatMessage.content` in real-time; `tokenRate` from `Generation.info.tokensPerSecond`
 
@@ -144,7 +144,7 @@ iOS Local LLM is a local AI workbench for iPhone. All inference runs on-device �
 - `ChatTemplate` — per-family prompt formatting
 - `ConversationStore` — codable conversation persistence
 - `CodingAssistantService` — the core load/generate/unload pattern
-- `LensInferenceLoop` — VLM container lifecycle + describe
+- `VisionInferenceLoop` — VLM container lifecycle + describe
 
 ### App-specific parts (don't blindly copy)
 - All SwiftUI views in `Views/`
@@ -203,7 +203,7 @@ Documents/
 
 ### Model switching
 - **Text LLM:** `CodingAssistantService.switchTo(_:)` → unload-and-wait → persist selection → load new model
-- **VLM:** `LensInferenceLoop.switchTo(repoID:)` → unload old → memory gate → load via `VLMModelFactory`, with fallback chain (primary → SmolVLM2 → Qwen3-VL-2B)
+- **VLM:** `VisionInferenceLoop.switchTo(repoID:)` → unload old → memory gate → load via `VLMModelFactory`, with fallback chain (primary → SmolVLM2 → Qwen3-VL-2B)
 - **GGUF VLM:** `LlamaCppVLMService.switchTo(repoID:)` → unload → memory gate → `LlamaCppVLM(llmPath:, mmprojPath:)`
 
 ### Model Area Summary
@@ -213,7 +213,7 @@ Documents/
 | Text LLM presets | Curated enum | `Models/AssistantModelCatalog.swift` | 15 models, Qwen2.5/Qwen3/Llama/Phi/Gemma |
 | Text LLM runtime | MLX via `LLMModelFactory` | `Services/CodingAssistantService.swift` | Full load/generate/switch/unload lifecycle |
 | VLM (built-in) | Core ML + MLX pipeline | `Services/FastVLMService.swift`, `Models/FastVLMConfig.swift` | FastVLM 0.5B, 2×Linear+GELU projector |
-| VLM (MLX) | `VLMModelFactory` | `Services/LensInferenceLoop.swift` | Qwen3-VL, Gemma 3, Qwen2-VL |
+| VLM (MLX) | `VLMModelFactory` | `Services/VisionInferenceLoop.swift` | Qwen3-VL, Gemma 3, Qwen2-VL |
 | VLM (GGUF) | llama.cpp + mtmd | `Services/LlamaCpp/LlamaCppVLMService.swift` | SmolVLM2-500M GGUF default |
 | Download catalog | Curated + auto-discovered | `Services/ModelDownloadCenter.swift` | Categories: assistant, vlm, voice, imageGen |
 | Download manager | Per-repo, resumable | `Services/HFModelDownloadManager.swift` | HF file-tree API, allowlist support |
@@ -240,12 +240,12 @@ Documents/
 10. Mid-generation monitors: memory warning → `mlxClearCache()`, thermal → `.critical` stops generation
 11. `state = .ready`, `ModelResidency.shared.schedulePrefetch(currentTab: .assistant)`
 
-### VLM path (LensInferenceLoop / LlamaCppVLMService)
+### VLM path (VisionInferenceLoop / LlamaCppVLMService)
 1. User taps capture (or imported image arrives)
 2. `AnalysisService` routes to appropriate backend based on active VLM selection
-3. **MLX VLM path** (LensInferenceLoop):
+3. **MLX VLM path** (VisionInferenceLoop):
    - Image preprocessing: `LensFramePreparer.prepare(pixelBuffer:)` — orientation, sRGB, resize per `VLMCapabilities` strategy
-   - `LensInferenceLoop.describe(image:)` → `MLXGenerationGate.shared.run { generate(...) }`
+   - `VisionInferenceLoop.describe(image:)` → `MLXGenerationGate.shared.run { generate(...) }`
    - Token streaming via async closures → `AnalysisService.activeResult`
 4. **GGUF VLM path** (LlamaCppVLMService):
    - Image preprocessing: similar pipeline
@@ -258,7 +258,7 @@ flowchart TD
     A[User Input / Tap Capture] --> B[ContentView Tab Handler]
     B --> C{Tab?}
     C -->|Assistant| D[CodingAssistantService.generate]
-    C -->|Lens| E[AnalysisService → LensInferenceLoop / LlamaCppVLMService]
+    C -->|Lens| E[AnalysisService → VisionInferenceLoop / LlamaCppVLMService]
     
     D --> F{Lazy Load?}
     F -->|Not loaded| G[Load via LLMModelFactory]
@@ -373,7 +373,7 @@ Called on memory warnings (`UIApplication.didReceiveMemoryWarningNotification`),
 - `thermalTask` observes `ProcessInfo.thermalStateDidChangeNotification` inside the generation loop
 - On `.critical` → `stopGeneration()` + toast
 
-**Pre-flight thermal gate** (`LensInferenceLoop.switchTo()`):
+**Pre-flight thermal gate** (`VisionInferenceLoop.switchTo()`):
 - Refuses VLM load on `.critical`: "Device is critically hot — let it cool before loading."
 
 **Prefetch thermal guard** (`ModelResidency.schedulePrefetch()`):
@@ -384,7 +384,7 @@ Called on memory warnings (`UIApplication.didReceiveMemoryWarningNotification`),
 | State tracking | `ProcessInfo.thermalState` with hysteresis | `DeviceSafetyMonitor.thermalState` | 4s up / 6s down |
 | Token cap | 512–4096 by state | `DeviceSafetyMonitor.recommendedMaxTokens` | Tier ceiling also applied |
 | Generation stop | `.critical` mid-stream | `CodingAssistantService.generate()` thermalTask | Async notification loop |
-| Load refusal | `.critical` pre-flight | `LensInferenceLoop.switchTo()` | User-facing message |
+| Load refusal | `.critical` pre-flight | `VisionInferenceLoop.switchTo()` | User-facing message |
 | Prefetch skip | Non-nominal gate | `ModelResidency.schedulePrefetch()` | Nice-to-have, not safety |
 | Manual reset | 45s forced nominal | `DeviceSafetyMonitor.clearThermalWarning()` | User-initiated |
 | Status label | `nil` for nominal/fair | `DeviceSafetyMonitor.statusLabel` | Only surfaces .serious/.critical |
@@ -587,7 +587,7 @@ Documents/
   - `onToken: @Sendable (String) -> Void` — called per token chunk
   - `onLogprobToken: (@Sendable (TokenLogprob) -> Void)?` — called per token with neutral logprobs
   - `onComplete: @Sendable (Double) -> Void` — called with final tokens/sec
-- **MLX VLM** (`LensInferenceLoop`): Similar streaming via `MLXLMCommon.generate()` async sequence
+- **MLX VLM** (`VisionInferenceLoop`): Similar streaming via `MLXLMCommon.generate()` async sequence
 - **GGUF VLM** (`LlamaCppVLMService`): `Task.detached` at `.userInitiated` priority; llama.cpp blocks Metal during decode so main-actor hops are avoided
 
 ### UI state coordination
@@ -596,7 +596,7 @@ Documents/
 | Model load state | `CodingAssistantService.state` | `load()` success/failure | `.unloaded/.loading/.ready/.generating/.failed` |
 | Token rate | `CodingAssistantService.tokenRate` | `generate()` loop from `Generation.info` | `@Published`, observed by rate badge |
 | Input tokens | `CodingAssistantService.estimatedInputTokens` | After `trimToInputBudget()` | Drives context-window bar |
-| VLM state | `LensInferenceLoop.state` | `switchTo()`/`unload()` | Same state enum as LLM |
+| VLM state | `VisionInferenceLoop.state` | `switchTo()`/`unload()` | Same state enum as LLM |
 | VLM metrics | `lastInferenceMillis`, `lastTokensPerSecond` | After each `describe()` | Debug overlay |
 | Thermal state | `DeviceSafetyMonitor.effectiveThermalState` | Observer with hysteresis | Drives status pill |
 | Download state | `DownloadableModel.state/progress` | `HFModelDownloadManager` | Passthrough to catalog UI |
@@ -627,7 +627,7 @@ Documents/
 
 **VLM backends:**
 - `FastVLMService` (Core ML encoder + MLX decoder)
-- `LensInferenceLoop` (MLX VLMs via `VLMModelFactory`)
+- `VisionInferenceLoop` (MLX VLMs via `VLMModelFactory`)
 - `LlamaCppVLMService` (GGUF VLMs via llama.cpp + mtmd)
 
 **Image attachments in chat** (`ChatMessage.imageThumbnailData`, `imageThumbnails`):
@@ -636,7 +636,7 @@ Documents/
 
 **Known-broken VLM architectures** (`VLMCapabilities`):
 - `idefics3` / `smolvlm` / `smolvlm2` (MLX path) — upstream `prepareInputsForMultimodal` bug → Index out of range
-- Auto-recovery: `LensInferenceLoop` routes to bundled SmolVLM2 GGUF as fallback
+- Auto-recovery: `VisionInferenceLoop` routes to bundled SmolVLM2 GGUF as fallback
 
 ---
 
@@ -708,8 +708,8 @@ Documents/
 | Concurrent GPU submits | `MLXGenerationGate` serializes all MLX work | `MLXGenerationGate.run()` | N/A |
 | Background GPU submit | `isForegrounded = false` on willResignActive; `cancelAll()` on didEnterBackground | `MLXGenerationGate` | N/A |
 | Empty/invalid response | `onComplete(0)` fires, state → `.ready` | `CodingAssistantService.generate()` | N/A |
-| VLM load failure | Fallback chain (primary → SmolVLM2 → Qwen3-VL-2B) | `LensInferenceLoop.switchTo()` | N/A |
-| Broken VLM architecture | `VLMCapabilities.isLensPipelineCompatible` guard; auto-route to GGUF | `VLMCapabilities`, `LensInferenceLoop` | N/A |
+| VLM load failure | Fallback chain (primary → SmolVLM2 → Qwen3-VL-2B) | `VisionInferenceLoop.switchTo()` | N/A |
+| Broken VLM architecture | `VLMCapabilities.isLensPipelineCompatible` guard; auto-route to GGUF | `VLMCapabilities`, `VisionInferenceLoop` | N/A |
 | Import failure | Rollback copied bytes, clear error message | `LocalModelImportService.importModel()` | N/A |
 | Conversation save failure | Non-fatal — in-memory state preserved | `ConversationStore.persist()` | Error propagation |
 
@@ -721,7 +721,7 @@ Documents/
 |------|-----------|---------|------|
 | `CodingAssistantService` | `@MainActor` class | Text LLM lifecycle + generation | Low |
 | `FastVLMService` | `@MainActor` class | FastVLM pipeline | Low |
-| `LensInferenceLoop` | `@MainActor` class | VLM container owner | Low |
+| `VisionInferenceLoop` | `@MainActor` class | VLM container owner | Low |
 | `LlamaCppVLMService` | `@MainActor` class | GGUF VLM lifecycle | Low |
 | `MLXGenerationGate` | `actor` | Serial GPU command submission | Low — correct use of actor serialization |
 | `MemoryAdvisor` | `enum` with `@MainActor` static state | RAM calculations | Low — all state is read-only computed or MainActor-guarded |
@@ -764,7 +764,7 @@ Documents/
 | `ConversationStore` | `Models/ConversationStore.swift` | High — codable persistence | Own file path; remove CloudKit tombstone integration | Medium |
 | `ChatMessage` | `Models/ChatMessage.swift` | High — message model | Remove logprobs if not needed | Low |
 | `CodingAssistantService` | `Services/CodingAssistantService.swift` | High — load/generate/unload pattern | Own system prompt; own model catalog; remove LoRA/LPM-specific paths | Medium |
-| `LensInferenceLoop` | `Services/LensInferenceLoop.swift` | High — VLM container lifecycle | Own model catalog; own fallback chain | Medium |
+| `VisionInferenceLoop` | `Services/VisionInferenceLoop.swift` | High — VLM container lifecycle | Own model catalog; own fallback chain | Medium |
 | `LlamaCppVLMService` | `Services/LlamaCpp/LlamaCppVLMService.swift` | High — GGUF VLM path | Own directory layout | Medium |
 | `ModelResidency` | `Services/ModelResidency.swift` | High — dual-residence + prefetch | Own budget table; own model sizing | Medium |
 | `VLMCapabilities` | `Services/VLMCapabilities.swift` | High — VLM preprocessing strategy table | Extend with own architectures | Low |
@@ -814,7 +814,7 @@ Documents/
 | `ModelCatalogService` | `ModelDownloadCenter` + `AssistantModelCatalog` | ✅ Has it | Merge curated catalog + download catalog into one service |
 | `ModelStorageManager` | `ModelCacheProbe` + directory helpers | ✅ Has it | Extract storage operations (where, integrity, delete, reclaim) |
 | `ModelDownloadManager` | `HFModelDownloadManager` + `BackgroundDownloadCoordinator` | ✅ Has it | Nearly self-contained; extract with own session ID |
-| `ModelRuntimeManager` | `CodingAssistantService` + `LensInferenceLoop` + `LlamaCppVLMService` | ✅ Has it | Extract load/generate/unload per backend behind a protocol |
+| `ModelRuntimeManager` | `CodingAssistantService` + `VisionInferenceLoop` + `LlamaCppVLMService` | ✅ Has it | Extract load/generate/unload per backend behind a protocol |
 | `InferenceSessionActor` | `MLXGenerationGate` | ✅ Has it | Already an actor; rename for clarity |
 | `PromptBuilder` | `ChatTemplate` + `trimToInputBudget` | ✅ Has it | Merge template formatting + context trimming |
 | `ResourceMonitor` | `DeviceSafetyMonitor` | ✅ Has it | Nearly self-contained; extract |
@@ -852,7 +852,7 @@ Documents/
 - [ ] `Models/AppSettings.swift` (as settings pattern, not content)
 - [ ] `Models/ModelCatalogTypes.swift`
 - [ ] `Services/CodingAssistantService.swift`
-- [ ] `Services/LensInferenceLoop.swift`
+- [ ] `Services/VisionInferenceLoop.swift`
 - [ ] `Services/FastVLMService.swift` (if using FastVLM)
 - [ ] `Services/LlamaCpp/LlamaCppVLMService.swift`
 - [ ] `Services/LlamaCpp/LlamaCppBridge.swift`
@@ -888,7 +888,7 @@ Documents/
 - [ ] `ModelCacheProbe` — integrity
 - [ ] `ChatTemplate` + `ChatMessage` — data models
 - [ ] `CodingAssistantService` — text LLM pipeline
-- [ ] `LensInferenceLoop` + `LlamaCppVLMService` — VLM pipelines
+- [ ] `VisionInferenceLoop` + `LlamaCppVLMService` — VLM pipelines
 
 ### Dependencies to Preserve
 - [ ] `mlx-swift` (0.31.x) — MLX runtime
@@ -930,7 +930,7 @@ Documents/
 - [ ] `HFModelDownloadManager` download + resume + cancel
 - [ ] `BackgroundDownloadCoordinator` bg task lifecycle
 - [ ] `CodingAssistantService` load + generate + cancel + unload
-- [ ] `LensInferenceLoop` load + describe + switch + unload
+- [ ] `VisionInferenceLoop` load + describe + switch + unload
 - [ ] `LlamaCppVLMService` GGUF pair detection + load + describe
 - [ ] `MLXGenerationGate` serialization + cancellation + foreground latch
 - [ ] `DeviceSafetyMonitor` thermal state transitions + token caps
@@ -967,7 +967,7 @@ Documents/
 >
 > **Your job:**
 > 1. Read the handoff document in full before writing any code.
-> 2. Extract the reusable foundation components listed in Section 17. Start with `MemoryAdvisor`, `DeviceSafetyMonitor`, `MLXGenerationGate`, `ModelCacheProbe`, `HFModelDownloadManager`, `BackgroundDownloadCoordinator`, `HFTokenStore`, `ChatTemplate`, `ChatMessage`, `ConversationStore`, `CodingAssistantService`, `LensInferenceLoop`, and `LlamaCppVLMService`.
+> 2. Extract the reusable foundation components listed in Section 17. Start with `MemoryAdvisor`, `DeviceSafetyMonitor`, `MLXGenerationGate`, `ModelCacheProbe`, `HFModelDownloadManager`, `BackgroundDownloadCoordinator`, `HFTokenStore`, `ChatTemplate`, `ChatMessage`, `ConversationStore`, `CodingAssistantService`, `VisionInferenceLoop`, and `LlamaCppVLMService`.
 > 3. Adapt only what must change: storage paths, bundle identifiers, session identifiers, and curated model catalogs.
 > 4. Build a clean new app shell with its own SwiftUI views and navigation. Do NOT copy any views from the old codebase.
 > 5. Do not copy branding, KoduTheme, Mac pairing bridge, app-specific UI copy, StoreKit logic, review prompts, or experimental/dead code paths.

@@ -1,0 +1,29 @@
+Mahalli (محلّي)
+Copyright (c) 2026 justmgz
+
+This product is a derivative work of "OnDevice Core"
+(https://github.com/Mesutcydev/ondevice-core), itself derived from
+"iOS Local LLM", Copyright (c) 2026 Mesut and iOS Local LLM contributors,
+used under the MIT License (see LICENSE, whose original copyright notice is
+retained unchanged).
+
+Mahalli is an independent project. It is not affiliated with, endorsed by, or
+sponsored by the upstream authors. In line with the upstream TRADEMARKS.md, it
+does not use the upstream app icons, screenshots, or promotional artwork; the
+name "Mahalli", the app icon and the "Sahl" light UI are new.
+
+Changes from upstream (summary):
+  * Removed the Lens / live-camera / OCR / Code-Mode feature only. All other
+    features (Assistant, Voice, Models, image generation, RAG/knowledge base,
+    Hugging Face downloads, Core AI models, Edge0 native runtime, Background
+    Assets, Local API, Mac bridge, Share extension) are kept unchanged.
+  * New identity: Mahalli / com.justmgz.mahalli, new code-drawn icon.
+  * Light, minimal, Arabic-first (RTL) "Sahl" palette with IBM Plex Sans
+    Arabic and Saudi-dialect Arabic strings for the main screens.
+
+Bundled third-party components keep their own licenses, including:
+  * IBM Plex Sans Arabic — SIL Open Font License 1.1
+    (IOSLocalLLM/Resources/Fonts/OFL.txt), Copyright 2017 IBM Corp.
+  * llama.cpp, whisper.cpp (git submodules, MIT), Packages/coreai-models,
+    Packages/VoiceAgentOrb and the components listed in
+    THIRD_PARTY_NOTICES.md and LICENSES/.

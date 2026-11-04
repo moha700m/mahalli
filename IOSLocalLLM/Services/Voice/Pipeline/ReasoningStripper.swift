@@ -17,7 +17,7 @@ import Foundation
 //     together, not leaked piecewise.
 //
 //   • One-shot — call `strip(_:)` on a complete string. Used by the
-//     non-streaming code paths (analysis-panel auto-read, Lens
+//     non-streaming code paths (analysis-panel auto-read, Vision
 //     speak-on-final, "read aloud" button) so the reasoning filter
 //     applies everywhere TTS does, not just live streaming.
 //

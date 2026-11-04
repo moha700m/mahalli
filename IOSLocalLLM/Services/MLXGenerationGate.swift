@@ -239,7 +239,7 @@ actor MLXGenerationGate {
     }
 
     /// Read-only foreground check for short-circuiting callers (e.g.
-    /// LensInferenceLoop.describe) that want to refuse work BEFORE
+    /// VisionInferenceLoop.describe) that want to refuse work BEFORE
     /// constructing the gate body. Kept separate from `run()` so callers
     /// don't have to await a thrown `Cancelled` to discover the state.
     var foregrounded: Bool { isForegrounded }

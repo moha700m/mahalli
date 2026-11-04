@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>OnDevice Core</string>
+	<string>Mahalli</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,10 +22,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.mesutcydev.ondevicecore.scheme</string>
+			<string>com.justmgz.mahalli.scheme</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>ondevice-core</string>
+				<string>mahalli</string>
 			</array>
 		</dict>
 	</array>
@@ -36,17 +36,25 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>OnDevice Core uses the camera so Lens can read text and describe objects, documents, and scenes you choose to capture.</string>
+	<string>Mahalli uses the camera only to scan the pairing QR code shown by your Mac.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>OnDevice can expose your on-device language model to computers on your local network when you enable the Local API Server.</string>
+	<string>Mahalli can expose your on-device language model to computers on your local network when you enable the Local API Server.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>OnDevice Core uses the microphone for voice conversations and dictation. Recording starts when you choose a voice or microphone control.</string>
+	<string>Mahalli uses the microphone for voice conversations and dictation. Recording starts when you choose a voice or microphone control.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>OnDevice Core uses photos you select for image understanding and conversations with compatible vision models.</string>
+	<string>Mahalli uses photos you select for image understanding and conversations with compatible vision models.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>OnDevice Core uses speech recognition to turn your speech into text for voice conversations and dictation.</string>
+	<string>Mahalli uses speech recognition to turn your speech into text for voice conversations and dictation.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>IBMPlexSansArabic-Light.ttf</string>
+		<string>IBMPlexSansArabic-Regular.ttf</string>
+		<string>IBMPlexSansArabic-Medium.ttf</string>
+		<string>IBMPlexSansArabic-SemiBold.ttf</string>
+		<string>IBMPlexSansArabic-Bold.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

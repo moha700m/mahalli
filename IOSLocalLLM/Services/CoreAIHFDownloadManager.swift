@@ -468,7 +468,7 @@ final class CoreAIHFDownloadManager: ObservableObject, Identifiable {
             request.timeoutInterval = 30
             request.setValue("application/json", forHTTPHeaderField: "Accept")
             request.setValue(
-                "OnDeviceCoreAIStudio/3.2.6 (iOS; Core AI pack download)",
+                "Mahalli/3.2.6 (iOS; Core AI pack download)",
                 forHTTPHeaderField: "User-Agent"
             )
             HFTokenStore.authorize(&request)
@@ -737,7 +737,7 @@ final class CoreAIForegroundTransfer: NSObject, URLSessionDownloadDelegate, @unc
         var request = URLRequest(url: url)
         request.timeoutInterval = 60
         request.setValue(
-            "OnDeviceCoreAIStudio/3.2.6 (iOS; Core AI pack download)",
+            "Mahalli/3.2.6 (iOS; Core AI pack download)",
             forHTTPHeaderField: "User-Agent"
         )
         if let host = url.host?.lowercased(),

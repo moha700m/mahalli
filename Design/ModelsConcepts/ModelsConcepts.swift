@@ -10,7 +10,7 @@ struct StudyModel: Identifiable {
     let symbol: String
     static let library = [
         StudyModel(id: "qwen", name: "Qwen 3", role: "Assistant", engine: "MLX", size: "2.4 GB", symbol: "text.bubble"),
-        StudyModel(id: "gemma", name: "Gemma 3", role: "Lens", engine: "Core AI", size: "3.2 GB", symbol: "viewfinder"),
+        StudyModel(id: "gemma", name: "Gemma 3", role: "Vision", engine: "Core AI", size: "3.2 GB", symbol: "viewfinder"),
         StudyModel(id: "edge", name: "Edge0", role: "Assistant", engine: "Edge0", size: "4.8 GB", symbol: "cpu"),
         StudyModel(id: "llama", name: "Llama 3.2", role: "Assistant", engine: "GGUF", size: "1.9 GB", symbol: "text.bubble"),
         StudyModel(id: "kitten", name: "Kitten TTS", role: "Voice", engine: "ONNX", size: "80 MB", symbol: "waveform"),
@@ -128,7 +128,7 @@ struct DashboardLibrary: View {
                 HStack { Text("Your toolkit").font(.title3.weight(.semibold)); Spacer(); Text("ALL MODELS ↗").font(.system(.caption2, design: .monospaced)).foregroundStyle(muted) }
                 HStack(alignment: .top, spacing: 12) {
                     roleTile("Assistant", subtitle: "3 models", icon: "text.bubble", model: StudyModel.library[0])
-                    roleTile("Lens", subtitle: "1 model", icon: "viewfinder", model: StudyModel.library[1])
+                    roleTile("Vision", subtitle: "1 model", icon: "viewfinder", model: StudyModel.library[1])
                     roleTile("Voice", subtitle: "2 models", icon: "waveform", model: StudyModel.library[4])
                 }
                 Button { importing = true } label: {
@@ -182,7 +182,7 @@ struct AppleLibrary: View {
                         Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
                     }.padding(.vertical, 7)
                 }
-                ForEach(["Assistant", "Lens", "Voice"], id: \.self) { role in
+                ForEach(["Assistant", "Vision", "Voice"], id: \.self) { role in
                     Section(role) {
                         ForEach(StudyModel.library.filter { $0.role == role && (query.isEmpty || $0.name.localizedCaseInsensitiveContains(query)) }) { model in
                             Button { detail = model } label: {
@@ -354,7 +354,7 @@ struct HybridLibrary: View {
                         Spacer()
                         Menu {
                             Picker("Category", selection: $role) {
-                                ForEach(["All", "Assistant", "Lens", "Voice"], id: \.self) { Text($0).tag($0) }
+                                ForEach(["All", "Assistant", "Vision", "Voice"], id: \.self) { Text($0).tag($0) }
                             }
                         } label: { HStack(spacing: 4) { Text(role); Image(systemName: "chevron.down").font(.caption2) }.font(.subheadline).foregroundStyle(accent) }
                     }.textCase(nil).padding(.bottom, 5)
@@ -409,7 +409,7 @@ struct WorkspaceChooser: View {
             HStack {
                 Menu {
                     Picker("Category", selection: $role) {
-                        ForEach(["All models", "Assistant", "Lens", "Voice"], id: \.self) { Text($0).tag($0) }
+                        ForEach(["All models", "Assistant", "Vision", "Voice"], id: \.self) { Text($0).tag($0) }
                     }
                 } label: { Image(systemName: "line.3.horizontal").font(.title3).frame(width: 44, height: 44) }
                 .accessibilityLabel("Model categories")
@@ -458,7 +458,7 @@ struct WorkspaceChooser: View {
                         Spacer()
                         Menu {
                             Picker("Category", selection: $role) {
-                                ForEach(["All models", "Assistant", "Lens", "Voice"], id: \.self) { Text($0).tag($0) }
+                                ForEach(["All models", "Assistant", "Vision", "Voice"], id: \.self) { Text($0).tag($0) }
                             }
                         } label: { Image(systemName: "slider.horizontal.3").frame(width: 44, height: 44) }.accessibilityLabel("Filter models")
                     }

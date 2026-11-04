@@ -35,7 +35,7 @@
 // "WARNING: This API is experimental and subject to many BREAKING
 // CHANGES" notice in mtmd.h is real. We pin to a specific llama.cpp
 // commit (recorded in ThirdParty/llama.cpp/.git/HEAD when cloned)
-// and explicitly track upstream changes via LENS_PIPELINE.md.
+// and explicitly track upstream changes upstream.
 #import "mtmd.h"
 
 // mtmd-helper — high-level convenience wrappers. Lets us avoid

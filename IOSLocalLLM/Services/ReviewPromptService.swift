@@ -135,7 +135,7 @@ final class ReviewPromptService: ObservableObject {
         let app = Bundle.main.appVersionAndBuild
         let device = UIDevice.current.systemVersion
         let body = "App: \(app)\niOS: \(device)\n\n"
-        let subject = "OnDevice feedback"
+        let subject = "Mahalli feedback"
         var comps = URLComponents()
         comps.scheme = "mailto"
         comps.path = "mesutcy@gmail.com"
@@ -195,7 +195,7 @@ struct ReviewPromptSheet: View {
                             startPoint: .top, endPoint: .bottom
                         )
                     )
-                Text(loc.t("Enjoying OnDevice?"))
+                Text(loc.t("Enjoying Mahalli?"))
                     .font(T.display(22, .semibold))
                     .foregroundColor(T.ink)
                     .multilineTextAlignment(.center)

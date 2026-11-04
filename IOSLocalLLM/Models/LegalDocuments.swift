@@ -18,9 +18,9 @@ enum LegalDocuments {
     static let currentVersion = 5
 
     // MARK: - Public URLs
-    static let privacyPolicyURL = "https://github.com/Mesutcydev/ondevice-core/blob/main/PRIVACY_POLICY.md"
-    static let eulaURL          = "https://github.com/Mesutcydev/ondevice-core/blob/main/LICENSE"
-    static let supportURL       = "https://github.com/Mesutcydev/ondevice-core/issues"
+    static let privacyPolicyURL = "https://github.com/moha700m/mahalli/blob/main/PRIVACY_POLICY.md"
+    static let eulaURL          = "https://github.com/moha700m/mahalli/blob/main/LICENSE"
+    static let supportURL       = "https://github.com/moha700m/mahalli/issues"
 
     // MARK: - Privacy Policy
 
@@ -29,7 +29,7 @@ enum LegalDocuments {
 
     **Last updated:** \(currentVersionDate)
 
-    OnDevice ("we", "the app") is designed with privacy as a core principle. AI processing is local by default. If you explicitly select Apple Private Cloud, the request content described below is sent to Apple's Private Cloud Compute service. We do not operate an OnDevice account, analytics, advertising, telemetry, or inference server, and we do not collect, store, or sell your personal data.
+    Mahalli ("we", "the app") is designed with privacy as a core principle. AI processing is local by default. If you explicitly select Apple Private Cloud, the request content described below is sent to Apple's Private Cloud Compute service. We do not operate an Mahalli account, analytics, advertising, telemetry, or inference server, and we do not collect, store, or sell your personal data.
 
     ## 1. What we do NOT collect
     - We do **not** collect images, video, or photos captured by the camera.
@@ -53,7 +53,7 @@ enum LegalDocuments {
     - **Apple Private Cloud:** When you select this optional model and accept its separate disclosure, the conversation content needed for the request is sent to Apple Private Cloud Compute. It can include recent messages, system instructions, and text extracted from files, web pages, or images. A network connection is required. You can switch back to a downloaded local model at any time.
     - **External documentation and links:** These open only after your action.
 
-    There is no OnDevice telemetry channel, remote configuration service, analytics SDK, or advertising SDK.
+    There is no Mahalli telemetry channel, remote configuration service, analytics SDK, or advertising SDK.
 
     ## 4. Permissions we request
     - **Camera:** Required to capture frames for live analysis. Disable in iOS Settings any time; the app will continue to work with imported photos only.
@@ -66,7 +66,7 @@ enum LegalDocuments {
     The app uses third-party AI models that run on your device. We are not the authors of these models. Each model's license, source repository, and citation is shown in **Settings → Legal → Attributions**. A model may be open source, source-available, community-licensed, or restricted to research use; review its terms before downloading or using it.
 
     ## 7. Hugging Face downloads
-    When you tap "download" on a Hugging Face model, your device makes HTTPS requests to `huggingface.co`. We do not control Hugging Face. Their privacy policy and terms of service apply. If you save a Hugging Face token for a gated repository, the app stores it in the Keychain and sends it to Hugging Face for authorized requests; OnDevice does not receive it.
+    When you tap "download" on a Hugging Face model, your device makes HTTPS requests to `huggingface.co`. We do not control Hugging Face. Their privacy policy and terms of service apply. If you save a Hugging Face token for a gated repository, the app stores it in the Keychain and sends it to Hugging Face for authorized requests; Mahalli does not receive it.
 
     ## 8. Apple frameworks
     The app uses Apple-provided iOS frameworks (Vision, Speech, Core ML, MetricKit, ActivityKit, CloudKit when iCloud sync is enabled, and Private Cloud Compute when you explicitly select it). These frameworks operate under Apple's privacy practices. **Speech recognition is forced on-device** wherever the device supports it (recent iPhones). CloudKit sync, if you enable it, stores conversations in **your** private iCloud database — Apple, not us, controls that storage.
@@ -81,7 +81,7 @@ enum LegalDocuments {
     Local app data is stored in the app's iOS sandbox. Conversations are stored encrypted-at-rest (`completeFileProtectionUnlessOpen`). You can wipe local data and any configured private-CloudKit conversation copy via **Settings → Privacy & Reset → Wipe all app data**. If iCloud is unavailable, the app reports that the cloud copy may remain so you can sign in and retry. Uninstalling removes local data but does not itself guarantee deletion of CloudKit records.
 
     ## 12. Your rights
-    Because we do not collect personal data into an OnDevice-operated service, there is nothing for us to access, correct, port, or delete on your behalf. Local and optional private-CloudKit data remain under your controls in the app and your Apple account. If you believe we have nevertheless processed your personal data, contact us via the Support link.
+    Because we do not collect personal data into an Mahalli-operated service, there is nothing for us to access, correct, port, or delete on your behalf. Local and optional private-CloudKit data remain under your controls in the app and your Apple account. If you believe we have nevertheless processed your personal data, contact us via the Support link.
 
     ## 13. Changes
     If we change this policy we will update the "Last updated" date and re-prompt for acceptance inside the app.
@@ -99,13 +99,13 @@ enum LegalDocuments {
 
     This source distribution contains original open-source software and separately licensed third-party material. This notice summarizes licenses and important safety information; it does not add copyright restrictions to the MIT-licensed portions of the app.
 
-    ## 1. OnDevice license
-    OnDevice is an independent modified distribution derived from the **iOS Local LLM** open-source project. The original project code, this distribution's modifications, and the documentation are available under the **MIT License**. Subject to that license, you may use, copy, modify, merge, publish, distribute, sublicense, and sell copies.
+    ## 1. Mahalli license
+    Mahalli (by justmgz) is an independent modified distribution derived from the **OnDevice Core** (Mesutcydev/ondevice-core) and **iOS Local LLM** open-source projects. The original project code, this distribution's modifications, and the documentation are available under the **MIT License**. Subject to that license, you may use, copy, modify, merge, publish, distribute, sublicense, and sell copies.
 
-    The MIT copyright and permission notice must be included in copies or substantial portions of the software. “OnDevice” is this distribution's product identity; “iOS Local LLM” remains the upstream project attribution. iOS and related names are Apple Inc. trademarks. Neither project is affiliated with or endorsed by Apple or any compatibility provider.
+    The MIT copyright and permission notice must be included in copies or substantial portions of the software. “Mahalli” is this distribution's product identity; “iOS Local LLM” remains the upstream project attribution. iOS and related names are Apple Inc. trademarks. Neither project is affiliated with or endorsed by Apple or any compatibility provider.
 
     ## 2. Third-party components and models
-    OnDevice includes or downloads components that are separate works under their own terms. Those terms are not replaced by the OnDevice MIT License.
+    Mahalli includes or downloads components that are separate works under their own terms. Those terms are not replaced by the Mahalli MIT License.
 
     A model may be open source, source-available, community-licensed, non-commercial, or research-only. **Review the license shown by the model source before downloading, using, modifying, or redistributing it.** Apple FastVLM model weights, for example, are licensed for research purposes only and are not part of the MIT-licensed source distribution.
 
@@ -144,7 +144,7 @@ enum LegalDocuments {
     static let aiDisclaimer = """
     # AI Output Disclaimer
 
-    OnDevice runs **third-party artificial intelligence models entirely on your device** to analyse images, generate text, extract code, review code, transcribe speech, and synthesize speech. A model's availability in the catalog does not mean it is open source. Read its license and understand the following before relying on any output.
+    Mahalli runs **third-party artificial intelligence models entirely on your device** to analyse images, generate text, extract code, review code, transcribe speech, and synthesize speech. A model's availability in the catalog does not mean it is open source. Read its license and understand the following before relying on any output.
 
     ## 1. AI output is generated by statistics, not understanding
     Outputs are produced by neural networks that predict the next token based on patterns in their training data. They do not "understand" your input, do not have access to real-time information, and do not verify their own answers. They can and routinely will produce:
@@ -187,7 +187,7 @@ enum LegalDocuments {
     - Anything you share with another person.
 
     ## 6. On-device privacy (not anonymity)
-    AI inference is on-device by default. The app makes no OnDevice telemetry calls. The outbound network requests are:
+    AI inference is on-device by default. The app makes no Mahalli telemetry calls. The outbound network requests are:
     - Searches and downloads from `huggingface.co` when you explicitly request them; gated repositories may include a token you saved.
     - Web search when you enable it and submit a query.
     - Mac Bridge or Local API communication on your local network when enabled.
@@ -219,7 +219,7 @@ enum LegalDocuments {
     static let deviceSafetyNotice = """
     # Device Safety Notice
 
-    On-device AI inference is computationally intensive. By using OnDevice you acknowledge and accept the following.
+    On-device AI inference is computationally intensive. By using Mahalli you acknowledge and accept the following.
 
     ## What to expect
     - **Heat** — your device will become warm, sometimes hot, during model loading and long replies. This is normal for sustained GPU/Neural-Engine work and is the same effect you'd see from a long gaming session or a long video-call.
@@ -240,7 +240,7 @@ enum LegalDocuments {
     - **Stop using the app** if the device becomes uncomfortably hot or behaves strangely.
     - **Charge with an Apple-certified cable and adapter** to avoid charging-related thermal issues unrelated to the app.
 
-    These are intrinsic properties of on-device machine learning, not defects of OnDevice. By continuing you accept that we are not liable for normal thermal output, normal battery drain, or accelerated battery wear consistent with intensive use.
+    These are intrinsic properties of on-device machine learning, not defects of Mahalli. By continuing you accept that we are not liable for normal thermal output, normal battery drain, or accelerated battery wear consistent with intensive use.
     """
 
     // MARK: - Attributions

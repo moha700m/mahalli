@@ -105,13 +105,12 @@ struct SettingsView: View {
     // bodies inline, so no content was lost — only the firehose.
 
     enum SettingsCategory: String, CaseIterable, Identifiable {
-        case appearance, modelsAI, capture, voice, downloads, system, privacyLegal, userGuide, about
+        case appearance, modelsAI, voice, downloads, system, privacyLegal, userGuide, about
         var id: String { rawValue }
         var title: String {
             switch self {
             case .appearance: return "Appearance & Language"
             case .modelsAI: return "Assistant"
-            case .capture: return "Capture & Lens"
             case .voice: return "Voice"
             case .downloads: return "Downloads & Connections"
             case .system: return "Advanced & Diagnostics"
@@ -124,7 +123,6 @@ struct SettingsView: View {
             switch self {
             case .appearance: return "Theme, language, haptics, app icon"
             case .modelsAI: return "Thinking, tools, response style and length"
-            case .capture: return "Analysis mode, camera and detection"
             case .voice: return "Engine, voice, audio and playback"
             case .downloads: return "Models, Wi-Fi downloads and Hugging Face token"
             case .system: return "Memory, load timeout, FPS, thermal and FastVLM pipeline"
@@ -137,7 +135,6 @@ struct SettingsView: View {
             switch self {
             case .appearance: return "paintpalette"
             case .modelsAI: return "brain"
-            case .capture: return "camera.viewfinder"
             case .voice: return "waveform"
             case .downloads: return "arrow.down.circle"
             case .system: return "gauge.with.dots.needle.bottom.50percent"
@@ -149,11 +146,11 @@ struct SettingsView: View {
         var searchKeywords: String {
             switch self {
             case .modelsAI: return "temperature tokens persona snippets knowledge documents"
-            case .system: return "OCR encoder decoder tokenizer debugging safety cache paging RAM"
+            case .system: return "encoder decoder tokenizer debugging safety cache paging RAM"
             case .downloads: return "API keys credentials authentication internet network wifi HF token"
             case .voice: return "speech microphone read aloud transcription TTS STT"
             case .privacyLegal: return "delete wipe clear data licenses"
-            case .about: return "OnDevice Core ondevice.fun website GitHub open source MIT repository version"
+            case .about: return "Mahalli website GitHub open source MIT repository version"
             default: return ""
             }
         }
@@ -202,8 +199,6 @@ struct SettingsView: View {
                 switch cat {
                 case .userGuide:
                     UserGuideView()
-                case .capture:
-                    analysisModeSection
                 case .modelsAI:
                     assistantSection
                 case .voice:
@@ -225,7 +220,6 @@ struct SettingsView: View {
                     legalSection
                 case .about:
                     SettingsAboutSection()
-                    imageStudioBanner.padding()
                 }
             }
             .padding(.bottom, 32)
@@ -237,30 +231,6 @@ struct SettingsView: View {
     }
 
     // MARK: - Sections
-
-    // MARK: - Analysis Mode Section
-
-    private var analysisModeSection: some View {
-        SettingsCard(title: "Analysis mode") {
-            VStack(alignment: .leading, spacing: 10) {
-                Picker("Mode", selection: $settings.analysisMode) {
-                    ForEach(AnalysisMode.allCases) { mode in
-                        Label(mode.displayName, systemImage: mode.systemImage).tag(mode.rawValue)
-                    }
-                }
-                .modifier(SettingsPickerStyle())
-
-                let mode = AnalysisMode(rawValue: settings.analysisMode) ?? .code
-                Text(mode == .code
-                     ? "Extracts source code from the detected region and generates a code review."
-                     : "Describes what the camera sees — useful for diagrams, whiteboards, UI screenshots, or any non-code scene.")
-                    .font(T.sans(14))
-                    .foregroundColor(T.ink2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(14)
-        }
-    }
 
     private var downloadsPreferences: some View {
         SettingsCard(title: "Downloads") {
@@ -422,10 +392,6 @@ struct SettingsView: View {
 
             Rectangle().fill(T.rule).frame(height: 1)
 
-            SettingsControlRow(label: "Use OCR fallback", trailing: {
-                SettingsToggle(isOn: $settings.useOCRFallback)
-            })
-
             SettingsControlRow(label: "Temperature", trailing: {
                 KMono(text: String(format: "%.2f", settings.fastvlmTemperature),
                        color: T.ink2, mono: false)
@@ -450,7 +416,7 @@ struct SettingsView: View {
 
             // FastVLM "missing components" panel — only relevant when the
             // user is actually relying on FastVLM. If they've picked an MLX
-            // VLM (SmolVLM etc.) the lens won't touch FastVLM, so nagging
+            // VLM (SmolVLM etc.) the vision won't touch FastVLM, so nagging
             // them about its components here is just noise. The panel also
             // stayed visible after a successful download because
             // canGenerate requires the model to be LOADED into memory, not
@@ -593,7 +559,7 @@ struct SettingsView: View {
                 Rectangle().fill(T.rule).frame(height: 1)
             }
 
-            // Diagnostic toggle. When on, the lens shows a small
+            // Diagnostic toggle. When on, the vision shows a small
             // thumbnail of the exact image MLX received last (post-
             // orientation, post-resize, post-everything). Lets you
             // diagnose accuracy issues at a glance.
@@ -608,7 +574,7 @@ struct SettingsView: View {
                                                     detail: url.lastPathComponent)
                     } else {
                         ToastCenter.shared.error("No model input to save",
-                                                  detail: "Run a lens capture first.")
+                                                  detail: "Run a vision request first.")
                     }
                     HapticManager.impact(.light)
                 } label: {
@@ -779,8 +745,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 8) {
             KMono(text: "app icon", size: 14, color: T.ink, mono: false)
             HStack(spacing: 14) {
-                appIconOption(name: nil, title: "Silver", preview: "AppIconPreview")
-                appIconOption(name: "AppIconClassic", title: "Classic", preview: "AppIconClassicPreview")
+                appIconOption(name: nil, title: "Mahalli", preview: "AppIconPreview")
                 Spacer()
             }
         }
@@ -1223,8 +1188,8 @@ private struct SettingsAboutSection: View {
     @Environment(\.koduTheme) private var theme
     @ObservedObject private var loc = LocalizationService.shared
 
-    private static let websiteURL = URL(string: "https://ondevice.fun")!
-    private static let sourceURL = URL(string: "https://github.com/Mesutcydev/ondevice-core")!
+    private static let websiteURL = URL(string: "https://github.com/moha700m/mahalli")!
+    private static let sourceURL = URL(string: "https://github.com/moha700m/mahalli")!
 
     private var version: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
@@ -1235,7 +1200,7 @@ private struct SettingsAboutSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("OnDevice Core")
+                Text("Mahalli")
                     .font(theme.display(28, .semibold))
                     .foregroundStyle(theme.ink)
                     .accessibilityAddTraits(.isHeader)
@@ -1250,7 +1215,7 @@ private struct SettingsAboutSection: View {
 
             VStack(spacing: 0) {
                 SettingsAboutLink(
-                    title: loc.t("Website"), detail: "ondevice.fun", symbol: "globe",
+                    title: loc.t("Website"), detail: "github.com/moha700m/mahalli", symbol: "globe",
                     url: Self.websiteURL, identifier: "appWebsiteLink"
                 )
                 Divider().overlay(theme.rule).padding(.leading, 56)

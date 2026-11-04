@@ -1,3 +1,4 @@
+// Modified 2026 by justmgz: flat light "Sahl" panels.
 import SwiftUI
 
 // MARK: - Shared semantic design tokens
@@ -13,9 +14,9 @@ enum AppSpacing {
 
 enum AppRadius {
     static let control: CGFloat = 12
-    static let card: CGFloat = 20
-    static let panel: CGFloat = 24
-    static let composer: CGFloat = 24
+    static let card: CGFloat = 16
+    static let panel: CGFloat = 18
+    static let composer: CGFloat = 20
 }
 
 // Assistant-specific rhythm. These names describe the density of the chat
@@ -50,9 +51,9 @@ enum AppStroke {
 }
 
 enum AppShadow {
-    static let panelColor = Color.black.opacity(0.16)
-    static let panelRadius: CGFloat = 18
-    static let panelY: CGFloat = 6
+    static let panelColor = Color.black.opacity(0.05)
+    static let panelRadius: CGFloat = 10
+    static let panelY: CGFloat = 2
 }
 
 enum AppAnimation {
@@ -64,27 +65,13 @@ struct AppPanelBackground: ViewModifier {
     var cornerRadius: CGFloat = AppRadius.panel
     var cameraSafe = false
 
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.koduTheme) private var T
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         content
-            .background {
-                if reduceTransparency {
-                    shape.fill(cameraSafe ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemBackground))
-                } else {
-                    shape.fill(cameraSafe ? AnyShapeStyle(.regularMaterial) : AnyShapeStyle(.thinMaterial))
-                }
-            }
-            .overlay {
-                shape.stroke(
-                    cameraSafe
-                        ? Color.white.opacity(colorScheme == .dark ? 0.22 : 0.34)
-                        : Color.primary.opacity(0.10),
-                    lineWidth: AppStroke.hairline
-                )
-            }
+            .background(shape.fill(T.surface))
+            .overlay(shape.strokeBorder(T.rule, lineWidth: AppStroke.regular))
             .shadow(color: AppShadow.panelColor, radius: AppShadow.panelRadius, y: AppShadow.panelY)
     }
 }

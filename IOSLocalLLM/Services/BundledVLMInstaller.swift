@@ -10,7 +10,7 @@ import Foundation
 //
 //   • mlx-swift-examples' SmolVLM2 integration is broken upstream
 //     (Index out of range in `prepareInputsForMultimodal` — see
-//     LENS_PIPELINE.md)
+//     VISION_PIPELINE.md)
 //   • The GGUF version at Q8_0 is half the size (~520 MB total)
 //     and works through llama.cpp + mtmd which doesn't share that
 //     bug
@@ -32,7 +32,7 @@ import Foundation
 
 enum BundledVLMInstaller {
 
-    /// HuggingFace repo id this bundle ships. Lens defaults point
+    /// HuggingFace repo id this bundle ships. Vision defaults point
     /// here via DeviceTierAdvisor.recommendedVisualModelRepoID.
     static let bundledRepoID = "ggml-org/SmolVLM2-500M-Video-Instruct-GGUF"
 
@@ -92,7 +92,7 @@ enum BundledVLMInstaller {
             return false
         }
         guard FileManager.default.fileExists(atPath: bundleRoot.path) else {
-            print("[BundledVLMInstaller] Bundle directory missing at \(bundleRoot.path) — lens tab will need network download of the GGUF pair")
+            print("[BundledVLMInstaller] Bundle directory missing at \(bundleRoot.path) — vision will need network download of the GGUF pair")
             return false
         }
 

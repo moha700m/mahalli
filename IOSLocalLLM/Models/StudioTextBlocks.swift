@@ -1,6 +1,6 @@
 import Foundation
 
-/// One tokenizer for chat, Lens, and code review. Fenced code is opaque.
+/// One tokenizer for chat, Vision, and code review. Fenced code is opaque.
 enum StudioTextBlocks {
     enum Block: Equatable, Sendable {
         case text(String)

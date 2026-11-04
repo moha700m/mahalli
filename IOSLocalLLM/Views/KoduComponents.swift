@@ -771,7 +771,7 @@ struct KDisclosureRows<Content: View>: View {
 // MARK: - Wordmark (kodu/IOSLocalLLM monogram)
 
 struct KWordmark: View {
-    var name: String = "OnDevice Core"
+    var name: String = "Mahalli"
     var monogram: String = "k"
     /// Asset name of an image logo; when set it replaces the letter monogram.
     var logoAsset: String? = nil

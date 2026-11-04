@@ -1,8 +1,8 @@
 name: OnDeviceSimCompat
 options:
-  bundleIdPrefix: com.mesutcydev.ondevicecore
+  bundleIdPrefix: com.justmgz.mahalli
   deploymentTarget:
-    # This is the iOS-27 Core AI edition. The untouched CodeLens reference
+    # This is the iOS-27 Core AI edition. The untouched upstream reference
     # remains iOS 18+; this copy keeps its MLX/llama stack and adds Core AI.
     iOS: "27.0"
   xcodeVersion: "27.0"
@@ -148,7 +148,7 @@ targets:
     info:
       path: IOSLocalLLM/Info.plist
       properties:
-        CFBundleDisplayName: OnDevice Core
+        CFBundleDisplayName: Mahalli
         # Source of truth for both targets' marketing version. xcodegen
         # writes these into the generated Info.plist files on every run,
         # so hand-edits to those plists get reverted next regen — always
@@ -158,11 +158,11 @@ targets:
         # Standard HTTPS only — answers the ASC export-compliance question
         # automatically so review submission doesn't stall on it.
         ITSAppUsesNonExemptEncryption: false
-        NSCameraUsageDescription: "OnDevice Core uses the camera so Lens can read text and describe objects, documents, and scenes you choose to capture."
-        NSPhotoLibraryUsageDescription: "OnDevice Core uses photos you select for image understanding and conversations with compatible vision models."
-        NSMicrophoneUsageDescription: "OnDevice Core uses the microphone for voice conversations and dictation. Recording starts when you choose a voice or microphone control."
-        NSLocalNetworkUsageDescription: "OnDevice can expose your on-device language model to computers on your local network when you enable the Local API Server."
-        NSSpeechRecognitionUsageDescription: "OnDevice Core uses speech recognition to turn your speech into text for voice conversations and dictation."
+        NSCameraUsageDescription: "Mahalli uses the camera only to scan the pairing QR code shown by your Mac."
+        NSPhotoLibraryUsageDescription: "Mahalli uses photos you select for image understanding and conversations with compatible vision models."
+        NSMicrophoneUsageDescription: "Mahalli uses the microphone for voice conversations and dictation. Recording starts when you choose a voice or microphone control."
+        NSLocalNetworkUsageDescription: "Mahalli can expose your on-device language model to computers on your local network when you enable the Local API Server."
+        NSSpeechRecognitionUsageDescription: "Mahalli uses speech recognition to turn your speech into text for voice conversations and dictation."
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UILaunchScreen:
@@ -171,19 +171,19 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         NSSupportsLiveActivities: true
         # Make downloaded/imported models under Documents/HFModels visible at
-        # Files → On My iPhone → OnDevice. Per-model export remains
+        # Files → On My iPhone → Mahalli. Per-model export remains
         # available from the Models tab for copying to any Files provider.
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
         CFBundleURLTypes:
-          - CFBundleURLName: com.mesutcydev.ondevicecore.scheme
+          - CFBundleURLName: com.justmgz.mahalli.scheme
             CFBundleURLSchemes:
-              - ondevice-core
+              - mahalli
     settings:
       base:
-        PRODUCT_NAME: OnDeviceCoreAIStudio
+        PRODUCT_NAME: Mahalli
         PRODUCT_MODULE_NAME: IOSLocalLLM
-        PRODUCT_BUNDLE_IDENTIFIER: com.mesutcydev.ondevicecore
+        PRODUCT_BUNDLE_IDENTIFIER: com.justmgz.mahalli
         INFOPLIST_FILE: IOSLocalLLM/Info.plist
         CODE_SIGN_ENTITLEMENTS: IOSLocalLLM/IOSLocalLLM.entitlements
         CODE_SIGN_STYLE: Automatic
@@ -304,7 +304,7 @@ targets:
           SRC="${SRCROOT}/IOSLocalLLM/Resources/BundledVLM"
           DEST="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/BundledVLM"
           if [ ! -d "$SRC" ]; then
-            echo "warning: BundledVLM source not found at $SRC — skipping (lens tab will fall back to network download of SmolVLM2 GGUF, ~520 MB on first launch)"
+            echo "warning: BundledVLM source not found at $SRC — skipping (vision will fall back to network download of SmolVLM2 GGUF, ~520 MB on first launch)"
             exit 0
           fi
           mkdir -p "$DEST"
@@ -351,11 +351,11 @@ targets:
           DEST_PACKAGE="${DEST_DIR}/fastvithd.mlpackage"
           DEST_COMPILED="${DEST_DIR}/fastvithd.mlmodelc"
           if [ ! -d "$SRC" ]; then
-            echo "warning: fastvithd.mlpackage not found at $SRC — FastVLM lens path will be unavailable on this build."
+            echo "warning: fastvithd.mlpackage not found at $SRC — FastVLM vision path will be unavailable on this build."
             exit 0
           fi
           # Prefer shipping the pre-compiled .mlmodelc so the first
-          # camera tap doesn't pay the ~2-3 s on-device compile cost.
+          # vision request doesn't pay the ~2-3 s on-device compile cost.
           # coremlcompiler is the Xcode-bundled tool that runs the
           # same compile step Xcode's build system uses for sources.
           COREMLC="$(xcrun --find coremlcompiler 2>/dev/null || true)"
@@ -390,7 +390,7 @@ targets:
     info:
       path: IOSLocalLLMShareExtension/Info.plist
       properties:
-        CFBundleDisplayName: OnDevice Core
+        CFBundleDisplayName: Mahalli
         # Must match the main target's version above — App Store rejects
         # extension targets with mismatched marketing versions.
         CFBundleShortVersionString: "1.0.0"
@@ -407,9 +407,9 @@ targets:
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
     settings:
       base:
-        PRODUCT_NAME: OnDeviceCoreShare
+        PRODUCT_NAME: MahalliShare
         PRODUCT_MODULE_NAME: IOSLocalLLMShareExtension
-        PRODUCT_BUNDLE_IDENTIFIER: com.mesutcydev.ondevicecore.share
+        PRODUCT_BUNDLE_IDENTIFIER: com.justmgz.mahalli.share
         INFOPLIST_FILE: IOSLocalLLMShareExtension/Info.plist
         CODE_SIGN_ENTITLEMENTS: IOSLocalLLMShareExtension/IOSLocalLLMShareExtension.entitlements
         CODE_SIGN_STYLE: Automatic
@@ -431,13 +431,13 @@ targets:
       - target: IOSLocalLLM
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mesutcydev.ondevicecore.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.justmgz.mahalli.tests
         INFOPLIST_FILE: ""   # auto-generate
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"
         "TARGETED_DEVICE_FAMILY[sdk=macosx*]": "2,6"
         GENERATE_INFOPLIST_FILE: YES
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/OnDeviceCoreAIStudio.app/OnDeviceCoreAIStudio"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Mahalli.app/Mahalli"
         BUNDLE_LOADER: "$(TEST_HOST)"
         SWIFT_EMIT_LOC_STRINGS: NO
         # Clear the bridging header — tests only test Swift code.
@@ -462,14 +462,14 @@ targets:
       - target: IOSLocalLLM
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mesutcydev.ondevicecore.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: com.justmgz.mahalli.uitests
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_EMIT_LOC_STRINGS: NO
 
 schemes:
-  OnDeviceCoreAIStudio:
+  Mahalli:
     build:
       targets:
         IOSLocalLLM: all

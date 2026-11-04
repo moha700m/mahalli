@@ -65,7 +65,7 @@ resolve_from_repo_build() {
 resolve_from_derived_data() {
     best=""
     best_time=0
-    for candidate in "$HOME"/Library/Developer/Xcode/DerivedData/OnDeviceCoreAIStudio-*/SourcePackages/checkouts/mlx-swift; do
+    for candidate in "$HOME"/Library/Developer/Xcode/DerivedData/Mahalli-*/SourcePackages/checkouts/mlx-swift; do
         [ -d "$candidate" ] || continue
         [ -f "$candidate/Source/Cmlx/mlx/mlx/backend/metal/device.h" ] || continue
         stamp=$(/usr/bin/stat -f %m "$candidate" 2>/dev/null || echo 0)

@@ -23,7 +23,7 @@ enum RuntimeEngineFactory {
     /// `storageBackedWeights` is true only where weights stay file-backed and
     /// iOS can reclaim clean pages (llama.cpp mmap today, Edge0 experts later).
     /// `supportsSharedVisionRuntime` marks the MLX dual-role container used by
-    /// Lens — the only vision-in-chat path.
+    /// Vision — the only vision-in-chat path.
     static func baselineCapabilities(for runtime: ModelRuntime) -> RuntimeCapabilities {
         switch runtime {
         case .mlx:

@@ -15,7 +15,7 @@ struct ModelsManagerView: View {
     // Shared role filters for local inventory and online discovery.
     enum Section: String, CaseIterable, Identifiable {
         case assistant = "Assistant"
-        case lens      = "Lens"
+        case vision      = "Vision"
         case voice     = "Voice"
         case image     = "Image"
         var id: String { rawValue }
@@ -24,7 +24,7 @@ struct ModelsManagerView: View {
         var category: DownloadableModel.Category {
             switch self {
             case .assistant: return .assistant
-            case .lens:      return .vlm
+            case .vision:      return .vlm
             case .voice:     return .voice
             case .image:     return .imageGen
             }
@@ -33,7 +33,7 @@ struct ModelsManagerView: View {
         var glyph: String {
             switch self {
             case .assistant: return "brain"
-            case .lens:      return "eye"
+            case .vision:      return "eye"
             case .voice:     return "waveform"
             case .image:     return "wand.and.stars"
             }
@@ -62,7 +62,7 @@ struct ModelsManagerView: View {
     @State private var searchText: String = ""
     /// Global inventory mode requested by users with models spread across
     /// several role tabs. When enabled, the page becomes a local-only library
-    /// and shows every downloaded model (Assistant, Lens, Voice, and Image)
+    /// and shows every downloaded model (Assistant, Vision, Voice, and Image)
     /// in one list instead of filtering by the selected role.
     @State private var isLibrary = true
     @State private var filterAllCategories = true
@@ -406,7 +406,7 @@ struct ModelsManagerView: View {
         searchText = ""
         switch requested {
         case .assistant: selectedSection = .assistant
-        case .lens:      selectedSection = .lens
+        case .vision:      selectedSection = .vision
         case .voice:     selectedSection = .voice
         case .image:     selectedSection = .image
         }
@@ -1040,7 +1040,7 @@ struct ModelsManagerView: View {
                     }
                 )
             }
-        case .lens:
+        case .vision:
             VStack(spacing: 10) {
                 categorySectionHeader(.vlm)
                 activeRow(
@@ -1692,7 +1692,7 @@ struct ModelsManagerView: View {
     private func sectionFor(_ role: DownloadableModel.Category) -> Section {
         switch role {
         case .assistant: return .assistant
-        case .vlm:       return .lens
+        case .vlm:       return .vision
         case .voice:     return .voice
         case .imageGen:  return .image
         }
@@ -2912,9 +2912,9 @@ struct ModelsManagerView: View {
             let selectionID = model.id == LocalModelRegistry.defaultVisionSelectionID
                 ? LocalModelRegistry.defaultVisionSelectionID
                 : model.sourceRepoID
-            // Use the same pre-warm-and-commit path as the Lens picker. The old
+            // Use the same pre-warm-and-commit path as the Vision picker. The old
             // direct settings write persisted Gemma before proving it could
-            // load, so Lens retried the unsafe model on every visit.
+            // load, so Vision retried the unsafe model on every visit.
             Task { @MainActor in
                 if await VisualModelPickerView.applySelection(selectionID) {
                     ToastCenter.shared.info(loc.t("Set as active"),
@@ -2936,7 +2936,7 @@ struct ModelsManagerView: View {
             guard let engine = supportedVoiceEngine(for: model) else {
                 ToastCenter.shared.info(
                     "Voice model downloaded",
-                    detail: "This repo is stored locally, but OnDevice can only switch between Apple System Voice, KittenTTS, and Kokoro right now."
+                    detail: "This repo is stored locally, but Mahalli can only switch between Apple System Voice, KittenTTS, and Kokoro right now."
                 )
                 return
             }
@@ -3658,7 +3658,7 @@ struct ModelsManagerView: View {
         filterAllCategories = false
         switch category {
         case .assistant: selectedSection = .assistant
-        case .vlm:       selectedSection = .lens
+        case .vlm:       selectedSection = .vision
         case .voice:     selectedSection = .voice
         case .imageGen:  selectedSection = .image
         }
@@ -3688,7 +3688,7 @@ struct ModelsManagerView: View {
     }
 
     /// Per-category brand tint — the single source for colour-coding cards,
-    /// glyphs, headers and tabs by model type. Assistant=rose, Lens=sage,
+    /// glyphs, headers and tabs by model type. Assistant=rose, Vision=sage,
     /// Voice=violet, Image=amber.
     // Every category now tracks the SELECTED accent so the Models page matches
     // the chosen theme. Categories stay distinguishable by their SF Symbol
@@ -4662,7 +4662,7 @@ private struct ModelsDestinationPicker: View {
 
 private struct ModelsCategoryFilter: View {
     @Binding var selection: String
-    private let categories = ["All", "Assistant", "Lens", "Voice", "Image"]
+    private let categories = ["All", "Assistant", "Vision", "Voice", "Image"]
     @Environment(\.dynamicTypeSize) private var textSize
 
     var body: some View {

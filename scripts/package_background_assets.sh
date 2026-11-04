@@ -5,7 +5,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/.." && pwd)"
 manifest_path="${1:-${repo_root}/BackgroundAssets/Manifests/offline-voice-models.json}"
 output_dir="${2:-${repo_root}/build/background-assets}"
-pack_id="com.mesutcydev.ioslocalllm.offline-voice-models"
+pack_id="com.justmgz.mahalli.offline-voice-models"
 pack_version="${ASSET_PACK_VERSION:-1}"
 source_dir="${repo_root}/IOSLocalLLM/Resources/BundledVoiceModels"
 

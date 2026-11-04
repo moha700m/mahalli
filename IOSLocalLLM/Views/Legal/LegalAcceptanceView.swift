@@ -131,7 +131,7 @@ struct LegalAcceptanceView: View {
 
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            KWordmark(name: "OnDevice Core", logoAsset: "app_logo_small")
+            KWordmark(name: "Mahalli", logoAsset: "app_logo_small")
             VStack(alignment: .leading, spacing: 4) {
                 KCaption(text: "first launch")
                 Text("Before\nyou start.")

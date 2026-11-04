@@ -62,7 +62,7 @@ final class DownloadableModel: ObservableObject, Identifiable {
 
     /// A package can serve more than its primary catalog category. Today this
     /// is used by unified text+vision models: they stay a single download but
-    /// surface in both Assistant and Lens.
+    /// surface in both Assistant and Vision.
     func supportsCategory(_ requested: Category) -> Bool {
         if category == requested { return true }
         return requested == .vlm && capabilities.contains(.vision)
@@ -705,7 +705,7 @@ final class ModelDownloadCenter: ObservableObject {
         models.append(DownloadableModel(
             id: FastVLMService.modelID,
             displayName: "FastVLM MLX Weights",
-            subtitle: "On-device vision encoder · required for Lens",
+            subtitle: "On-device vision encoder · required for image understanding",
             sizeLabel: "~400 MB",
             category: .vlm,
             isRequired: true,
@@ -726,7 +726,7 @@ final class ModelDownloadCenter: ObservableObject {
         // without the exact repo path.
         //
         // Every entry here lands in `Documents/HFModels/<flattened>/`
-        // (matches the path checked by `LensInferenceLoop.stagedDirectory`
+        // (matches the path checked by `VisionInferenceLoop.stagedDirectory`
         // and `CodingAssistantService.preStagedDirectory`).
         struct CuratedVLM {
             let repoID: String
@@ -785,7 +785,7 @@ final class ModelDownloadCenter: ObservableObject {
                 // vision graph and transient load/warmup buffers.
                 approxRAMBytes: 5_350_000_000,
                 capabilities: [],
-                longDescription: "Google's multimodal Gemma 3 with its 896² SigLIP encoder, running through llama.cpp + mtmd with a memory-bounded Lens profile.",
+                longDescription: "Google's multimodal Gemma 3 with its 896² SigLIP encoder, running through llama.cpp + mtmd with a memory-bounded vision profile.",
                 fileAllowlist: [
                     "gemma-3-4b-it-Q4_K_M.gguf",
                     "mmproj-model-f16.gguf",
@@ -795,7 +795,7 @@ final class ModelDownloadCenter: ObservableObject {
             // SmolVLM2-500M-Video-Instruct GGUF — runs through
             // llama.cpp + mtmd (LlamaCppVLMService), NOT MLX. The
             // MLX integration of this model family is broken
-            // upstream (see LENS_PIPELINE.md); the GGUF + llama.cpp
+            // upstream (see VISION_PIPELINE.md); the GGUF + llama.cpp
             // path doesn't share that bug. ~520 MB total (LLM Q8_0
             // + mmproj Q8_0). Fast, well-tested OCR / screen-reading.
             CuratedVLM(

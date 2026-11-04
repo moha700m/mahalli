@@ -8,7 +8,7 @@ import Combine
 final class AppSettings: ObservableObject {
     static let shared = AppSettings()
 
-    // Camera / YOLO
+    // Vision models
     @AppStorage("yoloConfidenceThreshold") var yoloConfidenceThreshold: Double = 0.75
     @AppStorage("autoCaptureEnabled")      var autoCaptureEnabled: Bool = true
     @AppStorage("maxDetections")           var maxDetections: Int = 3
@@ -156,10 +156,6 @@ final class AppSettings: ObservableObject {
     @AppStorage("localAPICORSOrigins") var localAPICORSOrigins: String = ""
 
     // FastVLM pipeline
-    // OCR fallback defaults OFF: the lens starts in visual (describe) mode, so
-    // falling back to raw text extraction is off by default. Users who want it
-    // can re-enable it in Settings.
-    @AppStorage("useOCRFallback")          var useOCRFallback: Bool = false
     @AppStorage("fastvlmMaxTokens")        var fastvlmMaxTokens: Int = 512
     @AppStorage("fastvlmTemperature")      var fastvlmTemperature: Double = 0.2
     @AppStorage("showDebugModelShapes")    var showDebugModelShapes: Bool = false
@@ -167,14 +163,14 @@ final class AppSettings: ObservableObject {
     /// can switch to a working mirror if the default 404s/401s.
     @AppStorage("fastVLMRepoID")           var fastVLMRepoID: String = "apple/FastVLM-0.5B-MLX"
 
-    /// Active visual model the camera tab uses. Empty string = the built-in
+    /// Active visual model used for image prompts in chat. Empty string = the built-in
     /// FastVLM path (Core ML encoder + MLX decoder). Any other value is a
     /// HuggingFace repo id of an MLX-format VLM the user has downloaded
     /// (Qwen2-VL, SmolVLM, Paligemma, Gemma 3 vision, etc.) and is routed
     /// through MLXVisionService instead.
     @AppStorage("cameraVisualModelID")     var cameraVisualModelID: String = ""
 
-    /// True once the user explicitly picked a camera VLM from the picker.
+    /// True once the user explicitly picked a VLM from the picker.
     /// Until then `DeviceTierAdvisor.applyDefaultVisualModelIfNeeded()` is
     /// allowed to set a tier-appropriate SmolVLM on each cold launch.
     @AppStorage("hasPickedCameraVisualModel") var hasPickedCameraVisualModel: Bool = false
@@ -183,15 +179,6 @@ final class AppSettings: ObservableObject {
     /// up in visual mode. Clamped to [6000, 30000] when read by the loop.
     @AppStorage("smolVLMIntervalMS")       var smolVLMIntervalMS: Int = 6000
 
-    /// Active LensPromptPreset (raw value). Shapes the prompt sent to the
-    /// VLM in visual mode. Defaults to `.describe`.
-    @AppStorage("lensPromptPresetID")      var lensPromptPresetID: String = "describe"
-
-    /// Optional free-form question for the live Lens. When non-empty it takes
-    /// precedence over `lensPromptPresetID` for prompt-capable visual models.
-    /// Keeping it in AppStorage means a user can briefly leave Lens to manage
-    /// a model and return without losing the question they were composing.
-    @AppStorage("lensCustomPrompt")        var lensCustomPrompt: String = ""
 
     // Thermal protection
     /// When false, the assistant UI hides the "device hot" pill and stops
@@ -199,8 +186,6 @@ final class AppSettings: ObservableObject {
     /// Memory-warning protection stays on regardless.
     @AppStorage("thermalWarningsEnabled")  var thermalWarningsEnabled: Bool = true
 
-    // Analysis mode — lens opens in visual (describe) mode by default.
-    @AppStorage("analysisMode")            var analysisMode: String = AnalysisMode.visual.rawValue
 
     // Onboarding
     @AppStorage("hasSeenOnboarding")       var hasSeenOnboarding: Bool = false
@@ -220,8 +205,8 @@ final class AppSettings: ObservableObject {
     /// UI language override: "system" (follow device), "en", or "tr".
     /// Live-switchable via LocalizationService — see Settings → INTERFACE
     /// → language picker.
-    @AppStorage("uiLanguage")              var uiLanguage: String = "system"
-    /// Lens debug overlay: shows a thumbnail of the EXACT image MLX
+    @AppStorage("uiLanguage")              var uiLanguage: String = "ar"
+    /// Model-input debug: shows a thumbnail of the EXACT image MLX
     /// receives (post-orientation, post-resize) so we can verify the
     /// preprocessing pipeline visually instead of guessing why captions
     /// are off. Off by default; toggle in Settings → INTERFACE.
@@ -269,16 +254,6 @@ final class AppSettings: ObservableObject {
     /// recogniser. Users on multilingual devices set this when their
     /// spoken language differs from the system language.
     @AppStorage("sttLocaleOverride")       var sttLocaleOverride: String = ""
-    /// Lens streaming TTS: when ON, narrates the live caption clause-by-
-    /// clause as the VLM emits tokens (rather than the historical
-    /// "speak full caption once on completion" behavior). Off by
-    /// default — opt-in for low-vision users. The frame-rate guard in
-    /// `LensVoiceNarrator` suppresses re-narration when the new
-    /// frame's caption substantially overlaps the previous one, so
-    /// turning this on doesn't cause the ~35fps re-inference cycle to
-    /// stutter the audio.
-    @AppStorage("voiceSpeakInLens")        var voiceSpeakInLens: Bool = false
-
     /// Voice-conversation mode: enable AVAudioInputNode voice processing
     /// (AEC + noise suppression + AGC). Makes barge-in possible —
     /// without it, the mic picks up the assistant's own TTS through

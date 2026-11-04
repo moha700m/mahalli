@@ -160,7 +160,7 @@ struct SetupBannerView: View {
             return "tap to retry"
         }
         // FastVLM-specific — NOT a whole-catalog "N/25 ready" count, which was
-        // meaningless to a user trying to enable the Lens.
+        // meaningless to a user trying to enable the Vision.
         let size = center.fastvlmModel?.sizeLabel ?? "~400 MB"
         return "on-device vision model · \(size)"
     }

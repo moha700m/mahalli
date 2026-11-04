@@ -7,7 +7,7 @@ import XCTest
 // `VoiceConversationService.sentenceBoundaryIndex(in:after:)` into
 // `SemanticChunker`. The `.sentence` strategy MUST match the
 // historical behavior bit-for-bit; the `.clause` and `.minWords`
-// strategies are new for session 3 (Lens descriptive narration) and
+// strategies are new for session 3 (Vision descriptive narration) and
 // pinned here so future edits don't drift.
 
 final class SemanticChunkerTests: XCTestCase {

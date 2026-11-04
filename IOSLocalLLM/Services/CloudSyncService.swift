@@ -24,7 +24,7 @@ final class CloudSyncService: ObservableObject {
     @Published private(set) var lastError: String?
     private var idleWaiters: [CheckedContinuation<Void, Never>] = []
 
-    private let container = CKContainer(identifier: "iCloud.com.mesutcydev.ondevicecore")
+    private let container = CKContainer(identifier: "iCloud.com.justmgz.mahalli")
     private var privateDB: CKDatabase { container.privateCloudDatabase }
 
     private init() {}

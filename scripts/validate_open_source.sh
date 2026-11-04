@@ -90,8 +90,8 @@ import json
 from pathlib import Path
 
 paths = (
-    Path("OnDeviceCoreAIStudio.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"),
-    Path("OnDeviceCoreAIStudio.xcworkspace/xcshareddata/swiftpm/Package.resolved"),
+    Path("Mahalli.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"),
+    Path("Mahalli.xcworkspace/xcshareddata/swiftpm/Package.resolved"),
 )
 
 def normalized_pins(path):

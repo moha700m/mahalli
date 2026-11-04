@@ -18,7 +18,7 @@ public actor WebSearchService {
         cfg.timeoutIntervalForRequest = 15
         cfg.timeoutIntervalForResource = 20
         cfg.httpAdditionalHeaders = [
-            "User-Agent": "ondevice-core/1.0 (Web Tool; +on-device)"
+            "User-Agent": "mahalli/1.0 (Web Tool; +on-device)"
         ]
         cfg.httpMaximumConnectionsPerHost = 2
         cfg.waitsForConnectivity = false

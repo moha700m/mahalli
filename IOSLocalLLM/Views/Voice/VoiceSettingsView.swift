@@ -25,11 +25,6 @@ struct VoiceSettingsView: View {
     // open and force VPIO on — a known zombie-voice path on some routes.
     @AppStorage("voiceProcessingEnabled") private var voiceProcessingEnabled: Bool = false
 
-    /// Stream-vs-final narration toggle for the Lens tab. Off by
-    /// default; turning on opts into clause-level streaming TTS with
-    /// the frame-rate guard.
-    @AppStorage("voiceSpeakInLens") private var voiceSpeakInLens: Bool = false
-
     /// Speak the assistant's reply aloud during voice-conversation
     /// mode. Surfaced here too so users find both toggles in one
     /// place (the existing voice-conversation controls bar still
@@ -223,18 +218,7 @@ struct VoiceSettingsView: View {
             SettingsControlRow(label: "speak in assistant", trailing: {
                 SettingsToggle(isOn: $voiceAnswerEnabled)
             })
-            SettingsControlRow(label: "speak in lens", trailing: {
-                SettingsToggle(isOn: $voiceSpeakInLens)
-            })
-            KMono(
-                text: voiceSpeakInLens
-                    ? "narrates the camera caption clause-by-clause. the frame-rate guard skips re-narration when the scene hasn't changed."
-                    : "speaks the full caption once per frame instead of streaming. enable this for low-vision or hands-free use.",
-                size: 14, color: T.ink3
-            )
-            .padding(14)
-            Rectangle().fill(T.rule).frame(height: 1)
-            SettingsControlRow(label: "auto-read analysis results", trailing: {
+            SettingsControlRow(label: "auto-read replies", trailing: {
                 SettingsToggle(isOn: Binding(
                     get: { vm.autoRead },
                     set: { vm.autoRead = $0 }
@@ -273,7 +257,7 @@ struct VoiceSettingsView: View {
     // For users who DO want per-model tuning, this is where they set
     // a slower rate for a deliberate coder model or a pinned engine
     // for a model whose locale they know better than the router
-    // does. Overrides persist under `com.mesutcydev.ondevicecore.voice.profile.
+    // does. Overrides persist under `com.justmgz.mahalli.voice.profile.
     // <modelId>.<field>` and are applied on top of the built-in
     // profile by `VoiceProfileRegistry`.
     //

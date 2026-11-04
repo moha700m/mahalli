@@ -57,7 +57,7 @@ struct OnboardingView: View {
                     .resizable().scaledToFit().frame(width: 32, height: 32)
                     .accessibilityHidden(true)
             }
-            Text("OnDevice Core")
+            Text("Mahalli")
                 .font(T.sans(15, .semibold))
             Spacer(minLength: 4)
             Button("Explore first") { settings.hasSeenOnboarding = true }
@@ -102,7 +102,7 @@ struct OnboardingView: View {
         }
         VStack(spacing: 14) {
             feature("text.bubble", title: "Assistant", detail: "Ask questions, shape ideas, and make writing your own.")
-            feature("viewfinder", title: "Lens", detail: "Bring text and images into the conversation.")
+            feature("photo", title: "Vision", detail: "Bring text and images into the conversation.")
             feature("waveform", title: "Voice", detail: "Talk naturally and choose the voice that suits you.")
         }
     }

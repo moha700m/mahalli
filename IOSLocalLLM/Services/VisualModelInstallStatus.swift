@@ -149,7 +149,7 @@ enum VisualModelInstallStatus {
             let weights = LlamaCppVLMService.estimatedWeightBytes(repoID: model.sourceRepoID)
             return Int64(Double(weights) * MemoryAdvisor.loadSpikeMultiplier)
         case .mlx:
-            let weights = LensInferenceLoop.estimatedWeightBytes(repoID: model.sourceRepoID)
+            let weights = VisionInferenceLoop.estimatedWeightBytes(repoID: model.sourceRepoID)
             return Int64(Double(weights) * MemoryAdvisor.loadSpikeMultiplier)
         }
     }

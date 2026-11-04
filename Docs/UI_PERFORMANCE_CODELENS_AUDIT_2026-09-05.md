@@ -88,7 +88,7 @@ Fix: named semantic styles for body, secondary information, code, and controls, 
 
 The focused comparison did not establish a compelling missing end-user feature to copy wholesale. The concrete benefits are source organization, shared regression tests, and deliberate convergence of presentation utilities.
 
-Do not port the sibling's older Lens diagnostics: its `LensInferenceLoop.swift` describe breadcrumb prints the prompt, whereas this app omits it. The sibling VoiceConversationService also lacks this app's startup safety refusal and preferred-TTS-readiness checks. Preserve CoreAI routing, explicit execution-location UI, consent, and residency behavior.
+Do not port the sibling's older Lens diagnostics: its `VisionInferenceLoop.swift` describe breadcrumb prints the prompt, whereas this app omits it. The sibling VoiceConversationService also lacks this app's startup safety refusal and preferred-TTS-readiness checks. Preserve CoreAI routing, explicit execution-location UI, consent, and residency behavior.
 
 ## Suggested implementation order
 

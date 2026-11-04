@@ -1,0 +1,141 @@
+# Copyright (c) 2026 justmgz
+# Builds an UNSIGNED Mahalli.ipa (for sideloading / re-signing) and uploads it
+# as a workflow artifact. No secrets or signing identities are used.
+name: Build unsigned IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "Runner label (macos-26 by default; macos-26-intel if arm64 capacity is short)"
+        required: false
+        default: macos-26
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runner || 'macos-26' }}
+    timeout-minutes: 150
+    env:
+      SCHEME: Mahalli
+      CONFIGURATION: Release
+    steps:
+      - name: Checkout (with llama.cpp / whisper.cpp submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Select newest Xcode
+        run: |
+          ls -d /Applications/Xcode*.app || true
+          XCODE_APP=$(ls -d /Applications/Xcode*.app | grep -v -i beta | sort -V | tail -1)
+          NEWEST=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          # The project targets the iOS 27 SDK (Core AI); prefer Xcode 27 even if beta.
+          if ls -d /Applications/Xcode_27*.app >/dev/null 2>&1; then XCODE_APP=$(ls -d /Applications/Xcode_27*.app | sort -V | tail -1); else XCODE_APP=$NEWEST; fi
+          echo "Using $XCODE_APP"
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i ios || true
+
+      - name: Install tools
+        run: |
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          brew list cmake >/dev/null 2>&1 || brew install cmake
+
+      - name: Cache native XCFrameworks
+        id: native-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ThirdParty/llama.cpp/build-apple/llama.xcframework
+            ThirdParty/whisper.cpp/build-apple/whisper.xcframework
+          key: native-core-v1-${{ hashFiles('.gitmodules', 'Patches/**', 'scripts/build_native_frameworks.sh', 'scripts/native/**') }}
+
+      - name: Build llama.cpp + whisper.cpp XCFrameworks
+        if: steps.native-cache.outputs.cache-hit != 'true'
+        run: ./scripts/build_native_frameworks.sh 2>&1 | tee "$RUNNER_TEMP/native.log"
+
+      - name: Generate Xcode project (XcodeGen, project.yml is the source of truth)
+        run: |
+          # project.yml references CocoaPods xcconfigs that only exist after
+          # `pod install`; create placeholders so XcodeGen can run first.
+          for t in Pods-IOSLocalLLM Pods-IOSLocalLLMTests; do
+            mkdir -p "Pods/Target Support Files/$t"
+            for c in debug release; do
+              f="Pods/Target Support Files/$t/$t.$c.xcconfig"
+              [ -f "$f" ] || touch "$f"
+            done
+          done
+          xcodegen generate --spec project.yml
+
+      - name: Install CocoaPods
+        run: |
+          if [ -f Podfile ]; then
+            gem list -i cocoapods >/dev/null || sudo gem install cocoapods
+            pod install --repo-update
+          fi
+
+      - name: Resolve Swift packages
+        run: |
+          if [ -d Mahalli.xcworkspace ]; then XC_TARGET="-workspace Mahalli.xcworkspace"; else XC_TARGET="-project Mahalli.xcodeproj"; fi
+          echo "XC_TARGET=$XC_TARGET" >> "$GITHUB_ENV"
+          xcodebuild $XC_TARGET -scheme "$SCHEME" -resolvePackageDependencies \
+            -skipPackagePluginValidation -skipMacroValidation 2>&1 | tee "$RUNNER_TEMP/resolve.log"
+
+      - name: Archive (unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild $XC_TARGET \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Mahalli.xcarchive" \
+            -skipPackagePluginValidation -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            archive > "$RUNNER_TEMP/xcodebuild.log" 2>&1 || true
+          grep -E "error:|\*\* ARCHIVE" "$RUNNER_TEMP/xcodebuild.log" | head -200 || true
+          grep -q "\*\* ARCHIVE SUCCEEDED \*\*" "$RUNNER_TEMP/xcodebuild.log" || {
+            echo "::error::xcodebuild archive failed"
+            tail -80 "$RUNNER_TEMP/xcodebuild.log"
+            exit 1
+          }
+
+      - name: Package IPA
+        run: |
+          APP_PATH=$(find "$RUNNER_TEMP/Mahalli.xcarchive/Products/Applications" -maxdepth 1 -name "*.app" | head -1)
+          test -n "$APP_PATH" || { echo "::error::No .app in archive"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/Mahalli-unsigned.ipa" Payload)
+          ls -lh "$GITHUB_WORKSPACE/Mahalli-unsigned.ipa"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mahalli-unsigned-ipa
+          path: Mahalli-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            ${{ runner.temp }}/xcodebuild.log
+            ${{ runner.temp }}/native.log
+            ${{ runner.temp }}/resolve.log
+          if-no-files-found: ignore

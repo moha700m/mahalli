@@ -1,3 +1,14 @@
+# Mahalli (محلّي)
+
+> On-device AI studio for iPhone — Arabic-first, light "Sahl" UI. By **justmgz**.
+>
+> Mahalli is a modified distribution of [OnDevice Core](https://github.com/Mesutcydev/ondevice-core)
+> (MIT). It keeps every upstream feature except Lens (live camera / OCR / Code Mode).
+> See `NOTICE` and `DIFF_FROM_UPSTREAM.md`. Build an unsigned IPA with the
+> `Build unsigned IPA` GitHub Actions workflow.
+
+---
+
 # OnDevice LLM
 
 **Run open-source LLMs on iPhone offline** — chat, vision, voice, RAG, and an

@@ -10,6 +10,11 @@ struct IOSLocalLLMApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var isShowingSplash = true
 
+    init() {
+        // Mahalli: register bundled IBM Plex Sans Arabic (also in UIAppFonts).
+        SahlFonts.registerBundledFonts()
+    }
+
     var body: some Scene {
         WindowGroup {
             #if DEBUG

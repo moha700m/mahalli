@@ -249,7 +249,7 @@ final class DeviceSafetyMonitor: ObservableObject {
     // MARK: - Keep-awake (idle timer)
 
     /// Reasons that currently want the screen kept awake (e.g. "benchmark",
-    /// "lens-live-loop"). The idle timer is disabled while ANY reason is
+    /// "vision-live-loop"). The idle timer is disabled while ANY reason is
     /// active and restored the moment the set empties — reference-counted
     /// by reason string so two owners can't stomp each other.
     private var keepAwakeReasons: Set<String> = []

@@ -66,7 +66,7 @@ final class LifecycleController: Sendable {
     // MARK: - .inactive
 
     /// Transient — do NOT unload models. Pause camera, stop accepting new
-    /// Lens requests. Debounce destructive cleanup because Control Center,
+    /// Vision requests. Debounce destructive cleanup because Control Center,
     /// alerts, and system overlays all trigger `.inactive`.
     private func onInactive(epoch: UInt64) async {
         guard epoch == lifecycleEpoch else { return }
@@ -78,12 +78,12 @@ final class LifecycleController: Sendable {
 
         guard epoch == lifecycleEpoch else { return }
 
-        // Stop accepting new Lens requests — any in-flight describe() will
+        // Stop accepting new Vision requests — any in-flight describe() will
         // complete naturally.
-        LensInferenceLoop.shared.suspendNewRequests()
+        VisionInferenceLoop.shared.suspendNewRequests()
 
         RecoveryManager.shared.markRunning(
-            slot: LensInferenceLoop.shared.activeRepoID != nil ? "lens" : "assistant",
+            slot: VisionInferenceLoop.shared.activeRepoID != nil ? "vision" : "assistant",
             modelID: CodingAssistantService.shared.activeModelRepoID,
             operation: "inactive"
         )
@@ -113,13 +113,13 @@ final class LifecycleController: Sendable {
         // Mark running state BEFORE starting cleanup.
         // If we get killed mid-cleanup, next launch sees unclean exit.
         RecoveryManager.shared.markRunning(
-            slot: LensInferenceLoop.shared.activeRepoID != nil ? "lens" : "assistant",
+            slot: VisionInferenceLoop.shared.activeRepoID != nil ? "vision" : "assistant",
             modelID: CodingAssistantService.shared.activeModelRepoID,
             operation: "background_transition"
         )
 
         // Block new inference IMMEDIATELY — must not start generation in background.
-        LensInferenceLoop.shared.suspendNewRequests()
+        VisionInferenceLoop.shared.suspendNewRequests()
         // Camera handles its own lifecycle via didEnterBackground notification.
 
         // Remember an explicitly-started cold model load before cancellation
@@ -179,9 +179,9 @@ final class LifecycleController: Sendable {
         }
 
         // 2. Unload heavy MLX runtimes. Single-heavy-runtime policy enforced
-        //    by CodingAssistantService.unload() and LensInferenceLoop.unload().
+        //    by CodingAssistantService.unload() and VisionInferenceLoop.unload().
         await CodingAssistantService.shared.unloadAndWaitForCleanup()
-        LensInferenceLoop.shared.unload()
+        VisionInferenceLoop.shared.unload()
         FastVLMService.shared.unload()
         await LlamaCppVLMService.shared.unloadAndWaitForCleanup()
 
@@ -225,8 +225,8 @@ final class LifecycleController: Sendable {
             operation: "active"
         )
 
-        // Resume Lens request acceptance.
-        LensInferenceLoop.shared.resumeNewRequests()
+        // Resume Vision request acceptance.
+        VisionInferenceLoop.shared.resumeNewRequests()
 
         // Camera handles its own lifecycle via willEnterForeground notification.
         // Do not normally auto-load a large model. The sole exception is an

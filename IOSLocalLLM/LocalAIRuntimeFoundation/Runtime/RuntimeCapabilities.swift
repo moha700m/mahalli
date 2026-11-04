@@ -17,8 +17,8 @@ struct RuntimeCapabilities: Sendable, Equatable, Hashable {
     let streamsTokens: Bool
     /// The runtime + model pairing can process image input.
     let supportsVision: Bool
-    /// Image-in-chat can reuse the shared Lens vision container. Vision models
-    /// loaded through a dedicated vision service (Lens/VLM services) do not
+    /// Image-in-chat can reuse the shared Vision vision container. Vision models
+    /// loaded through a dedicated vision service (Vision/VLM services) do not
     /// set this even when `supportsVision` is true.
     let supportsSharedVisionRuntime: Bool
     /// The pairing can emit/consume the app's tool-call protocol.

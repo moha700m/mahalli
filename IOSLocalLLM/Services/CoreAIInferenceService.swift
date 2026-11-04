@@ -109,7 +109,7 @@ final class CoreAIInferenceService {
         guard isReady, let runtime else { throw CoreAIInferenceError.modelMissing }
         if messages.contains(where: \.hasAttachedImages) {
             throw CoreAIInferenceError.invalidImage(
-                "This Core AI text pack does not accept images. Use Lens or an MLX/GGUF vision model."
+                "This Core AI text pack does not accept images. Use an MLX/GGUF vision model."
             )
         }
         try await runtime.generate(

@@ -13,7 +13,7 @@ import os                  // OSAllocatedUnfairLock
 /// Text generation has a very different memory envelope from image analysis,
 /// even when both roles come from one unified model package. Keep the large
 /// families useful in Assistant by bounding their context/KV cache instead of
-/// forcing every text load through Lens's much larger vision admission gate.
+/// forcing every text load through Vision's much larger vision admission gate.
 struct MLXAssistantExecutionProfile: Equatable, Sendable {
     let maxContextTokens: Int
     let maxOutputTokens: Int?
@@ -68,7 +68,7 @@ struct MLXAssistantExecutionProfile: Equatable, Sendable {
             // Bonsai 27B fits as a tightly-bounded text model on high-memory
             // iPhones, but its vision activations do not. A rotating 2K cache,
             // 4-bit KV, and small prefill chunks keep chat below the process
-            // watermark while Lens independently chooses a smaller VLM. The
+            // watermark while Vision independently chooses a smaller VLM. The
             // rotating cache bounds memory at any reply length, so output
             // follows the user's setting instead of a fixed cap.
             return .init(
@@ -658,7 +658,7 @@ final class CodingAssistantService: ObservableObject {
     /// cannot process images, so they stay `false` and any attached image
     /// thumbnails are rendered in the chat bubble only, never sent to the
     /// model. Mirrors how `resolvedMLXContainer`'s fallback only consults
-    /// the shared Lens runtime when our own `container` is nil. The chat
+    /// the shared Vision runtime when our own `container` is nil. The chat
     /// UI (photo-picker prefill, send-button gating) and `generate()`'s
     /// chat-array construction both branch on this flag, so a vision-
     /// capable catalogue model that happened to load as a bounded text
@@ -678,14 +678,14 @@ final class CodingAssistantService: ObservableObject {
         isVisionChatCapable =
             capabilities.supportsVision && capabilities.supportsSharedVisionRuntime
             && container == nil
-            && LensInferenceLoop.shared.sharedContainer(for: activeModel.repoID) != nil
+            && VisionInferenceLoop.shared.sharedContainer(for: activeModel.repoID) != nil
     }
 
     /// Text-only runtimes are owned here. A unified text+vision runtime is
-    /// borrowed from Lens only when its full vision envelope fits; otherwise
+    /// borrowed from Vision only when its full vision envelope fits; otherwise
     /// Assistant owns a smaller, bounded text container for the same package.
     private var resolvedMLXContainer: ModelContainer? {
-        container ?? LensInferenceLoop.shared.sharedContainer(for: activeModel.repoID)
+        container ?? VisionInferenceLoop.shared.sharedContainer(for: activeModel.repoID)
     }
     private var ggufModel: LlamaCppVLM?
     private var generateTask: Task<Void, Never>?
@@ -947,8 +947,8 @@ final class CodingAssistantService: ObservableObject {
     }
 
     /// Sum the weight-file sizes under `dir`. Mirrors the helper in
-    /// LensInferenceLoop; kept local here so this file doesn't depend
-    /// on the lens module. Returns 0 if no recognizable weight files
+    /// VisionInferenceLoop; kept local here so this file doesn't depend
+    /// on the vision module. Returns 0 if no recognizable weight files
     /// are present.
     private static nonisolated func sumWeightFiles(in dir: URL) -> UInt64 {
         guard let enumerator = FileManager.default.enumerator(
@@ -972,7 +972,7 @@ final class CodingAssistantService: ObservableObject {
     // MARK: - System prompt
 
     nonisolated static let systemPrompt = """
-    You are an expert coding assistant running entirely on-device in OnDevice.
+    You are an expert coding assistant running entirely on-device in Mahalli.
 
     Your capabilities:
     • Code completion, generation, and refactoring across all languages
@@ -1066,7 +1066,7 @@ final class CodingAssistantService: ObservableObject {
             return
         }
 
-        // One heavy runtime at a time. Lens/voice stay part of the workbench,
+        // One heavy runtime at a time. Vision/voice stay part of the workbench,
         // but their resident model must leave before Core AI specializes a
         // multi-gigabyte pack.
         MLXVisionService.shared.unload()
@@ -1439,7 +1439,7 @@ final class CodingAssistantService: ObservableObject {
         await NanbeigeMLXRegistration.register()
 
         // Loading/generation cannot be re-entered. A `.ready` state is only a
-        // no-op when its actual runtime still exists; a shared Lens container
+        // no-op when its actual runtime still exists; a shared Vision container
         // may have been reclaimed independently on memory pressure.
         switch state {
         case .loading, .generating: return
@@ -1487,10 +1487,10 @@ final class CodingAssistantService: ObservableObject {
             await unloadAndWaitForCleanup()
         }
 
-        // The Lens runtime is the neutral owner for unified text+vision
+        // The Vision runtime is the neutral owner for unified text+vision
         // packages. If it already has this model, attach instantly instead of
         // unloading it and loading identical weights through MLXLLM.
-        if let _ = LensInferenceLoop.shared.sharedContainer(for: activeModel.repoID) {
+        if let _ = VisionInferenceLoop.shared.sharedContainer(for: activeModel.repoID) {
             FastVLMService.shared.unload()
             await LlamaCppVLMService.shared.unloadAndWaitForCleanup()
             state = .ready
@@ -1504,7 +1504,7 @@ final class CodingAssistantService: ObservableObject {
 
         // Assistant is a single-runtime surface. Drain every visual backend,
         // including llama.cpp/mtmd (which does not share the MLX gate), before
-        // measuring or loading the chat model. This makes rapid Lens →
+        // measuring or loading the chat model. This makes rapid Vision →
         // Assistant and Visual → Code-mode changes deterministic.
         MLXVisionService.shared.unload()
         FastVLMService.shared.unload()
@@ -1715,7 +1715,7 @@ final class CodingAssistantService: ObservableObject {
 
         let isDualRole = DualRoleModelPolicy.isTextAndVision(repoID: loadingModel.repoID)
         let requiredVisionBytes = isDualRole
-            ? LensInferenceLoop.requiredVisionLoadBytes(repoID: loadingModel.repoID)
+            ? VisionInferenceLoop.requiredVisionLoadBytes(repoID: loadingModel.repoID)
             : 0
         let availableBytes = UInt64(max(0, MemoryAdvisor.availableMemoryForModel))
         let shouldShareVisionRuntime = DualRoleModelPolicy.shouldShareRuntime(
@@ -1727,7 +1727,7 @@ final class CodingAssistantService: ObservableObject {
         )
 
         if shouldShareVisionRuntime {
-            await LensInferenceLoop.shared.switchTo(
+            await VisionInferenceLoop.shared.switchTo(
                 repoID: loadingModel.repoID,
                 preserveMatchingAssistant: true
             )
@@ -1739,7 +1739,7 @@ final class CodingAssistantService: ObservableObject {
                 return
             }
             activeLoadID = nil
-            if LensInferenceLoop.shared.sharedContainer(for: loadingModel.repoID) != nil {
+            if VisionInferenceLoop.shared.sharedContainer(for: loadingModel.repoID) != nil {
                 state = .ready
                 refreshVisionChatCapability()
                 let elapsedMs = Date().timeIntervalSince(loadStart) * 1_000
@@ -1749,7 +1749,7 @@ final class CodingAssistantService: ObservableObject {
                 )
                 ModelUsageTracker.shared.recordLoadTime(modelID: loadingModel.id, ms: elapsedMs)
                 // The Assistant status row owns model-ready feedback.
-            } else if case .failed(let message) = LensInferenceLoop.shared.state {
+            } else if case .failed(let message) = VisionInferenceLoop.shared.state {
                 state = .failed(message)
             } else {
                 state = .failed("The shared text + vision runtime could not be prepared.")

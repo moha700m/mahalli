@@ -159,7 +159,7 @@ enum DeviceTierAdvisor {
     /// SmolVLM / Idefics3-family models have been removed entirely.
     /// They have a known upstream Index-out-of-range crash in
     /// mlx-swift-examples' `prepareInputsForMultimodal`. See
-    /// LENS_PIPELINE.md and `VLMCapabilities.isLensPipelineCompatible`
+    /// VISION_PIPELINE.md and `VLMCapabilities.isVisionPipelineCompatible`
     /// for the runtime guard.
     static var recommendedVisualModelRepoID: String {
         // SmolVLM2-500M-Video-Instruct Q8 GGUF is the new default
@@ -277,7 +277,7 @@ enum DeviceTierAdvisor {
     ]
 
     /// First-launch wiring for the camera VLM. We default the user onto a
-    /// tier-appropriate SmolVLM (the lens UI was clearly designed around
+    /// tier-appropriate SmolVLM (the vision UI was clearly designed around
     /// SmolVLM-style captions) and trigger the background download so the
     /// camera works the first time they open it instead of staring at a
     /// "FastVLM failed to load" toast. Idempotent — switchTo() short-
@@ -317,10 +317,10 @@ enum DeviceTierAdvisor {
 
         // Recovery: a previous build of this app migrated users from the
         // bundled SmolVLM2-Video-Instruct to mlx-community/SmolVLM-Instruct-4bit
-        // (which isn't bundled, so the lens would silently wait for a
+        // (which isn't bundled, so the vision would silently wait for a
         // 600 MB download). If we detect that state — recommended repo
         // set, but its weights aren't on disk, AND the bundled repo IS
-        // on disk — restore the bundled repo so the lens works
+        // on disk — restore the bundled repo so the vision works
         // immediately. This is idempotent: once the new model is
         // downloaded, both branches have weights and the existing
         // selection wins.
@@ -334,11 +334,11 @@ enum DeviceTierAdvisor {
         guard !s.hasPickedCameraVisualModel else { return }
 
         // First-launch only: pick a tier-appropriate VLM so the picker
-        // and the lens UI know which repo to target. We deliberately do
+        // and the vision UI know which repo to target. We deliberately do
         // NOT call MLXVisionService.switchTo() here — that ran on every
         // cold launch in the previous shape and was the auto-load that
         // tripped `mlx::core::gpu::check_error` SIGABRTs before the user
-        // even reached the lens tab. The actual model load now happens
+        // even reached the vision tab. The actual model load now happens
         // lazily on first capture (AnalysisService.tryMLXVisionPath →
         // switchTo), which is gated by the user-initiated capture tap
         // in CameraRootView. Launch becomes free of any Metal work.
@@ -348,7 +348,7 @@ enum DeviceTierAdvisor {
         // Qwen3-VL (recommendedVisualModelRepoID) even though it
         // requires a one-time 3–5 GB download. The reason: SmolVLM2
         // has a known upstream Index-out-of-range crash in
-        // mlx-swift-examples on non-square inputs (see LENS_PIPELINE.md
+        // mlx-swift-examples on non-square inputs (see VISION_PIPELINE.md
         // troubleshooting). The bundled-prefer optimisation is a
         // sub-8GB-only behavior now — those devices can't run Qwen3-VL
         // anyway, and they trade a broken-on-some-inputs experience

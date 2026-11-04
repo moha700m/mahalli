@@ -18,9 +18,9 @@ import Foundation
 // MARK: Ask
 
 struct AskIOSLocalLLMIntent: AppIntent {
-    static var title: LocalizedStringResource = "Ask OnDevice"
+    static var title: LocalizedStringResource = "Ask Mahalli"
     static var description = IntentDescription(
-        "Open OnDevice Core to ask, write, or explore with your selected model. Network use depends on the model and tools you enable."
+        "Open Mahalli to ask, write, or explore with your selected model. Network use depends on the model and tools you enable."
     )
     static var openAppWhenRun: Bool = true
 
@@ -34,7 +34,7 @@ struct AskIOSLocalLLMIntent: AppIntent {
     }
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Ask OnDevice \(\.$prompt)")
+        Summary("Ask Mahalli \(\.$prompt)")
     }
 }
 
@@ -44,9 +44,9 @@ struct AskIOSLocalLLMIntent: AppIntent {
 /// using Apple's on-device system model. This is the headless counterpart to
 /// `AskIOSLocalLLMIntent`: instant, private, zero-download. Falls back with a
 /// clear error when Apple Intelligence isn't available (older OS / device /
-/// toggle off), nudging the user to the app-opening "Ask OnDevice" instead.
+/// toggle off), nudging the user to the app-opening "Ask Mahalli" instead.
 struct QuickAskIOSLocalLLMIntent: AppIntent {
-    static var title: LocalizedStringResource = "Quick Ask OnDevice"
+    static var title: LocalizedStringResource = "Quick Ask Mahalli"
     static var description = IntentDescription(
         "Get a fast on-device answer from the built-in system model — no app launch, fully private."
     )
@@ -60,7 +60,7 @@ struct QuickAskIOSLocalLLMIntent: AppIntent {
             let reason = AppleFoundationModel.unavailableReason
                 ?? "The on-device system model isn't available."
             throw AppleFoundationModel.AppleFMError.unavailable(
-                "\(reason) Try \"Ask OnDevice\" to use a downloaded model instead."
+                "\(reason) Try \"Ask Mahalli\" to use a downloaded model instead."
             )
         }
         let answer = try await AppleFoundationModel.answer(
@@ -71,14 +71,14 @@ struct QuickAskIOSLocalLLMIntent: AppIntent {
     }
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Quick ask OnDevice \(\.$prompt)")
+        Summary("Quick ask Mahalli \(\.$prompt)")
     }
 }
 
 // MARK: New chat
 
 struct NewChatIntent: AppIntent {
-    static var title: LocalizedStringResource = "New OnDevice Chat"
+    static var title: LocalizedStringResource = "New Mahalli Chat"
     static var description = IntentDescription("Start a fresh conversation with the on-device assistant.")
     static var openAppWhenRun: Bool = true
 
@@ -89,24 +89,10 @@ struct NewChatIntent: AppIntent {
     }
 }
 
-// MARK: Live caption
-
-struct LiveCaptionIntent: AppIntent {
-    static var title: LocalizedStringResource = "Caption What I'm Looking At"
-    static var description = IntentDescription("Open the live camera caption — a local vision model describes the scene.")
-    static var openAppWhenRun: Bool = true
-
-    @MainActor
-    func perform() async throws -> some IntentResult {
-        AppBridge.shared.startLiveCaption()
-        return .result()
-    }
-}
-
 // MARK: Voice
 
 struct VoiceChatIntent: AppIntent {
-    static var title: LocalizedStringResource = "Talk to OnDevice"
+    static var title: LocalizedStringResource = "Talk to Mahalli"
     static var description = IntentDescription("Open hands-free voice conversation with the on-device assistant.")
     static var openAppWhenRun: Bool = true
 
@@ -140,15 +126,6 @@ struct IOSLocalLLMShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Voice",
             systemImageName: "waveform"
-        )
-        AppShortcut(
-            intent: LiveCaptionIntent(),
-            phrases: [
-                "Caption with \(.applicationName)",
-                "Describe what I'm looking at with \(.applicationName)",
-            ],
-            shortTitle: "Caption",
-            systemImageName: "camera.viewfinder"
         )
         AppShortcut(
             intent: NewChatIntent(),

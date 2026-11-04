@@ -1,6 +1,6 @@
 platform :ios, '27.0'
 
-project 'OnDeviceCoreAIStudio.xcodeproj'
+project 'Mahalli.xcodeproj'
 
 target 'IOSLocalLLM' do
   # Native ONNX inference for the official KittenTTS 0.8 artifacts.

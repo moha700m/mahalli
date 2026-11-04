@@ -66,29 +66,32 @@ struct KoduTheme {
     let roseDeep: Color      // inline code / deep edge of user bubble
     let accentStrong: Color  // primary CTA / active tab — deeper than `accent`
 
-    // MARK: - Light — neutral utility
+    // MARK: - Light — "Sahl" (سهل) minimal theme
+    // Copyright (c) 2026 justmgz. Opaque, high-contrast, Swiss-minimal light
+    // palette: warm paper canvas, white cards, hairline rules, a single calm
+    // teal accent reserved for primary actions. No gradients, no glass.
     static let light = KoduTheme(
-        bg:        Color(red: 0.968, green: 0.976, blue: 0.992),  // airy pearl canvas
-        surface:   Color.white.opacity(0.26),
-        surface2:  Color.white.opacity(0.18),
-        surface3:  Color.white.opacity(0.10),
-        ink:       Color(red: 0.110, green: 0.110, blue: 0.118),  // #1C1C1E label
-        ink2:      Color(red: 0.427, green: 0.427, blue: 0.447),  // #6D6D72 secondary
-        ink3:      Color(red: 0.557, green: 0.557, blue: 0.576),  // #8E8E93 tertiary
-        ink4:      Color(red: 0.780, green: 0.780, blue: 0.800),  // #C7C7CC quaternary
-        rule:      Color.black.opacity(0.10),
-        rule2:     Color.black.opacity(0.18),
-        accent:    Color(red: 0.000, green: 0.478, blue: 1.000),  // system blue fallback
-        accentSoft:   Color(red: 0.000, green: 0.478, blue: 1.000).opacity(0.10),
-        accentSofter: Color(red: 0.000, green: 0.478, blue: 1.000).opacity(0.06),
-        good:      Color(red: 0.133, green: 0.545, blue: 0.302),
-        warn:      Color(red: 0.690, green: 0.424, blue: 0.047),
-        bad:       Color(red: 0.784, green: 0.118, blue: 0.196),
-        pad: 16, gap: 10,
+        bg:        Color(red: 0.973, green: 0.973, blue: 0.965),  // #F8F8F6 paper
+        surface:   Color.white,                                   // #FFFFFF cards
+        surface2:  Color(red: 0.949, green: 0.953, blue: 0.945),  // #F2F3F1
+        surface3:  Color(red: 0.918, green: 0.925, blue: 0.914),  // #EAECE9
+        ink:       Color(red: 0.067, green: 0.094, blue: 0.086),  // #111816
+        ink2:      Color(red: 0.282, green: 0.314, blue: 0.302),  // #48504D
+        ink3:      Color(red: 0.420, green: 0.455, blue: 0.443),  // #6B7471 (AA on white)
+        ink4:      Color(red: 0.741, green: 0.761, blue: 0.753),  // #BDC2C0
+        rule:      Color.black.opacity(0.07),
+        rule2:     Color.black.opacity(0.14),
+        accent:    Color(red: 0.059, green: 0.463, blue: 0.431),  // #0F766E teal
+        accentSoft:   Color(red: 0.059, green: 0.463, blue: 0.431).opacity(0.10),
+        accentSofter: Color(red: 0.059, green: 0.463, blue: 0.431).opacity(0.05),
+        good:      Color(red: 0.086, green: 0.502, blue: 0.239),
+        warn:      Color(red: 0.663, green: 0.388, blue: 0.031),
+        bad:       Color(red: 0.725, green: 0.110, blue: 0.110),
+        pad: 16, gap: 12,
         isDark: false,
-        roseHi:       Color(red: 0.200, green: 0.560, blue: 1.000),
-        roseDeep:     Color(red: 0.000, green: 0.330, blue: 0.780),
-        accentStrong: Color(red: 0.000, green: 0.400, blue: 0.900)
+        roseHi:       Color(red: 0.078, green: 0.533, blue: 0.494),
+        roseDeep:     Color(red: 0.039, green: 0.349, blue: 0.322),
+        accentStrong: Color(red: 0.047, green: 0.400, blue: 0.373)
     )
 
     // MARK: - Dark — neutral utility
@@ -239,7 +242,7 @@ struct KoduTheme {
             case .teal:
                 return dark
                     ? (c(0.20,0.78,0.74), c(0.34,0.86,0.82), c(0.12,0.68,0.64), c(0.26,0.80,0.76))
-                    : (c(0.06,0.55,0.52), c(0.10,0.58,0.55), c(0.03,0.42,0.40), c(0.05,0.48,0.45))
+                    : (c(0.059,0.463,0.431), c(0.078,0.533,0.494), c(0.039,0.349,0.322), c(0.047,0.400,0.373))
             case .indigo:
                 return dark
                     ? (c(0.48,0.52,0.96), c(0.60,0.63,1.00), c(0.40,0.44,0.92), c(0.52,0.56,1.00))
@@ -259,7 +262,7 @@ struct KoduTheme {
     /// The only app-facing accent for now. Keeping the palette implementation
     /// below makes it easy to restore user-selectable colors later without
     /// allowing an old persisted choice to override the current black theme.
-    static let appAccent: KoduAccent = .onyx
+    static let appAccent: KoduAccent = .teal
 
     /// Build a theme for an appearance + accent palette. `appearance` is the
     /// stored string — "light", "dark", or "oled". `.rose` is the untouched
@@ -313,7 +316,7 @@ struct KoduTheme {
     // MARK: - Per-category model tints (Models hub)
     //
     // Each of the four model roles gets its own hue so cards are colour-coded
-    // by type at a glance. Assistant uses the rose `accent`, Lens the sage
+    // by type at a glance. Assistant uses the rose `accent`, Vision the sage
     // `accent2`; voice and image get the two below. Kept distinct from the
     // semantic `warn` amber so a "tight"/cleanup warning never reads as an
     // image card.
@@ -343,7 +346,8 @@ struct KoduTheme {
     }
 
     // MARK: - Typography helpers
-    // Falls back to system fonts when Geist isn't installed.
+    // Uses the bundled IBM Plex Sans Arabic (SIL OFL 1.1); falls back to the
+    // system font (which has full Arabic coverage) when it is not registered.
     //
     // Keep each nominal design size at the default text setting. Bundled
     // fonts use Font.custom scaling; native fallbacks use the theme modifier's
@@ -354,18 +358,18 @@ struct KoduTheme {
     /// specifically; this respects that intent without crashing on devices
     /// that don't have the file.
     func display(_ size: CGFloat, _ weight: Font.Weight = .semibold) -> Font {
-        Self.named("Geist", size: size, weight: weight)
+        Self.named("IBM Plex Sans Arabic", size: size, weight: weight)
             ?? .system(size: size * systemFontScale, weight: weight)
     }
 
     /// Shared reading size for prompts, live responses, and completed transcripts.
     /// Both the bundled font and system fallback follow Dynamic Type.
     var conversationBody: Font {
-        Self.named("Geist", size: 17, weight: .regular) ?? .body
+        Self.named("IBM Plex Sans Arabic", size: 17, weight: .regular) ?? .body
     }
 
     func sans(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
-        Self.named("Geist", size: size, weight: weight)
+        Self.named("IBM Plex Sans Arabic", size: size, weight: weight)
             ?? .system(size: size * systemFontScale, weight: weight)
     }
 
@@ -403,6 +407,16 @@ struct KoduTheme {
     /// Foundries register weighted variants this way; an exact name avoids
     /// CoreText synthetic-bolding the regular face.
     private static func uiFontName(family: String, weight: Font.Weight) -> String {
+        if family == "IBM Plex Sans Arabic" {
+            // PostScript names shipped by IBM for the Arabic family.
+            switch weight {
+            case .ultraLight, .thin, .light: return "IBMPlexSansArabic-Light"
+            case .medium:                    return "IBMPlexSansArabic-Medm"
+            case .semibold:                  return "IBMPlexSansArabic-SmBld"
+            case .bold, .heavy, .black:      return "IBMPlexSansArabic-Bold"
+            default:                         return "IBMPlexSansArabic"
+            }
+        }
         let base = family.replacingOccurrences(of: " ", with: "")
         return "\(base)-\(weight.weightString)"
     }
@@ -411,15 +425,15 @@ struct KoduTheme {
 private extension Font.Weight {
     var weightString: String {
         switch self {
-        case .ultraLight: return "UltraLight"
+        case .ultraLight: return "ExtraLight"
         case .thin:       return "Thin"
         case .light:      return "Light"
         case .regular:    return "Regular"
         case .medium:     return "Medium"
         case .semibold:   return "SemiBold"
         case .bold:       return "Bold"
-        case .heavy:      return "Heavy"
-        case .black:      return "Black"
+        case .heavy:      return "Bold"
+        case .black:      return "Bold"
         default:          return "Regular"
         }
     }
