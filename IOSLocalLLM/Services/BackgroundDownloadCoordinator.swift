@@ -27,6 +27,27 @@ final class BackgroundDownloadCoordinator: NSObject {
     // to deliver finished events. ContentView/App can wire this if needed.
     var systemCompletionHandler: (() -> Void)?
 
+    override init() {
+        super.init()
+        // Returning to the app after a suspension must not look like a stall:
+        // background transfers keep running while this process is frozen, and
+        // the watchdog would otherwise see a minutes-old timestamp and kill a
+        // perfectly healthy task on the first tick after resume.
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                let now = Date()
+                for id in Array(self.pendingByTaskID.keys) {
+                    self.pendingByTaskID[id]?.lastProgressAt = now
+                }
+            }
+        }
+    }
+
     // MARK: - URLSession
 
     private lazy var session: URLSession = {
