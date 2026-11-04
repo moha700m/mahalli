@@ -47,7 +47,7 @@ enum MemoryAdvisor {
     // on-disk × ~2.5 and refusing 4B/8B models that comfortably fit.
     //
     // `loadSpikeMultiplier` is the single weights→peak factor used by callers
-    // that start from *raw* weight bytes (e.g. `LensInferenceLoop`, which sizes
+    // that start from *raw* weight bytes (e.g. `VisionInferenceLoop`, which sizes
     // the VLM from `estimatedWeightBytes`). It is applied exactly once on that
     // path. Inside this type, `estimatedFootprint` already bakes the peak in.
     static let loadSpikeMultiplier = 1.6
@@ -110,7 +110,7 @@ enum MemoryAdvisor {
 
     /// Seconds remaining on the post-critical-pressure cooldown, or nil when
     /// no cooldown is active. Single home for the date math so `safetyBlocker`
-    /// and the VLM load gates (LensInferenceLoop.switchTo) enforce the same
+    /// and the VLM load gates (VisionInferenceLoop.switchTo) enforce the same
     /// window — a heavy VLM reload must not race the kernel's reclaim either.
     @MainActor static var pressureCooldownRemaining: TimeInterval? {
         guard let until = pressureLoadBlockedUntil, until.timeIntervalSinceNow > 0 else {

@@ -685,15 +685,15 @@ struct VisualModelPickerView: View {
                 }
                 return false
             case .mlx:
-                let required = LensInferenceLoop.requiredVisionLoadBytes(repoID: selectedID)
+                let required = VisionInferenceLoop.requiredVisionLoadBytes(repoID: selectedID)
                 let available = UInt64(max(0, MemoryAdvisor.availableMemoryForModel))
-                guard LensInferenceLoop.canSafelyLoadVision(
+                guard VisionInferenceLoop.canSafelyLoadVision(
                     repoID: selectedID,
                     availableBytes: available
                 ) else {
                     Diagnostics.shared.notice(
-                        "Lens rejected · \(selectedID) · required=\(Int64(required).formattedBytes) · available=\(Int64(available).formattedBytes) · text-only model cannot serve as Lens",
-                        category: "lens"
+                        "Vision model rejected · \(selectedID) · required=\(Int64(required).formattedBytes) · available=\(Int64(available).formattedBytes) · text-only model cannot serve as a vision model",
+                        category: "vision"
                     )
                     // Revert to the currently valid Lens selection. Never
                     // retain a text-only model (Bonsai-27B) as the Lens
@@ -704,7 +704,7 @@ struct VisualModelPickerView: View {
                     // rejected model); the picker UI will re-read it.
                     ToastCenter.shared.info(
                         "Keep this model in Assistant",
-                        detail: "Its text runtime fits, but image analysis needs more memory. Lens will keep using the current smaller visual model."
+                        detail: "Its text runtime fits, but image analysis needs more memory. The app will keep using the current smaller visual model."
                     )
                     return false
                 }

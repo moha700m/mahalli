@@ -92,7 +92,7 @@ enum BundledVLMInstaller {
             return false
         }
         guard FileManager.default.fileExists(atPath: bundleRoot.path) else {
-            print("[BundledVLMInstaller] Bundle directory missing at \(bundleRoot.path) — lens tab will need network download of the GGUF pair")
+            print("[BundledVLMInstaller] Bundle directory missing at \(bundleRoot.path) — vision will need network download of the GGUF pair")
             return false
         }
 

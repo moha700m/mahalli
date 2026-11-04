@@ -29,7 +29,7 @@ struct VoiceStatusPill: View {
 
     /// Display name of the model driving the active stream. Caller
     /// pulls this from `CodingAssistantService.shared.activeModel`
-    /// for Assistant contexts or `LensInferenceLoop.shared` for
+    /// for Assistant contexts or `VisionInferenceLoop.shared` for
     /// Lens contexts.
     let modelName: String
 

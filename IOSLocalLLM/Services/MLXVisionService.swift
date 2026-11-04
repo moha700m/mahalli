@@ -10,14 +10,14 @@ import MLXLMCommon
 //
 // ⚠️  BACKWARD-COMPAT SHIM — DO NOT ADD NEW CALLERS.
 //
-// This class is a thin shim re-publishing `LensInferenceLoop`'s
+// This class is a thin shim re-publishing `VisionInferenceLoop`'s
 // state for legacy UI bindings (ContentView, ModelsManagerView,
 // VisualModelPickerView, SettingsView, IOSLocalLLMApp, AnalysisService,
 // DeviceTierAdvisor — roughly 14 callsites). Container ownership,
 // streaming pipeline, capabilities resolution, and one-shot
-// describe ALL live on `LensInferenceLoop.shared` now.
+// describe ALL live on `VisionInferenceLoop.shared` now.
 //
-// New callers should bind to `LensInferenceLoop.shared` directly.
+// New callers should bind to `VisionInferenceLoop.shared` directly.
 //
 // Slated for removal after migration tracked at:
 //   LENS_PIPELINE.md
@@ -47,26 +47,26 @@ final class MLXVisionService: ObservableObject {
     // them so the type system sees one canonical type per concept
     // and the shim doesn't fork the enum cases.
 
-    typealias State = LensInferenceLoop.State
-    typealias ModelInputInfo = LensInferenceLoop.ModelInputInfo
+    typealias State = VisionInferenceLoop.State
+    typealias ModelInputInfo = VisionInferenceLoop.ModelInputInfo
 
     // MARK: - Published mirrors
     //
     // SwiftUI's @ObservedObject watches `objectWillChange`. We don't
     // duplicate the @Published storage — instead we forward
-    // LensInferenceLoop's objectWillChange into ours, then expose
+    // VisionInferenceLoop's objectWillChange into ours, then expose
     // computed properties that read from the loop. SwiftUI sees
     // the same observation events the loop emits.
 
     private var cancellable: AnyCancellable?
 
     private init() {
-        // Forward LensInferenceLoop's change notifications to ours.
+        // Forward VisionInferenceLoop's change notifications to ours.
         //
         // THE DEFERRAL IS LOAD-BEARING. Do not remove it.
         //
         // SwiftUI evaluates a view's body by reading @Published
-        // properties. When LensInferenceLoop's @Published fires DURING
+        // properties. When VisionInferenceLoop's @Published fires DURING
         // that body evaluation (which can happen when any other view
         // in the tree reads the property and triggers a downstream
         // update), synchronously firing this shim's objectWillChange
@@ -88,7 +88,7 @@ final class MLXVisionService: ObservableObject {
         // lag" — that lag is the bug protection. Don't remove it
         // hoping to recover the frame; you'll trade a measurable
         // millisecond for unreproducible TestFlight crashes.
-        cancellable = LensInferenceLoop.shared.objectWillChange.sink { [weak self] _ in
+        cancellable = VisionInferenceLoop.shared.objectWillChange.sink { [weak self] _ in
             DispatchQueue.main.async {
                 self?.objectWillChange.send()
             }
@@ -97,50 +97,50 @@ final class MLXVisionService: ObservableObject {
 
     // MARK: - Forwarded state
     //
-    // Each property reads through to LensInferenceLoop.shared. The
+    // Each property reads through to VisionInferenceLoop.shared. The
     // shim doesn't store any of its own state — there's only one
     // source of truth.
 
     var state: State {
-        LensInferenceLoop.shared.state
+        VisionInferenceLoop.shared.state
     }
 
     var activeRepoID: String? {
-        LensInferenceLoop.shared.activeRepoID
+        VisionInferenceLoop.shared.activeRepoID
     }
 
     var lastModelInput: UIImage? {
-        LensInferenceLoop.shared.lastModelInput
+        VisionInferenceLoop.shared.lastModelInput
     }
 
     var lastModelInputInfo: ModelInputInfo? {
-        LensInferenceLoop.shared.lastModelInputInfo
+        VisionInferenceLoop.shared.lastModelInputInfo
     }
 
     // MARK: - Forwarded methods
 
-    /// Forwards to `LensInferenceLoop.shared.switchTo(repoID:)`.
+    /// Forwards to `VisionInferenceLoop.shared.switchTo(repoID:)`.
     func switchTo(repoID: String, preserveMatchingAssistant: Bool = false) async {
-        await LensInferenceLoop.shared.switchTo(
+        await VisionInferenceLoop.shared.switchTo(
             repoID: repoID,
             preserveMatchingAssistant: preserveMatchingAssistant
         )
     }
 
-    /// Forwards to `LensInferenceLoop.shared.cancelCurrentInference()`.
+    /// Forwards to `VisionInferenceLoop.shared.cancelCurrentInference()`.
     func cancelCurrentInference() {
-        LensInferenceLoop.shared.cancelCurrentInference()
+        VisionInferenceLoop.shared.cancelCurrentInference()
     }
 
-    /// Forwards to `LensInferenceLoop.shared.unload(clearGPUCache:)`.
+    /// Forwards to `VisionInferenceLoop.shared.unload(clearGPUCache:)`.
     func unload(clearGPUCache: Bool = true) {
-        LensInferenceLoop.shared.unload(clearGPUCache: clearGPUCache)
+        VisionInferenceLoop.shared.unload(clearGPUCache: clearGPUCache)
     }
 
-    /// Forwards to `LensInferenceLoop.shared.describe(...)`. This is
+    /// Forwards to `VisionInferenceLoop.shared.describe(...)`. This is
     /// the only path AnalysisService.tryMLXVisionPath uses — when
     /// the migration in #1 ships, that call will bind directly to
-    /// LensInferenceLoop and this method goes away.
+    /// VisionInferenceLoop and this method goes away.
     func describe(
         image: UIImage,
         prompt: String = "Describe what's in this image. Be concise.",
@@ -148,15 +148,15 @@ final class MLXVisionService: ObservableObject {
         onToken: @Sendable @escaping (String) -> Void,
         onComplete: @Sendable @escaping (Double) -> Void
     ) {
-        LensInferenceLoop.shared.describe(
+        VisionInferenceLoop.shared.describe(
             image: image, prompt: prompt, maxTokens: maxTokens,
             onToken: onToken, onComplete: onComplete
         )
     }
 
-    /// Forwards to `LensInferenceLoop.shared.saveLastModelInputToDocuments()`.
+    /// Forwards to `VisionInferenceLoop.shared.saveLastModelInputToDocuments()`.
     @discardableResult
     func saveLastModelInputToDocuments() -> URL? {
-        LensInferenceLoop.shared.saveLastModelInputToDocuments()
+        VisionInferenceLoop.shared.saveLastModelInputToDocuments()
     }
 }

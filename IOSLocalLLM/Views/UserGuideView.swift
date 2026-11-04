@@ -82,27 +82,6 @@ struct UserGuideView: View {
                     .padding(14)
                 }
 
-                // 3. Lens (Camera) Section
-                KSection(title: "camera_&_lens") {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Real-Time Code & Vision")
-                            .font(T.sans(15, .semibold))
-                            .foregroundColor(T.ink)
-                        
-                        Text("Use the viewfinder to scan source code from screens or whiteboards, or stream continuous descriptive VLM captions.")
-                            .font(T.sans(12.5))
-                            .foregroundColor(T.ink2)
-                            .lineSpacing(3)
-
-                        visualImage("img_lens")
-
-                        bulletPoint("Code Mode (Default)", "Frames and captures code using a high-fidelity OCR pass, sending it directly to the LLM analyzer.")
-                        bulletPoint("Visual Mode (VLM)", "Point at anything to generate live text descriptions of objects, screens, or layouts.")
-                        bulletPoint("Describe Interval", "Adjust follow-up refresh intervals from 6s to 30s. Manual describes can be triggered at any time.")
-                    }
-                    .padding(14)
-                }
-
                 // 4. Voice Section
                 KSection(title: "voice_assistant") {
                     VStack(alignment: .leading, spacing: 12) {

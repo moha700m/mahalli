@@ -297,7 +297,7 @@ private enum Vision {
 
             guard let coreMLModel = try? load() else {
                 Diagnostics.shared.breadcrumb(
-                    "FastVLM vision encoder unavailable — Core ML model failed to load", category: "lens")
+                    "FastVLM vision encoder unavailable — Core ML model failed to load", category: "vision")
                 return zeroFeatures()
             }
 
@@ -318,7 +318,7 @@ private enum Vision {
             let shape: [NSNumber] = [1, 3, NSNumber(value: H), NSNumber(value: W)]
             guard let owned = try? MLMultiArray(shape: shape, dataType: .float32) else {
                 Diagnostics.shared.breadcrumb(
-                    "FastVLM encode failed: could not allocate MLMultiArray", category: "lens")
+                    "FastVLM encode failed: could not allocate MLMultiArray", category: "vision")
                 return zeroFeatures()
             }
             contiguous.data.withUnsafeBytes { src in
@@ -335,7 +335,7 @@ private enum Vision {
                 }
             } catch {
                 Diagnostics.shared.breadcrumb(
-                    "FastVLM encode failed: \(error.localizedDescription)", category: "lens")
+                    "FastVLM encode failed: \(error.localizedDescription)", category: "vision")
                 return zeroFeatures()
             }
         }

@@ -36,13 +36,13 @@ struct LlamaCppVLMExecutionProfile: Equatable, Sendable {
 
 // MARK: - LlamaCppVLMService
 //
-// Parallel to LensInferenceLoop, but for GGUF-format VLMs running
+// Parallel to VisionInferenceLoop, but for GGUF-format VLMs running
 // through llama.cpp + mtmd instead of MLX. The lens tab routes
 // to this service when the active visual model is a GGUF file
 // (detected by repoID containing "GGUF" or by the on-disk file
-// extension); routes to LensInferenceLoop otherwise.
+// extension); routes to VisionInferenceLoop otherwise.
 //
-// State machine matches LensInferenceLoop's so the UI bindings
+// State machine matches VisionInferenceLoop's so the UI bindings
 // in ContentView / ModelsManagerView can switch backends without
 // caring which one is active.
 //
@@ -61,7 +61,7 @@ final class LlamaCppVLMService: ObservableObject {
 
     static let shared = LlamaCppVLMService()
 
-    // MARK: - State (parallel to LensInferenceLoop.State)
+    // MARK: - State (parallel to VisionInferenceLoop.State)
 
     enum State: Equatable {
         case unloaded
@@ -82,7 +82,7 @@ final class LlamaCppVLMService: ObservableObject {
     @Published private(set) var modelDisplayName: String = ""
 
     /// Last-inference metrics for the debug overlay. Parallels the
-    /// fields on LensInferenceLoop.
+    /// fields on VisionInferenceLoop.
     @Published private(set) var lastInferenceMillis: Double = 0
     @Published private(set) var lastTokensPerSecond: Double = 0
     @Published private(set) var lastModelInput: UIImage?
@@ -199,7 +199,7 @@ final class LlamaCppVLMService: ObservableObject {
     /// Switch to `repoID`. Idempotent — same-repo calls return
     /// immediately. Different-repo calls unload the current model
     /// first. Concurrent calls on the same repoID are guarded via
-    /// `loadingRepoID` (same pattern as LensInferenceLoop.switchTo).
+    /// `loadingRepoID` (same pattern as VisionInferenceLoop.switchTo).
     func switchTo(repoID: String) async {
         // Claim the transition before the first await. A same- or different-
         // repo request arriving during native teardown/load must not enter a
@@ -257,7 +257,7 @@ final class LlamaCppVLMService: ObservableObject {
         let shortName = repoID.split(separator: "/").last.map(String.init) ?? repoID
         let profile = LlamaCppVLMExecutionProfile.resolve(repoID: repoID)
 
-        // Memory gate — mirror of LensInferenceLoop.switchTo's pre-flight.
+        // Memory gate — mirror of VisionInferenceLoop.switchTo's pre-flight.
         // GGUF loads offload everything Metal accepts (n_gpu_layers = 999)
         // with no other check, so refuse when the estimated load peak
         // exceeds the live per-process headroom. Recovery first: unload
@@ -270,7 +270,7 @@ final class LlamaCppVLMService: ObservableObject {
         var available = MemoryAdvisor.availableMemoryForModel
         Diagnostics.shared.breadcrumb(
             "GGUF VLM preflight · \(repoID) · context=\(profile.contextSize) · peak=\(peak.formattedBytes) · required=\(needed.formattedBytes) · available=\(available.formattedBytes)",
-            category: "lens"
+            category: "vision"
         )
         if available < needed {
             await CodingAssistantService.shared.unloadAndWaitForCleanup()
@@ -334,7 +334,7 @@ final class LlamaCppVLMService: ObservableObject {
         state = .ready
         Diagnostics.shared.notice(
             "GGUF VLM ready · \(shortName) · context=\(profile.contextSize) · footprint=\(MemoryAdvisor.physFootprint.formattedBytes)",
-            category: "lens"
+            category: "vision"
         )
         ToastCenter.shared.success("Vision model ready", detail: shortName)
     }
@@ -410,7 +410,7 @@ final class LlamaCppVLMService: ObservableObject {
     // MARK: - Describe (one-shot inference)
 
     /// Stream a caption / answer for `image` and `prompt`. Mirrors
-    /// LensInferenceLoop.describe's signature exactly so callers
+    /// VisionInferenceLoop.describe's signature exactly so callers
     /// (AnalysisService.tryMLXVisionPath, etc.) can dispatch by
     /// backend without per-call shape differences.
     func describe(
@@ -426,7 +426,7 @@ final class LlamaCppVLMService: ObservableObject {
         }
 
         // Thermal/memory + background safety gates — same as the MLX path
-        // (LensInferenceLoop.describe). Submitting llama.cpp Metal work while
+        // (VisionInferenceLoop.describe). Submitting llama.cpp Metal work while
         // backgrounding (the common scene-transition lens path) hits
         // kIOGPUCommandBufferCallbackErrorBackgroundExecutionNotPermitted,
         // which aborts the process. Reading applicationState is safe: this
@@ -480,7 +480,7 @@ final class LlamaCppVLMService: ObservableObject {
                             // mid-flight, and flipping back to .ready
                             // would show "ready" with nothing loaded.
                             if case .generating = self?.state { self?.state = .ready }
-                            ModelResidency.shared.schedulePrefetch(currentTab: .lens)
+                            ModelResidency.shared.schedulePrefetch(currentTab: .vision)
                             // Persist per-model avg tok/s so the picker can
                             // surface a perf pill alongside the install /
                             // RAM badges. tokens=0 because mtmd doesn't
@@ -494,7 +494,7 @@ final class LlamaCppVLMService: ObservableObject {
                             let footprintAfter = MemoryAdvisor.physFootprint
                             Diagnostics.shared.breadcrumb(
                                 "GGUF VLM inference · context=\(profile.contextSize) · tokens≤\(tokenCap) · footprint \(footprintBefore.formattedBytes) → \(footprintAfter.formattedBytes)",
-                                category: "lens"
+                                category: "vision"
                             )
                         }
                         completionGuard.fire(rate)

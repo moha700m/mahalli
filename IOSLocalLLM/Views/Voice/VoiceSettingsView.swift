@@ -23,11 +23,6 @@ struct VoiceSettingsView: View {
     // open and force VPIO on — a known zombie-voice path on some routes.
     @AppStorage("voiceProcessingEnabled") private var voiceProcessingEnabled: Bool = false
 
-    /// Stream-vs-final narration toggle for the Lens tab. Off by
-    /// default; turning on opts into clause-level streaming TTS with
-    /// the frame-rate guard.
-    @AppStorage("voiceSpeakInLens") private var voiceSpeakInLens: Bool = false
-
     /// Speak the assistant's reply aloud during voice-conversation
     /// mode. Surfaced here too so users find both toggles in one
     /// place (the existing voice-conversation controls bar still
@@ -220,19 +215,7 @@ struct VoiceSettingsView: View {
                 KToggle(isOn: $voiceAnswerEnabled)
             })
             Rectangle().fill(T.rule).frame(height: 1)
-            KRow(label: "speak in lens", trailing: {
-                KToggle(isOn: $voiceSpeakInLens)
-            })
-            Rectangle().fill(T.rule).frame(height: 1)
-            KMono(
-                text: voiceSpeakInLens
-                    ? "narrates the camera caption clause-by-clause. the frame-rate guard skips re-narration when the scene hasn't changed."
-                    : "speaks the full caption once per frame instead of streaming. enable this for low-vision or hands-free use.",
-                size: 10, color: T.ink3
-            )
-            .padding(14)
-            Rectangle().fill(T.rule).frame(height: 1)
-            KRow(label: "auto-read analysis results", trailing: {
+            KRow(label: "auto-read replies", trailing: {
                 KToggle(isOn: Binding(
                     get: { vm.autoRead },
                     set: { vm.autoRead = $0 }

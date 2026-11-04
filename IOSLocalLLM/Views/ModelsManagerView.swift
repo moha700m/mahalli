@@ -31,7 +31,7 @@ struct ModelsManagerView: View {
     // scoped to the category. One concept per tab; nothing to hunt across six.
     enum Section: String, CaseIterable, Identifiable {
         case assistant = "Assistant"
-        case lens      = "Lens"
+        case vision      = "Vision"
         case voice     = "Voice"
         case image     = "Image"
         var id: String { rawValue }
@@ -40,7 +40,7 @@ struct ModelsManagerView: View {
         var category: DownloadableModel.Category {
             switch self {
             case .assistant: return .assistant
-            case .lens:      return .vlm
+            case .vision:      return .vlm
             case .voice:     return .voice
             case .image:     return .imageGen
             }
@@ -49,7 +49,7 @@ struct ModelsManagerView: View {
         var glyph: String {
             switch self {
             case .assistant: return "brain"
-            case .lens:      return "eye"
+            case .vision:      return "eye"
             case .voice:     return "waveform"
             case .image:     return "wand.and.stars"
             }
@@ -304,7 +304,7 @@ struct ModelsManagerView: View {
         guard let requested else { return }
         switch requested {
         case .assistant: selectedSection = .assistant
-        case .lens:      selectedSection = .lens
+        case .vision:      selectedSection = .vision
         case .voice:     selectedSection = .voice
         case .image:     selectedSection = .image
         }
@@ -1046,7 +1046,7 @@ struct ModelsManagerView: View {
                     }
                 )
             }
-        case .lens:
+        case .vision:
             VStack(spacing: 10) {
                 categorySectionHeader(.vlm)
                 activeRow(
@@ -1692,7 +1692,7 @@ struct ModelsManagerView: View {
     private func sectionFor(_ role: DownloadableModel.Category) -> Section {
         switch role {
         case .assistant: return .assistant
-        case .vlm:       return .lens
+        case .vlm:       return .vision
         case .voice:     return .voice
         case .imageGen:  return .image
         }
@@ -3731,7 +3731,7 @@ struct ModelsManagerView: View {
         searchText = ""
         switch category {
         case .assistant: selectedSection = .assistant
-        case .vlm:       selectedSection = .lens
+        case .vlm:       selectedSection = .vision
         case .voice:     selectedSection = .voice
         case .imageGen:  selectedSection = .image
         }
@@ -3742,7 +3742,7 @@ struct ModelsManagerView: View {
     private func huggingFaceRoleLabel(for result: HFModelSummary) -> String {
         switch LocalModelRegistry.category(for: result) {
         case .assistant: return loc.t("Assistant")
-        case .vlm:       return loc.t("Lens")
+        case .vlm:       return loc.t("Vision")
         case .voice:     return loc.t("Voice")
         case .imageGen:  return loc.t("Image")
         }

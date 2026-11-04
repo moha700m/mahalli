@@ -14,10 +14,6 @@ struct SettingsView: View {
     @Environment(\.koduTheme) private var T
 
     @State private var showingHFTokenSheet: Bool = false
-    #if !targetEnvironment(macCatalyst)
-    /// nil = default monochrome LAS icon; "AppIconClassic" = previous pink mark.
-    @State private var activeIconName: String? = UIApplication.shared.alternateIconName
-    #endif
     /// Presents the onboarding model picker as a sheet so existing
     /// users (already past the original 3-page onboarding) can run
     /// the new picker without uninstalling.
@@ -27,10 +23,6 @@ struct SettingsView: View {
 
     private var fastVLMStatus: FastVLMComponentStatus { fastVLM.componentStatus }
     private var fastVLMDebugInfo: FastVLMDebugInfo?   { fastVLM.debugInfo }
-    /// Filled once OnDevice: AI Image Studio is live on the App Store.
-    /// Keeping this nil makes the promo visible without exposing a dead link.
-    private static let imageStudioAppStoreURL: URL? = nil
-    private static let imageStudioWebsiteURL = URL(string: "https://mesut.uk/apps/ondeviceimage")!
 
     init(assistant: CodingAssistantService) {
         self.assistant = assistant
@@ -76,10 +68,6 @@ struct SettingsView: View {
                         }
                     }
                     .padding(.horizontal, 12)
-
-                    imageStudioBanner
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
 
                     aboutSection
                 }
@@ -145,7 +133,6 @@ struct SettingsView: View {
 
     enum SettingsCategory: String, CaseIterable, Identifiable {
         case userGuide
-        case capture
         case modelsAI
         case voice
         case appearance
@@ -157,7 +144,6 @@ struct SettingsView: View {
         var title: String {
             switch self {
             case .userGuide:    return "user guide"
-            case .capture:      return "capture & lens"
             case .modelsAI:     return "models & ai"
             case .voice:        return "voice"
             case .appearance:   return "appearance"
@@ -169,7 +155,6 @@ struct SettingsView: View {
         var subtitle: String {
             switch self {
             case .userGuide:    return "learn how to use ioslocalllm & local models"
-            case .capture:      return "analysis mode, camera, detection"
             case .modelsAI:     return "assistant, api keys, fastvlm pipeline"
             case .voice:        return "engine, voice, audio, behavior"
             case .appearance:   return "theme, language, interface"
@@ -181,7 +166,6 @@ struct SettingsView: View {
         var icon: String {
             switch self {
             case .userGuide:    return "book.closed"
-            case .capture:      return "camera.viewfinder"
             case .modelsAI:     return "brain"
             case .voice:        return "waveform"
             case .appearance:   return "paintpalette"
@@ -258,8 +242,6 @@ struct SettingsView: View {
                 switch cat {
                 case .userGuide:
                     UserGuideView()
-                case .capture:
-                    analysisModeSection
                 case .modelsAI:
                     modelsSection
                     assistantSection
@@ -286,30 +268,6 @@ struct SettingsView: View {
     }
 
     // MARK: - Sections
-
-    // MARK: - Analysis Mode Section
-
-    private var analysisModeSection: some View {
-        KSection(title: "analysis_mode") {
-            VStack(alignment: .leading, spacing: 10) {
-                Picker("Mode", selection: $settings.analysisMode) {
-                    ForEach(AnalysisMode.allCases) { mode in
-                        Label(mode.displayName, systemImage: mode.systemImage).tag(mode.rawValue)
-                    }
-                }
-                .pickerStyle(.segmented)
-
-                let mode = AnalysisMode(rawValue: settings.analysisMode) ?? .code
-                Text(mode == .code
-                     ? "Extracts source code from the detected region and generates a code review."
-                     : "Describes what the camera sees — useful for diagrams, whiteboards, UI screenshots, or any non-code scene.")
-                    .font(T.sans(11))
-                    .foregroundColor(T.ink2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(14)
-        }
-    }
 
     private var modelsSection: some View {
         KSection(title: "models") {
@@ -788,10 +746,6 @@ struct SettingsView: View {
 
             Rectangle().fill(T.rule).frame(height: 1)
 
-            KRow(label: "Use OCR fallback", trailing: {
-                KToggle(isOn: $settings.useOCRFallback)
-            })
-
             KRow(label: "Temperature", trailing: {
                 KMono(text: String(format: "%.2f", settings.fastvlmTemperature),
                        color: T.ink2, mono: false)
@@ -833,7 +787,7 @@ struct SettingsView: View {
                         color: T.warn
                     )
                     KMono(text: filesOnDisk
-                          ? "Weights are on disk. Tap below to load them into memory (first capture also triggers a load)."
+                          ? "Weights are on disk. Tap below to load them into memory (the first image prompt also triggers a load)."
                           : "Open Download Models → FastVLM MLX Weights to fetch the missing files from HuggingFace.",
                            size: 11, color: T.ink2, mono: false)
                         .fixedSize(horizontal: false, vertical: true)
@@ -971,7 +925,7 @@ struct SettingsView: View {
                                                     detail: url.lastPathComponent)
                     } else {
                         ToastCenter.shared.error("No model input to save",
-                                                  detail: "Run a lens capture first.")
+                                                  detail: "Send an image in chat first.")
                     }
                     HapticManager.impact(.light)
                 } label: {
@@ -1153,442 +1107,8 @@ struct SettingsView: View {
         (VoiceEngineKind(rawValue: settings.voiceEngine) ?? .appleSystem).shortName
     }
 
-    // MARK: - App Icon Picker
-
-    #if !targetEnvironment(macCatalyst)
-    /// Default "Neon" icon + the previous "Classic" mark as an alternate.
-    /// Declared via CFBundleAlternateIcons in Info.plist; the classic asset
-    /// compiles because of INCLUDE_ALL_APPICON_ASSETS.
-    private var appIconPickerRow: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            KMono(text: "app icon", size: 11.5, color: T.ink, mono: false)
-            HStack(spacing: 14) {
-                appIconOption(name: nil, title: "Monochrome", preview: "AppIconPreview")
-                appIconOption(name: "AppIconClassic", title: "Classic", preview: "AppIconClassicPreview")
-                Spacer()
-            }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-    }
-
-    private func appIconOption(name: String?, title: String, preview: String) -> some View {
-        let selected = activeIconName == name
-        return Button {
-            guard !selected else { return }
-            HapticManager.impact(.light)
-            activeIconName = name
-            UIApplication.shared.setAlternateIconName(name) { error in
-                guard let error else { return }
-                Task { @MainActor in
-                    ToastCenter.shared.info(
-                        "Couldn't change app icon",
-                        detail: error.localizedDescription
-                    )
-                }
-            }
-        } label: {
-            VStack(spacing: 5) {
-                Image(preview)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 52, height: 52)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .strokeBorder(selected ? T.accent : T.rule,
-                                          lineWidth: selected ? 2 : 1)
-                    )
-                KMono(text: title, size: 9.5,
-                      color: selected ? T.accent : T.ink3, mono: false)
-            }
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("\(title) app icon")
-        .accessibilityAddTraits(selected ? .isSelected : [])
-    }
-    #endif
-
-    private var uiSection: some View {
-        KSection(title: loc.t("INTERFACE").lowercased(), tinted: true) {
-            KRow(label: loc.t("appearance"), trailing: {
-                Picker("", selection: $settings.appearance) {
-                    Text(loc.t("light")).tag("light")
-                    Text(loc.t("dark")).tag("dark")
-                    Text(loc.t("OLED")).tag("oled")
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 170)
-            })
-            #if !targetEnvironment(macCatalyst)
-            if UIApplication.shared.supportsAlternateIcons {
-                appIconPickerRow
-            }
-            #endif
-            KRow(label: loc.t("language"), trailing: {
-                Picker("", selection: Binding(
-                    get: { AppLanguage(rawValue: settings.uiLanguage) ?? .system },
-                    set: { newValue in
-                        settings.uiLanguage = newValue.rawValue
-                        loc.setLanguage(newValue)
-                    }
-                )) {
-                    ForEach(AppLanguage.allCases) { lang in
-                        Text(lang.nativeName).tag(lang)
-                    }
-                }
-                .pickerStyle(.menu)
-                .tint(T.ink)
-            })
-            KRow(label: loc.t("haptic feedback"), trailing: {
-                KToggle(isOn: $settings.hapticsEnabled)
-            })
-            KRow(label: "show fps counter", trailing: {
-                KToggle(isOn: $settings.showFPSCounter)
-            })
-            Rectangle().fill(T.rule).frame(height: 1)
-            Button {
-                settings.hasSeenOnboarding = false
-                dismiss()
-            } label: {
-                HStack {
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 12))
-                        .foregroundColor(T.ink)
-                    KMono(text: "Show onboarding again", size: 11.5, color: T.ink, mono: false)
-                    Spacer()
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-            }
-            .buttonStyle(.plain)
-
-            Rectangle().fill(T.rule).frame(height: 1)
-            Button {
-                TipsManager.shared.resetAll()
-                HapticManager.impact(.light)
-                ToastCenter.shared.info("Tips reset",
-                                          detail: "First-use hints will show again.")
-            } label: {
-                HStack {
-                    Image(systemName: "lightbulb")
-                        .font(.system(size: 12))
-                        .foregroundColor(T.ink)
-                    KMono(text: "Reset onboarding tips", size: 11.5, color: T.ink, mono: false)
-                    Spacer()
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    // MARK: - Thermal protection
-
-    @ObservedObject private var safetyMonitor = DeviceSafetyMonitor.shared
-
-    private var thermalProtectionSection: some View {
-        KCollapsibleSection(title: "thermal_protection", defaultExpanded: false) {
-            VStack(spacing: 0) {
-                // Live state — both the raw iOS reading AND our debounced
-                // "effective" value. Useful when the user thinks the warning
-                // is a false positive.
-                KSpecTable(rows: [
-                    ("raw state",       label(for: safetyMonitor.thermalState)),
-                    ("effective state", label(for: safetyMonitor.effectiveThermalState)),
-                    ("low-power mode",  safetyMonitor.lowPowerMode ? "on" : "off"),
-                    ("warnings",        settings.thermalWarningsEnabled ? "enabled" : "disabled"),
-                ], keyWidth: 110)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-
-                Rectangle().fill(T.rule).frame(height: 1)
-
-                // Toggle — for users who know their device is fine and want
-                // to silence the pill / lift the max-token cap.
-                Toggle(isOn: $settings.thermalWarningsEnabled) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        KMono(text: "Thermal warnings", size: 11.5, color: T.ink, mono: false)
-                        KMono(
-                            text: "off → hide pill, no auto-cap on max tokens",
-                            size: 10, color: T.ink3
-                        )
-                    }
-                }
-                .tint(T.accent)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-
-                Rectangle().fill(T.rule).frame(height: 1)
-
-                // Manual override: force-clear a stuck warning. iOS sometimes
-                // reports .serious after a heavy first-load and takes 30s+ to
-                // drop back to .nominal even when the device feels cool.
-                Button {
-                    safetyMonitor.clearThermalWarning()
-                    HapticManager.impact(.light)
-                    ToastCenter.shared.info("Cleared until iOS updates the reading")
-                } label: {
-                    HStack {
-                        Image(systemName: "thermometer.snowflake")
-                            .font(.system(size: 12))
-                            .foregroundColor(T.accent)
-                        KMono(text: "Clear current warning", size: 11.5, color: T.accent, mono: false)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 10))
-                            .foregroundColor(T.ink3)
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
-    private func label(for s: ProcessInfo.ThermalState) -> String {
-        switch s {
-        case .nominal:  return "nominal"
-        case .fair:     return "fair"
-        case .serious:  return "serious"
-        case .critical: return "critical"
-        @unknown default: return "?"
-        }
-    }
-
-    // MARK: - Privacy / reset
-
-    @State private var showWipeConfirm = false
-    @State private var lastWipeReceipt: WipeAllDataService.Receipt?
-
-    private var privacyResetSection: some View {
-        KSection(title: "privacy_and_reset") {
-            VStack(spacing: 0) {
-                Button(role: .destructive) {
-                    showWipeConfirm = true
-                    HapticManager.impact(.medium)
-                } label: {
-                    HStack {
-                        Image(systemName: "trash.slash")
-                            .font(.system(size: 12))
-                            .foregroundColor(T.bad)
-                        KMono(text: "Wipe all on-device data", size: 11.5, color: T.bad, mono: false)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 10))
-                            .foregroundColor(T.ink3)
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                }
-                .buttonStyle(.plain)
-                if let r = lastWipeReceipt {
-                    Rectangle().fill(T.rule).frame(height: 1)
-                    VStack(alignment: .leading, spacing: 4) {
-                        KMono(text: "wiped", size: 9, color: T.ink3, mono: false)
-                        Text("\(r.modelsDeleted) models · \(r.conversationsDeleted) conversations · \(r.snippetsDeleted) snippets · \(r.memoriesDeleted) memories · \(r.keychainItemsCleared) credentials · freed \(r.bytesFreed.formattedBytes)")
-                            .font(T.mono(11))
-                            .foregroundColor(T.ink2)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14).padding(.vertical, 10)
-                }
-            }
-        }
-        .confirmationDialog(
-            "Wipe all on-device data?",
-            isPresented: $showWipeConfirm,
-            titleVisibility: .visible
-        ) {
-            Button("Wipe everything", role: .destructive) {
-                lastWipeReceipt = WipeAllDataService.wipeAll()
-                ToastCenter.shared.success(
-                    "Wiped",
-                    detail: "Restart the app for a completely fresh state."
-                )
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Deletes downloaded models, conversations, snippets, memories, saved API keys, Mac Bridge pairings, cache, and resets onboarding. Cannot be undone.")
-        }
-    }
-
-    // MARK: - Legal Section
-
-    @State private var showPrivacy = false
-    @State private var showEULA = false
-    @State private var showDisclaimer = false
-    @State private var showAttributions = false
-
-    @State private var showDeviceSafety = false
-
-    private var legalSection: some View {
-        KSection(title: "legal") {
-            legalRow(icon: "lock.shield", label: "privacy policy") { showPrivacy = true }
-            legalRow(icon: "doc.text", label: "open-source license & safety") { showEULA = true }
-            legalRow(icon: "exclamationmark.triangle", label: "ai output disclaimer") { showDisclaimer = true }
-            legalRow(icon: "thermometer.medium", label: "device safety notice") { showDeviceSafety = true }
-            legalRow(icon: "heart.text.square", label: "open-source & attributions",
-                     last: URL(string: LegalDocuments.supportURL) == nil) {
-                showAttributions = true
-            }
-            // Acceptance audit row — small, ink3 — so users (and us) can see
-            // when they accepted.
-            if let when = LegalAcceptanceManager.shared.acceptedAtDescription {
-                Rectangle().fill(T.rule).frame(height: 1)
-                HStack {
-                    Image(systemName: "checkmark.seal")
-                        .font(.system(size: 11))
-                        .foregroundColor(T.ink3)
-                    KMono(text: "accepted v\(LegalDocuments.currentVersion) on \(when)",
-                          size: 10, color: T.ink3)
-                    Spacer()
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-            }
-            if let supportURL = URL(string: LegalDocuments.supportURL) {
-                Link(destination: supportURL) {
-                    HStack {
-                        Image(systemName: "questionmark.circle")
-                            .font(.system(size: 12))
-                            .foregroundColor(T.accent)
-                        KMono(text: "Support", size: 11.5, color: T.accent, mono: false)
-                        Spacer()
-                        Image(systemName: "arrow.up.right")
-                            .font(.system(size: 10))
-                            .foregroundColor(T.accent)
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                }
-            }
-        }
-        .sheet(isPresented: $showPrivacy) {
-            LegalDocumentView(title: "Privacy Policy",
-                              markdown: LegalDocuments.privacyPolicy,
-                              externalURL: LegalDocuments.privacyPolicyURL)
-        }
-        .sheet(isPresented: $showEULA) {
-            LegalDocumentView(title: "License & Safety",
-                              markdown: LegalDocuments.eula,
-                              externalURL: LegalDocuments.eulaURL)
-        }
-        .sheet(isPresented: $showDisclaimer) {
-            LegalDocumentView(title: "AI Disclaimer",
-                              markdown: LegalDocuments.aiDisclaimer)
-        }
-        .sheet(isPresented: $showDeviceSafety) {
-            LegalDocumentView(title: "Device Safety",
-                              markdown: LegalDocuments.deviceSafetyNotice)
-        }
-        .sheet(isPresented: $showAttributions) { AttributionsView() }
-    }
-
-    @ViewBuilder
-    private func legalRow(icon: String, label: String, last: Bool = false, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.system(size: 12))
-                    .foregroundColor(T.ink)
-                KMono(text: label, size: 11.5, color: T.ink, mono: false)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10))
-                    .foregroundColor(T.ink3)
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .overlay(alignment: .bottom) {
-                if !last {
-                    Rectangle().fill(T.rule).frame(height: 1)
-                }
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
     // MARK: - Response style / length helpers (used by assistantSection pickers)
 
-    private var imageStudioBanner: some View {
-        Button {
-            openURL(Self.imageStudioWebsiteURL)
-            HapticManager.impact(.light)
-        } label: {
-            VStack(alignment: .leading, spacing: 13) {
-                HStack(alignment: .center, spacing: 12) {
-                    Image("image_studio_app_icon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 58, height: 58)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(T.rule, lineWidth: 1)
-                        )
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        KCaption(text: "also by mesut")
-                        Text("OnDevice: AI Image Studio")
-                            .font(T.sans(18, .bold))
-                            .foregroundColor(T.ink)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.82)
-                        Text("Create private AI images on-device, even when you're offline.")
-                            .font(T.sans(12.5))
-                            .foregroundColor(T.ink2)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .layoutPriority(1)
-
-                    Spacer(minLength: 0)
-                }
-
-                HStack(spacing: 8) {
-                    promoFeaturePill(icon: "lock.shield", text: "private")
-                    promoFeaturePill(icon: "iphone", text: "on-device")
-                    Spacer(minLength: 8)
-                    Text("coming soon")
-                        .font(T.mono(10, .semibold))
-                        .foregroundColor(T.warn)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
-                        .background(Capsule().fill(T.warn.opacity(0.10)))
-                        .overlay(Capsule().stroke(T.warn.opacity(0.32), lineWidth: 0.5))
-                }
-
-                HStack(spacing: 8) {
-                    Text("See the preview and follow launch updates.")
-                        .font(T.sans(11.5))
-                        .foregroundColor(T.ink3)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Spacer(minLength: 8)
-                    HStack(spacing: 5) {
-                        Text("Website")
-                            .font(T.mono(11, .semibold))
-                            .lineLimit(1)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .bold))
-                    }
-                    .foregroundColor(T.ink)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Capsule().fill(T.surface2))
-                    .overlay(Capsule().stroke(T.rule, lineWidth: 1))
-                }
-            }
-            .padding(15)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .kGlass(cornerRadius: 20, fallbackFill: T.surface, fallbackStroke: T.rule)
-        }
-        .buttonStyle(KTactileButtonStyle())
-        .accessibilityLabel("Open the OnDevice AI Image Studio preview website. App Store release coming soon.")
-    }
 
     private func promoFeaturePill(icon: String, text: String) -> some View {
         HStack(spacing: 5) {

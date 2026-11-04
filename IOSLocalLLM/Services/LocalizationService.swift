@@ -193,7 +193,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
     private static let trEntries: [(String, String)] = [
         // — Tab bar / navigation
         ("assistant", "asistan"),
-        ("lens", "lens"),
         ("voice", "ses"),
         ("mac", "mac"),
         ("models", "modeller"),
@@ -554,7 +553,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let deEntries: [(String, String)] = [
         ("assistant", "Assistent"),
-        ("lens", "Linse"),
         ("voice", "Sprache"),
         ("mac", "Mac"),
         ("models", "Modelle"),
@@ -845,7 +843,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let frEntries: [(String, String)] = [
         ("assistant", "assistant"),
-        ("lens", "lentille"),
         ("voice", "voix"),
         ("mac", "Mac"),
         ("models", "modèles"),
@@ -1136,7 +1133,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let esEntries: [(String, String)] = [
         ("assistant", "asistente"),
-        ("lens", "lente"),
         ("voice", "voz"),
         ("mac", "Mac"),
         ("models", "modelos"),
@@ -1427,7 +1423,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let itEntries: [(String, String)] = [
         ("assistant", "assistente"),
-        ("lens", "lente"),
         ("voice", "voce"),
         ("mac", "Mac"),
         ("models", "modelli"),
@@ -1718,7 +1713,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let ptEntries: [(String, String)] = [
         ("assistant", "assistente"),
-        ("lens", "lente"),
         ("voice", "voz"),
         ("mac", "Mac"),
         ("models", "modelos"),
@@ -2009,7 +2003,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let ruEntries: [(String, String)] = [
         ("assistant", "ассистент"),
-        ("lens", "линза"),
         ("voice", "голос"),
         ("mac", "Mac"),
         ("models", "модели"),
@@ -2300,7 +2293,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let hiEntries: [(String, String)] = [
         ("assistant", "सहायक"),
-        ("lens", "लेंस"),
         ("voice", "आवाज़"),
         ("mac", "Mac"),
         ("models", "मॉडल"),
@@ -2591,7 +2583,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let jaEntries: [(String, String)] = [
         ("assistant", "アシスタント"),
-        ("lens", "レンズ"),
         ("voice", "音声"),
         ("mac", "Mac"),
         ("models", "モデル"),
@@ -2882,7 +2873,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let elEntries: [(String, String)] = [
         ("assistant", "βοηθός"),
-        ("lens", "φακός"),
         ("voice", "φωνή"),
         ("mac", "mac"),
         ("models", "μοντέλα"),
@@ -3173,7 +3163,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let roEntries: [(String, String)] = [
         ("assistant", "asistent"),
-        ("lens", "obiectiv"),
         ("voice", "voce"),
         ("mac", "Mac"),
         ("models", "modele"),
@@ -3464,7 +3453,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let arEntries: [(String, String)] = [
         ("assistant", "مساعد"),
-        ("lens", "عدسة"),
         ("voice", "صوت"),
         ("mac", "Mac"),
         ("models", "نماذج"),
@@ -3755,7 +3743,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
 
     private static let koEntries: [(String, String)] = [
         ("assistant", "어시스턴트"),
-        ("lens", "렌즈"),
         ("voice", "음성"),
         ("mac", "Mac"),
         ("models", "모델"),
@@ -4052,7 +4039,6 @@ final class LocalizationService: ObservableObject, @unchecked Sendable {
     private static let zhEntries: [(String, String)] = [
         // — Tab bar / navigation
         ("assistant", "助手"),
-        ("lens", "镜头"),
         ("voice", "语音"),
         ("mac", "Mac"),
         ("models", "模型"),

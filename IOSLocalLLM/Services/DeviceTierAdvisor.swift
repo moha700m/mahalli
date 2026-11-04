@@ -158,7 +158,7 @@ enum DeviceTierAdvisor {
     /// SmolVLM / Idefics3-family models have been removed entirely.
     /// They have a known upstream Index-out-of-range crash in
     /// mlx-swift-examples' `prepareInputsForMultimodal`. See
-    /// LENS_PIPELINE.md and `VLMCapabilities.isLensPipelineCompatible`
+    /// LENS_PIPELINE.md and `VLMCapabilities.isVisionPipelineCompatible`
     /// for the runtime guard.
     static var recommendedVisualModelRepoID: String {
         // SmolVLM2-500M-Video-Instruct Q8 GGUF is the new default

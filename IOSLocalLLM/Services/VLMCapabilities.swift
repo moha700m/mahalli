@@ -5,7 +5,7 @@ import UIKit
 // MARK: - VLMCapabilities
 //
 // Model-aware preprocessing parameters resolved at VLM load time. The
-// Lens pipeline (LensFramePreparer / LensInferenceLoop) reads this to
+// Lens pipeline (LensFramePreparer / VisionInferenceLoop) reads this to
 // decide how to scale, align, and color-correct a camera frame before
 // handing it to the model.
 //
@@ -183,7 +183,7 @@ struct VLMCapabilities: Equatable {
     //     the language model. The lens dispatcher reacts by
     //     auto-swapping the active VLM to the bundled SmolVLM2-500M
     //     GGUF (handled by `recoverFromSmolVLMSelection` in
-    //     LensInferenceLoop.swift), which routes through llama.cpp +
+    //     VisionInferenceLoop.swift), which routes through llama.cpp +
     //     mtmd and avoids the bug entirely. An in-tree
     //     SmolVLM2RescueProcessor exists as a best-effort MLX rewrite
     //     but is not yet device-verified; the auto-route to the GGUF
@@ -198,7 +198,7 @@ struct VLMCapabilities: Equatable {
     // To add a new known-broken family: extend the static set below
     // AND update LENS_PIPELINE.md's troubleshooting table so future
     // readers know why their model was refused.
-    var isLensPipelineCompatible: Bool {
+    var isVisionPipelineCompatible: Bool {
         // Match by the architecture key written into VLMCapabilities
         // at load time (the NormalizedArchitecture rawValue). Anything
         // not on the broken list is allowed by default — opt-out, not
@@ -214,7 +214,7 @@ struct VLMCapabilities: Equatable {
     /// auto-swap to the bundled SmolVLM2 GGUF first, and only shows
     /// this reason if no recovery path is available.
     var incompatibilityReason: String {
-        guard !isLensPipelineCompatible else { return "" }
+        guard !isVisionPipelineCompatible else { return "" }
         return "The \(modelDisplayName) family (\(architecture)) has a known issue in the underlying mlx-swift-examples library — its prompt template doesn't agree with the encoder's tile count, which crashes on inference. SmolVLM2-500M (Q8 GGUF) ships bundled with the app and works through llama.cpp instead; Qwen3-VL-2B/4B/8B work too on Pro/Max devices."
     }
 

@@ -24,10 +24,10 @@ final class AppBridge: ObservableObject {
 
     /// Type-safe tab navigation. Centralises the int mapping in one place
     /// so call sites can write `AppBridge.shared.requestTab(.models)`.
-    enum Tab: Int { case camera = 0, assistant = 1, models = 2, mac = 3, voice = 4 }
+    enum Tab: Int { case home = 0, assistant = 1, models = 2, mac = 3, voice = 4 }
 
     enum ModelsSection: String {
-        case assistant, lens, voice, image
+        case assistant, vision, voice, image
     }
 
     @Published var requestedModelsSection: ModelsSection? = nil
@@ -98,9 +98,6 @@ final class AppBridge: ObservableObject {
         requestTab(.assistant)
     }
 
-    /// Jump to the live-caption camera tab.
-    func startLiveCaption() { requestTab(.camera) }
-
     /// Jump to the hands-free voice tab.
     func startVoiceChat() { requestTab(.voice) }
 
@@ -110,7 +107,7 @@ final class AppBridge: ObservableObject {
         let prefillPrompt: String
     }
 
-    func sendToAssistant(code: String, source: String = "Camera OCR") {
+    func sendToAssistant(code: String, source: String = "Share") {
         let prompt = """
         I captured the following code via \(source). Please review it:
 
@@ -216,7 +213,7 @@ final class AppBridge: ObservableObject {
             return
         }
         pendingSharedImage = image
-        requestedTab = Tab.camera.rawValue
+        requestedTab = Tab.assistant.rawValue
         ToastCenter.shared.info("Shared image received")
     }
 

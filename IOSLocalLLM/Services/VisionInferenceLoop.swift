@@ -60,7 +60,7 @@ struct MLXVLMExecutionProfile: Equatable, Sendable {
     }
 }
 
-// MARK: - LensInferenceLoop
+// MARK: - VisionInferenceLoop
 //
 // Sole owner of the Lens tab's vision-language model. Replaces the
 // streaming inference path that used to live in MLXVisionService;
@@ -94,9 +94,9 @@ struct MLXVLMExecutionProfile: Equatable, Sendable {
 // dispatches the actual GPU pass through MLXGenerationGate.
 
 @MainActor
-final class LensInferenceLoop: ObservableObject {
+final class VisionInferenceLoop: ObservableObject {
 
-    static let shared = LensInferenceLoop()
+    static let shared = VisionInferenceLoop()
 
     // MARK: - State
 
@@ -165,13 +165,13 @@ final class LensInferenceLoop: ObservableObject {
     /// Block new Lens requests during lifecycle transitions.
     func suspendNewRequests() {
         newRequestsSuspended = true
-        Diagnostics.shared.breadcrumb("Lens requests suspended", category: "lens")
+        Diagnostics.shared.breadcrumb("Vision requests suspended", category: "vision")
     }
 
     /// Re-enable Lens requests after returning to foreground.
     func resumeNewRequests() {
         newRequestsSuspended = false
-        Diagnostics.shared.breadcrumb("Lens requests resumed", category: "lens")
+        Diagnostics.shared.breadcrumb("Vision requests resumed", category: "vision")
     }
 
     #if DEBUG
@@ -253,8 +253,8 @@ final class LensInferenceLoop: ObservableObject {
         // Lifecycle guard: refuse loads during .inactive/.background transitions.
         guard !newRequestsSuspended else {
             Diagnostics.shared.breadcrumb(
-                "Lens switchTo blocked · requests suspended · \(repoID)",
-                category: "lens"
+                "Vision switchTo blocked · requests suspended · \(repoID)",
+                category: "vision"
             )
             return
         }
@@ -272,7 +272,7 @@ final class LensInferenceLoop: ObservableObject {
             if case .failed = state {
                 Diagnostics.shared.notice(
                     "VLM recovered from prior failure · \(repoID.components(separatedBy: "/").last ?? repoID)",
-                    category: "lens"
+                    category: "vision"
                 )
                 state = .ready
             }
@@ -290,7 +290,7 @@ final class LensInferenceLoop: ObservableObject {
         if let loadingRepoID {
             Diagnostics.shared.breadcrumb(
                 "VLM switch ignored · requested=\(repoID) · already loading=\(loadingRepoID)",
-                category: "lens"
+                category: "vision"
             )
             return
         }
@@ -364,7 +364,7 @@ final class LensInferenceLoop: ObservableObject {
         // residence cannot fit under the process ceiling even when the weight
         // gate alone looks green.
         if executionProfile.requiresSingleResidency && !preserveAssistant {
-            print("[LensInferenceLoop] heavy vision model — unloading LLM before load")
+            print("[VisionInferenceLoop] heavy vision model — unloading LLM before load")
             await CodingAssistantService.shared.unloadAndWaitForCleanup()
             await MLXGenerationGate.shared.clearCacheWhenIdle()
         }
@@ -391,10 +391,10 @@ final class LensInferenceLoop: ObservableObject {
         var available = UInt64(max(0, MemoryAdvisor.availableMemoryForModel))
         Diagnostics.shared.breadcrumb(
             "VLM preflight · \(repoID) · peak=\(Int64(peakNeeded).formattedBytes) · required=\(Int64(required).formattedBytes) · available=\(Int64(available).formattedBytes) · ceiling=\(MemoryAdvisor.processMemoryCeiling.formattedBytes) · footprint=\(MemoryAdvisor.physFootprint.formattedBytes) · kernel=\(MemoryAdvisor.processAvailableMemory.formattedBytes)",
-            category: "lens"
+            category: "vision"
         )
         if available < required && !preserveAssistant {
-            print("[LensInferenceLoop] memory tight (need \(required/1_048_576) MB including reserve, have \(available/1_048_576) MB) — unloading LLM to free RAM")
+            print("[VisionInferenceLoop] memory tight (need \(required/1_048_576) MB including reserve, have \(available/1_048_576) MB) — unloading LLM to free RAM")
             await CodingAssistantService.shared.unloadAndWaitForCleanup()
             // Flush the reclaimable MLX/Metal buffer pool now that the LLM
             // teardown has been awaited (Metal is idle — safe to clear). This
@@ -419,7 +419,7 @@ final class LensInferenceLoop: ObservableObject {
             let message = String(format:
                 "This vision model cannot load safely here. It needs ~%.0f MB including app headroom, but only %.0f MB is available. Pick Qwen3-VL 4B/2B or SmolVLM2 instead.",
                 needMB, haveMB)
-            Diagnostics.shared.warning(message, category: "lens")
+            Diagnostics.shared.warning(message, category: "vision")
             state = .failed(message)
             return
         }
@@ -554,14 +554,14 @@ final class LensInferenceLoop: ObservableObject {
                 state = .ready
                 Diagnostics.shared.notice(
                     "MLX VLM ready · \(shortName) · active=\(Int64(memoryAfterLoad.activeMemory).formattedBytes) · cache=\(Int64(memoryAfterLoad.cacheMemory).formattedBytes) · footprint=\(MemoryAdvisor.physFootprint.formattedBytes)",
-                    category: "lens"
+                    category: "vision"
                 )
                 LocalModelRegistry.setVisionSelection(candidate)
                 ToastCenter.shared.success("Vision model ready", detail: candidate)
                 // VLM is loaded and idle. Schedule a background
                 // prefetch of the LLM's weight files into the OS
                 // page cache. See ModelResidency for the rationale.
-                ModelResidency.shared.schedulePrefetch(currentTab: .lens)
+                ModelResidency.shared.schedulePrefetch(currentTab: .vision)
                 return
             } catch is MLXGenerationGate.Cancelled {
                 // Backgrounded or cancelAll() fired mid-load — clean
@@ -575,7 +575,7 @@ final class LensInferenceLoop: ObservableObject {
                 lastError = error.localizedDescription
                 Diagnostics.shared.warning(
                     "VLM candidate failed · \(candidate) · \(error.localizedDescription)",
-                    category: "lens"
+                    category: "vision"
                 )
                 container = nil
                 activeRepoID = nil
@@ -652,7 +652,7 @@ final class LensInferenceLoop: ObservableObject {
         if previousRepo != nil || inflight != nil {
             Diagnostics.shared.breadcrumb(
                 "VLM drained before switch · \(previousRepo ?? "none") · footprint \(footprintBefore.formattedBytes) → \(MemoryAdvisor.physFootprint.formattedBytes)",
-                category: "lens"
+                category: "vision"
             )
         }
     }
@@ -750,7 +750,7 @@ final class LensInferenceLoop: ObservableObject {
         // prepareInputsForMultimodal that crashes for Idefics3 /
         // SmolVLM / SmolVLM2 — block it here before we hand control
         // to mlx-swift-examples.
-        if let caps = capabilities, !caps.isLensPipelineCompatible {
+        if let caps = capabilities, !caps.isVisionPipelineCompatible {
             if Self.recoverFromSmolVLMSelection(capabilities: caps) {
                 onComplete(0)
                 return
@@ -809,10 +809,10 @@ final class LensInferenceLoop: ObservableObject {
             )
             Diagnostics.shared.warning(
                 "VLM inference refused · \(activeRepoID ?? "unknown") · footprint=\(footprintBefore.formattedBytes) · activation=\(activationReserve.formattedBytes) · ceiling=\(processCeiling.formattedBytes)",
-                category: "lens"
+                category: "vision"
             )
             state = .failed(message)
-            ToastCenter.shared.error("Model is too large for Lens", detail: message)
+            ToastCenter.shared.error("Model is too large for image understanding", detail: message)
             onComplete(0)
             return
         }
@@ -833,7 +833,7 @@ final class LensInferenceLoop: ObservableObject {
         )
         self.lastModelInput = debugThumb
         self.lastModelInputInfo = info
-        print("[LensInferenceLoop] describe req=\(requestID) size=\(cg.width)×\(cg.height) prompt=\"\(prompt)\"")
+        print("[VisionInferenceLoop] describe req=\(requestID) size=\(cg.width)×\(cg.height) prompt=\"\(prompt)\"")
 
         let caps = capabilities
         inferenceTask?.cancel()
@@ -908,7 +908,7 @@ final class LensInferenceLoop: ObservableObject {
                                     }
                                     Diagnostics.shared.breadcrumb(
                                         "MLX VLM inference · \(caps?.architecture ?? "unknown") · tokens≤\(cap) · active=\(Int64(memoryAfter.activeMemory).formattedBytes) · cache=\(Int64(memoryAfter.cacheMemory).formattedBytes) · peak=\(Int64(memoryAfter.peakMemory).formattedBytes) · footprint \(footprintBefore.formattedBytes) → \(footprintAfter.formattedBytes)",
-                                        category: "lens"
+                                        category: "vision"
                                     )
                                 }
                             }
@@ -918,7 +918,7 @@ final class LensInferenceLoop: ObservableObject {
                 await MainActor.run {
                     self.state = .ready
                     // Re-arm prefetch now that the VLM is idle again.
-                    ModelResidency.shared.schedulePrefetch(currentTab: .lens)
+                    ModelResidency.shared.schedulePrefetch(currentTab: .vision)
                 }
             } catch is CancellationError {
                 await MainActor.run { self.state = .ready; onComplete(0) }
@@ -945,13 +945,13 @@ final class LensInferenceLoop: ObservableObject {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let stamp = ISO8601DateFormatter().string(from: Date())
             .replacingOccurrences(of: ":", with: "-")
-        let url = docs.appendingPathComponent("lens-model-input-\(stamp).png")
+        let url = docs.appendingPathComponent("vision-model-input-\(stamp).png")
         do {
             try png.write(to: url)
-            print("[LensInferenceLoop] saved model input → \(url.path)")
+            print("[VisionInferenceLoop] saved model input → \(url.path)")
             return url
         } catch {
-            print("[LensInferenceLoop] save failed: \(error)")
+            print("[VisionInferenceLoop] save failed: \(error)")
             return nil
         }
     }
@@ -1227,7 +1227,7 @@ final class LensInferenceLoop: ObservableObject {
 
         case .fixedTiling(let tile, _):
             // Defensive — should be unreachable behind the
-            // isLensPipelineCompatible guard for all currently-known
+            // isVisionPipelineCompatible guard for all currently-known
             // fixedTiling models (SmolVLM family).
             return fitToTileLongEdge(cg, tileSize: tile)
         }

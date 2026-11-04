@@ -436,7 +436,7 @@ final class CodingAssistantService: ObservableObject {
             isVisionChatCapable =
                 activeModel.supportsVision
                 && container == nil
-                && LensInferenceLoop.shared.sharedContainer(for: activeModel.repoID) != nil
+                && VisionInferenceLoop.shared.sharedContainer(for: activeModel.repoID) != nil
         }
     }
 
@@ -444,7 +444,7 @@ final class CodingAssistantService: ObservableObject {
     /// borrowed from Lens only when its full vision envelope fits; otherwise
     /// Assistant owns a smaller, bounded text container for the same package.
     private var resolvedMLXContainer: ModelContainer? {
-        container ?? LensInferenceLoop.shared.sharedContainer(for: activeModel.repoID)
+        container ?? VisionInferenceLoop.shared.sharedContainer(for: activeModel.repoID)
     }
 
     private var hasResidentRuntime: Bool {
@@ -1294,7 +1294,7 @@ final class CodingAssistantService: ObservableObject {
     }
 
     /// Sum the weight-file sizes under `dir`. Mirrors the helper in
-    /// LensInferenceLoop; kept local here so this file doesn't depend
+    /// VisionInferenceLoop; kept local here so this file doesn't depend
     /// on the lens module. Returns 0 if no recognizable weight files
     /// are present.
     private static nonisolated func sumWeightFiles(in dir: URL) -> UInt64 {
@@ -1430,7 +1430,7 @@ final class CodingAssistantService: ObservableObject {
         // The Lens runtime is the neutral owner for unified text+vision
         // packages. If it already has this model, attach instantly instead of
         // unloading it and loading identical weights through MLXLLM.
-        if let _ = LensInferenceLoop.shared.sharedContainer(for: activeModel.repoID) {
+        if let _ = VisionInferenceLoop.shared.sharedContainer(for: activeModel.repoID) {
             FastVLMService.shared.unload()
             await LlamaCppVLMService.shared.unloadAndWaitForCleanup()
             state = .ready
@@ -1701,7 +1701,7 @@ final class CodingAssistantService: ObservableObject {
 
         let isDualRole = DualRoleModelPolicy.isTextAndVision(repoID: loadingModel.repoID)
         let requiredVisionBytes = isDualRole
-            ? LensInferenceLoop.requiredVisionLoadBytes(repoID: loadingModel.repoID)
+            ? VisionInferenceLoop.requiredVisionLoadBytes(repoID: loadingModel.repoID)
             : 0
         let availableBytes = UInt64(max(0, MemoryAdvisor.availableMemoryForModel))
         let shouldShareVisionRuntime = DualRoleModelPolicy.shouldShareRuntime(
@@ -1723,15 +1723,15 @@ final class CodingAssistantService: ObservableObject {
             defer { Self.clearMLXLoadInFlightMarker() }
             updateLoadDebug(
                 operation: "Preparing shared text + vision runtime",
-                detail: "The selected model is being loaded through the Lens runtime."
+                detail: "The selected model is being loaded through the vision runtime."
             )
-            await LensInferenceLoop.shared.switchTo(
+            await VisionInferenceLoop.shared.switchTo(
                 repoID: loadingModel.repoID,
                 preserveMatchingAssistant: true
             )
             guard activeLoadID == loadID, activeModel.id == loadingModel.id else { return }
             activeLoadID = nil
-            if LensInferenceLoop.shared.sharedContainer(for: loadingModel.repoID) != nil {
+            if VisionInferenceLoop.shared.sharedContainer(for: loadingModel.repoID) != nil {
                 state = .ready
                 refreshVisionChatCapability()
                 let elapsedMs = Date().timeIntervalSince(loadStart) * 1_000
@@ -1746,7 +1746,7 @@ final class CodingAssistantService: ObservableObject {
                 )
                 ModelUsageTracker.shared.recordLoadTime(modelID: loadingModel.id, ms: elapsedMs)
                 // The Assistant status row owns model-ready feedback.
-            } else if case .failed(let message) = LensInferenceLoop.shared.state {
+            } else if case .failed(let message) = VisionInferenceLoop.shared.state {
                 state = .failed(message)
                 finishLoadDebug(phase: .failed, operation: "Shared runtime failed", detail: message, error: message)
             } else {

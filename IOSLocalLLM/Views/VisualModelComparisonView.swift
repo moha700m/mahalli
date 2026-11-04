@@ -505,7 +505,7 @@ struct VisualModelComparisonView: View {
         // We bridge to async with a CheckedContinuation that fires on
         // onComplete — onToken pumps the streamed text into the UI.
         await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
-            LensInferenceLoop.shared.describe(
+            VisionInferenceLoop.shared.describe(
                 image: image,
                 prompt: prompt,
                 maxTokens: 160,

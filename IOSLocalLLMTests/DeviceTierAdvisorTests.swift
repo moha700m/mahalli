@@ -96,7 +96,7 @@ final class DeviceTierAdvisorTests: XCTestCase {
 
     func test_loadSpikeMultiplier_isAtLeastValidatedValue() {
         // loadSpikeMultiplier is the single weights->peak factor used by
-        // callers that start from RAW weight bytes (e.g. LensInferenceLoop's
+        // callers that start from RAW weight bytes (e.g. VisionInferenceLoop's
         // VLM sizing). 1.4x previously produced EXC_RESOURCE on load, so it
         // must stay >= 1.6x. NOTE: it is applied exactly ONCE on that path and
         // is NOT used by safetyBlocker — estimatedFootprint already returns a
@@ -232,13 +232,13 @@ final class DeviceTierAdvisorTests: XCTestCase {
         // Load peak: 3.2 GB × 1.6 = 5.12 GB.
         // Inference peak: 3.2 GB + 1.2 GB = 4.4 GB.
         // They do not coexist, so the envelope is 5.12 GB, not 6.32 GB.
-        let gemmaPeak = LensInferenceLoop.phaseAwarePeakBytes(
+        let gemmaPeak = VisionInferenceLoop.phaseAwarePeakBytes(
             weightBytes: weights,
             activationReserveBytes: activations
         )
         XCTAssertEqual(gemmaPeak, 5_120_000_000)
         XCTAssertEqual(
-            LensInferenceLoop.requiredLoadBytes(peakBytes: gemmaPeak),
+            VisionInferenceLoop.requiredLoadBytes(peakBytes: gemmaPeak),
             5_620_000_000
         )
     }
@@ -766,11 +766,11 @@ final class DeviceTierAdvisorTests: XCTestCase {
     }
 
     func test_bonsai27VisionEnvelopeStillExceedsIPhoneCeiling() {
-        let visionPeak = LensInferenceLoop.phaseAwarePeakBytes(
+        let visionPeak = VisionInferenceLoop.phaseAwarePeakBytes(
             weightBytes: 5_130_000_000,
             activationReserveBytes: 800_000_000
         )
-        let required = LensInferenceLoop.requiredLoadBytes(peakBytes: visionPeak)
+        let required = VisionInferenceLoop.requiredLoadBytes(peakBytes: visionPeak)
 
         XCTAssertGreaterThan(
             required,

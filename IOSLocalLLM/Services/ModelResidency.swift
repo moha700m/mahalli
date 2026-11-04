@@ -22,7 +22,7 @@ import os
 //      never actually allocate Metal buffers — just prime the kernel's
 //      VM cache).
 //
-// Why a separate type: CodingAssistantService and LensInferenceLoop
+// Why a separate type: CodingAssistantService and VisionInferenceLoop
 // don't know about each other, and shouldn't — each is responsible for
 // its own model lifecycle. The cross-model residency policy needs a
 // neutral place to live, and the prefetch coordinator needs to cancel
@@ -122,7 +122,7 @@ final class ModelResidency: ObservableObject {
         // differs slightly.
         let vlmBytes: UInt64 = runtime == .llamaCpp
             ? LlamaCppVLMService.estimatedWeightBytes(repoID: repoID)
-            : LensInferenceLoop.estimatedWeightBytes(repoID: repoID)
+            : VisionInferenceLoop.estimatedWeightBytes(repoID: repoID)
         // Compare raw weight sum to the budget — the budget table
         // already accounts for activation / KV-cache / app-overhead
         // headroom within the per-process memory limit. Multiplying
@@ -156,7 +156,7 @@ final class ModelResidency: ObservableObject {
     ///
     /// Call from CodingAssistantService when the LLM finishes loading
     /// or generating, passing `.assistant` as the currently-active tab
-    /// (so we prefetch the VLM's files). Symmetric from LensInferenceLoop.
+    /// (so we prefetch the VLM's files). Symmetric from VisionInferenceLoop.
     func schedulePrefetch(currentTab: ActiveTab, idleDelay: TimeInterval = 4.0) {
         prefetchTask?.cancel()
         // Runtime policy is single-resident, so the other tab always benefits
@@ -186,12 +186,12 @@ final class ModelResidency: ObservableObject {
 
     enum ActiveTab {
         case assistant
-        case lens
+        case vision
 
         var opposite: ActiveTab {
             switch self {
-            case .assistant: return .lens
-            case .lens:      return .assistant
+            case .assistant: return .vision
+            case .vision:      return .assistant
             }
         }
     }
@@ -206,7 +206,7 @@ final class ModelResidency: ObservableObject {
         case .assistant:
             let llm = await MainActor.run { AssistantModelCatalog.currentSelection() }
             dir = CodingAssistantService.preStagedDirectory(for: llm)
-        case .lens:
+        case .vision:
             let storedVisionID = await MainActor.run { AppSettings.shared.cameraVisualModelID }
             let selectionID = await MainActor.run {
                 LocalModelRegistry.storedVisionSelectionID(storedVisionID)
@@ -222,7 +222,7 @@ final class ModelResidency: ObservableObject {
             // Pick the right stagedDirectory based on backend.
             dir = runtime == .llamaCpp
                 ? LlamaCppVLMService.stagedDirectory(for: repoID)
-                : LensInferenceLoop.stagedDirectory(for: repoID)
+                : VisionInferenceLoop.stagedDirectory(for: repoID)
         }
         guard let dir else { return }
 
