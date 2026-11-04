@@ -505,6 +505,9 @@ enum AssistantModelCatalog {
     /// with its own model while leaving the user's default untouched.
     @MainActor
     static func selection(forStoredID stored: String) -> AssistantModel? {
+        if !CoreAICapability.isCompiledIn, stored.hasPrefix("coreai:") {
+            return resolveNonPreset(id: stored)
+        }
         if let preset = presets.first(where: { $0.id == stored }) { return preset }
         if let coreAI = CoreAIZooCatalog.assistantModel(forSelectionID: stored) {
             return coreAI
@@ -518,8 +521,9 @@ enum AssistantModelCatalog {
     }
 
     static func model(forID id: String) -> AssistantModel? {
-        presets.first { $0.id == id }
-            ?? CoreAIZooCatalog.assistantModel(forSelectionID: id)
+        if let preset = presets.first(where: { $0.id == id }) { return preset }
+        guard CoreAICapability.isCompiledIn else { return nil }
+        return CoreAIZooCatalog.assistantModel(forSelectionID: id)
     }
 
     // MARK: - Non-preset resolution

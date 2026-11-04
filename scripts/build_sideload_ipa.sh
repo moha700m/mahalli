@@ -61,13 +61,15 @@ PLIST="$APP/Info.plist"
   || die "wrong version"
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST")" == "$BUILD" ]] \
   || die "wrong build"
-[[ "$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$PLIST")" == "27.0" ]] \
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$PLIST")" == "18.0" ]] \
   || die "wrong minimum OS"
 [[ -f "$APP/PrivacyInfo.xcprivacy" ]] || die "privacy manifest missing"
 [[ -d "$APP/PlugIns/MahalliShare.appex" ]] || die "share extension missing"
 [[ -d "$APP/Frameworks/llama.framework" ]] || die "llama framework missing"
 [[ -d "$APP/Frameworks/whisper.framework" ]] || die "whisper framework missing"
-otool -L "$APP/Mahalli" | grep -q 'CoreAI.framework' || die "CoreAI framework is not linked"
+if otool -L "$APP/Mahalli" | grep -q 'CoreAI.framework'; then
+  die "CoreAI framework must not be linked in the iOS 18 build"
+fi
 
 python3 scripts/collect_sideload_notices.py "$APP" build/sideload-archive.log
 

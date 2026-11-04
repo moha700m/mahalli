@@ -190,16 +190,18 @@ struct AssistantModelPickerView: View {
                             onShowLimitOptions: ApplePrivateCloud.showLimitIncreaseOptions
                         )
                     }
-                    if !installedCoreAIAssistants.isEmpty {
-                        modelSection(title: "Core AI · Installed") {
-                            LazyVStack(spacing: 12) {
-                                ForEach(installedCoreAIAssistants) { model in
-                                    row(for: model)
+                    if CoreAICapability.isCompiledIn {
+                        if !installedCoreAIAssistants.isEmpty {
+                            modelSection(title: "Core AI · Installed") {
+                                LazyVStack(spacing: 12) {
+                                    ForEach(installedCoreAIAssistants) { model in
+                                        row(for: model)
+                                    }
                                 }
                             }
+                        } else if !downloadedOnly {
+                            coreAIEmptySection
                         }
-                    } else if !downloadedOnly {
-                        coreAIEmptySection
                     }
                     if downloadedOnly {
                         if downloadedOnlyAssistantModels.isEmpty
