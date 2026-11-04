@@ -275,6 +275,7 @@ struct DiagnosticsView: View {
     /// One-button controlled A/B for the 35B family: Exact vs Bounded
     /// Prefetch through the production Assistant path with a fixed profile.
 
+    @MainActor
     private func speedRunSummary(_ run: Edge0SpeedABRunner.RunResult) -> String {
         var parts: [String] = [
             "mode \(run.effectiveMode)",
